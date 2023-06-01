@@ -12,7 +12,6 @@ public class Question {
 	private String privateChk;
 	private String createdate;
 	private String updatedate;
-	
 	public int getqNo() {
 		return qNo;
 	}

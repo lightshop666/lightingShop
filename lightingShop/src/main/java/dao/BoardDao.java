@@ -5,6 +5,7 @@ import java.sql.*;
 import java.util.*;
 
 public class BoardDao {
+	
 	// 문의글 리스트 조회
 	public ArrayList<Question> selectQuestionListByPage(int beginRow, int rowPerPage) throws Exception {
 		ArrayList<Question> list = new ArrayList<>();
