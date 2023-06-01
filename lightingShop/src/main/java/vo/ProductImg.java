@@ -8,6 +8,7 @@ public class ProductImg {
 	private String createdate;
 	private String updatedate;
 	
+	
 	public int getProductNo() {
 		return productNo;
 	}
