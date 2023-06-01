@@ -9,6 +9,7 @@ public class Question {
 	private String qContent;
 	private String qPw;
 	private String aChk;
+	private String privateChk;
 	private String createdate;
 	private String updatedate;
 	
@@ -59,6 +60,12 @@ public class Question {
 	}
 	public void setaChk(String aChk) {
 		this.aChk = aChk;
+	}
+	public String getPrivateChk() {
+		return privateChk;
+	}
+	public void setPrivateChk(String privateChk) {
+		this.privateChk = privateChk;
 	}
 	public String getCreatedate() {
 		return createdate;
