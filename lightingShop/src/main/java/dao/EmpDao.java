@@ -211,7 +211,7 @@ public class EmpDao {
 		//업로드 파일이 이미지 파일 여부 확인
 		if(mRequest.getOriginalFileName(productFile) != null){
 			String originFilename = mRequest.getOriginalFileName(productFile);
-			
+	
 			if(mRequest.getContentType(productFile).equals("image/jpeg")==false){
 				System.out.println("이미지파일이 아닙니다");
 				 String saveFilename = mRequest.getFilesystemName(productFile); //저장된 파일네임 가져오기
