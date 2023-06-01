@@ -16,7 +16,15 @@
 	<%
 		if(session.getAttribute("loginCustomerId") == null) {
 	%>
-	<!-- 로그인 -->
+	<!-- 로그인 폼-->
+	<div>
+		<lable>Email address</lable>
+		<input type="email" class="form-control" placeholder="Enter email">
+	</div>
+	<div>
+		<lable>Password</lable>
+		<input type="email" class="form-control" placeholder="Password">
+	</div>
 	
 	<%
 		}
