@@ -8,11 +8,21 @@ public class Product {
 	private String productStatus;
 	private String productStock;
 	private String productInfo;
-	private int cstmPoint;
-	private String cstmLastLogin;
-	private String cstmAgree;
 	private String createdate;
 	private String updatedate;
+	
+	public String getCreatedate() {
+		return createdate;
+	}
+	public void setCreatedate(String createdate) {
+		this.createdate = createdate;
+	}
+	public String getUpdatedate() {
+		return updatedate;
+	}
+	public void setUpdatedate(String updatedate) {
+		this.updatedate = updatedate;
+	}
 	public int getProductNo() {
 		return productNo;
 	}
@@ -55,35 +65,6 @@ public class Product {
 	public void setProductInfo(String productInfo) {
 		this.productInfo = productInfo;
 	}
-	public int getCstmPoint() {
-		return cstmPoint;
-	}
-	public void setCstmPoint(int cstmPoint) {
-		this.cstmPoint = cstmPoint;
-	}
-	public String getCstmLastLogin() {
-		return cstmLastLogin;
-	}
-	public void setCstmLastLogin(String cstmLastLogin) {
-		this.cstmLastLogin = cstmLastLogin;
-	}
-	public String getCstmAgree() {
-		return cstmAgree;
-	}
-	public void setCstmAgree(String cstmAgree) {
-		this.cstmAgree = cstmAgree;
-	}
-	public String getCreatedate() {
-		return createdate;
-	}
-	public void setCreatedate(String createdate) {
-		this.createdate = createdate;
-	}
-	public String getUpdatedate() {
-		return updatedate;
-	}
-	public void setUpdatedate(String updatedate) {
-		this.updatedate = updatedate;
-	}
+
 	
 }
