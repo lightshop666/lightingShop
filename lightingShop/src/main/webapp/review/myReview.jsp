@@ -82,6 +82,16 @@
 <h1>나의 리뷰</h1>
 	<div>
 		<table class="table table-bordered">
+		<!-- 
+			템플릿 적용 후
+			상품명
+			주문일자
+			리뷰타이틀
+			리뷰콘텐츠
+			리뷰사진
+			작성일자
+			수정삭제버튼		
+		 -->
 			<tr>
 			    <th>Order Product No</th>
 			    <th>Review Title</th>
@@ -117,7 +127,37 @@
 
 		</table>
 	</div>
-
+	<div class="center" >
+	<%
+		//1번 페이지보다 작은데 나오면 음수로 가버린다
+		if (minPage > 1) {
+	%>
+			<a href="<%=request.getContextPath()%>/review/myReview.jsp?currentPage=<%=minPage-pageRange%>">이전</a>
+	
+	<%	
+		}
+		for(int i=minPage; i <= maxPage; i=i+1){
+			if ( i == currentPage){		
+	%>
+				<span><%=i %></span>
+	<%
+			}else{
+	%>
+				<a href="<%=request.getContextPath()%>/review/myReview.jsp?currentPage=<%=i%>"><%=i %></a>
+	<%
+			}
+		}
+	
+		//maxPage와 lastPage가 같지 않으면 여분임으로 마지막 페이지목록일거다.
+		if(maxPage != lastPage ){
+	%>
+			<!-- maxPage+1해도 동일하다 -->
+			<a href="<%=request.getContextPath()%>/review/myReview.jsp?currentPage=<%=minPage+pageRange%>">다음</a>
+	<%
+		}
+	%>
+	
+	</div>
 </div>
 </body>
 </html>

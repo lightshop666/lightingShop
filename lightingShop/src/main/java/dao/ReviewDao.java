@@ -11,7 +11,7 @@ import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 public class ReviewDao {
 	
 	
-//리뷰+리뷰 이미지 테이블 출력
+//마이리뷰 출력
 	/*	JOIN 문
 	SELECT
 	    r.order_product_no AS orderProductNo,
@@ -30,8 +30,8 @@ public class ReviewDao {
 	    	INNER JOIN orders o ON op.order_no = o.order_no
 	    		INNER JOIN product p ON op.product_no = p.product_no
 	WHERE
-	    o.id = "
-	    AND op.delivery_status = '구매확정'
+	    o.id = ?
+	    AND r.review_written = 'Y'
 	ORDER BY
 	    r.createdate DESC
 	LIMIT ?, ?	
@@ -46,7 +46,7 @@ public class ReviewDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String mainSql ="SELECT r.order_product_no AS orderProductNo, r.review_title AS reviewTitle,  r.review_content AS reviewContent, r.createdate AS createdate, r.updatedate AS updatedate, r.review_ori_filename AS reviewOriFilename, r.review_save_filename AS reviewSaveFilename, r.review_filetype AS reviewFiletype, p.product_name AS productName, o.createdate AS orderDate FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no INNER JOIN product p ON op.product_no = p.product_no WHERE o.id = ? AND op.delivery_status = '구매확정' ORDER BY  r.createdate DESC LIMIT ?, ?";
+		String mainSql ="SELECT r.order_product_no AS orderProductNo, r.review_title AS reviewTitle,  r.review_content AS reviewContent, r.createdate AS createdate, r.updatedate AS updatedate, r.review_ori_filename AS reviewOriFilename, r.review_save_filename AS reviewSaveFilename, r.review_filetype AS reviewFiletype, p.product_name AS productName, o.createdate AS orderDate FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no INNER JOIN product p ON op.product_no = p.product_no WHERE o.id = ? AND r.review_written = 'Y' ORDER BY  r.createdate DESC LIMIT ?, ?";
 		PreparedStatement mainStmt = conn.prepareStatement(mainSql);
 		mainStmt.setString(1, loginMemberId);
 		//페이징 처리를 위한 SQL 쿼리문에서의 인덱스는 0부터 시작하므로 beginRow를 1을 빼서 0부터 시작하도록 설정
@@ -86,7 +86,7 @@ public class ReviewDao {
 	(SELECT 1 FROM order_product op 							-- 교차 엔티티 order_product 조인
 		INNER JOIN orders o ON op.order_no = o.order_no 		-- 주문 테이블과 조인
 		WHERE o.id = ? 											-- 주문 테이블의 id 필드를 입력 파라미터로 필터링
-		AND op.delivery_status = '구매확정' 						-- 주문 상태가 '구매확정'인지 확인
+		AND r.review_written = 'Y'								-- 주문 상태가 '구매확정'인지 확인
 		AND op.order_product_no = r.order_product_no 			-- 주문 상품 번호가 리뷰 테이블과 일치하는지 확인
 	);
 	 */
@@ -95,7 +95,7 @@ public class ReviewDao {
 	    DBUtil dbUtil = new DBUtil();
 	    Connection conn = dbUtil.getConnection();
 
-	    String sql = "SELECT COUNT(*) FROM review r WHERE EXISTS (SELECT 1 FROM order_product op INNER JOIN orders o ON op.order_no = o.order_no WHERE o.id = ? AND op.delivery_status = '구매확정' AND op.order_product_no = r.order_product_no)";
+	    String sql = "SELECT COUNT(*) FROM review r WHERE EXISTS (SELECT 1 FROM order_product op INNER JOIN orders o ON op.order_no = o.order_no WHERE o.id = ? AND r.review_written = 'Y' AND op.order_product_no = r.order_product_no)";
 
 	    PreparedStatement stmt = conn.prepareStatement(sql);
 	    stmt.setString(1, loginMemberId);
@@ -108,8 +108,80 @@ public class ReviewDao {
 	}
 
 //리뷰 테이블 전체 출력
-	
-	
+	/*
+	SELECT
+	    r.order_product_no AS orderProductNo,
+	    r.review_title AS reviewTitle,
+	    r.review_content AS reviewContent,
+	    r.createdate AS createdate,
+	    r.updatedate AS updatedate,
+	    r.review_save_filename AS reviewSaveFilename,
+	    r.review_filetype AS reviewFiletype,
+	    p.product_no AS productNo,
+	    p.product_name AS productName,
+	    p.product_info AS productInfo,
+	    p.product_status AS productStatus,
+	    o.order_no AS orderNo,
+	    op.delivery_status AS orderNo,
+	    o.createdate AS orderDate,
+	    pi.product_save_filename AS productSaveFilename,
+	    pi.product_filetype AS productFileType
+	FROM
+	    review r
+		    INNER JOIN order_product op ON r.order_product_no = op.order_product_no
+			    INNER JOIN orders o ON op.order_no = o.order_no
+				    INNER JOIN product p ON op.product_no = p.product_no
+				    	INNER JOIN product_img pi ON p.product_no = pi.product_no
+	WHERE
+	    r.review_written = 'Y'
+	ORDER BY
+	    r.createdate DESC
+	LIMIT ?, ?	
+
+	 * */
+	public ArrayList<HashMap<String, Object>> allReviewListByPage(int beginRow, int rowPerPage) throws Exception {
+		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+		//디비 호출
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		
+		String mainSql ="SELECT r.order_product_no AS orderProductNo, r.review_title AS reviewTitle, r.review_content AS reviewContent, r.createdate AS createdate, r.updatedate AS updatedate, r.review_save_filename AS reviewSaveFilename, r.review_filetype AS reviewFiletype, p.product_no AS productNo, p.product_name AS productName, p.product_info AS productInfo, p.product_status AS productStatus, o.order_no AS orderNo, op.delivery_status AS orderNo, o.createdate AS orderDate, pi.product_save_filename AS productSaveFilename, pi.product_filetype AS productFileType FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no INNER JOIN product p ON op.product_no = p.product_no INNER JOIN product_img pi ON p.product_no = pi.product_no WHERE r.review_written = 'Y' ORDER BY r.createdate DESC LIMIT ?, ?";
+		PreparedStatement mainStmt = conn.prepareStatement(mainSql);
+		//페이징 처리를 위한 SQL 쿼리문에서의 인덱스는 0부터 시작하므로 beginRow를 1을 빼서 0부터 시작하도록 설정
+		mainStmt.setInt(1, beginRow - 1);
+		mainStmt.setInt(2, rowPerPage);
+		
+		ResultSet mainRs = mainStmt.executeQuery();
+		
+		// 결과셋 받아오기
+		while (mainRs.next()) {
+		    HashMap<String, Object> reviewData = new HashMap<>();
+		    reviewData.put("orderProductNo", mainRs.getInt("orderProductNo"));
+		    reviewData.put("reviewTitle", mainRs.getString("reviewTitle"));
+		    reviewData.put("reviewContent", mainRs.getString("reviewContent"));
+		    reviewData.put("createdate", mainRs.getString("createdate"));
+		    reviewData.put("updatedate", mainRs.getString("updatedate"));
+		    reviewData.put("reviewSaveFilename", mainRs.getString("reviewSaveFilename"));
+		    reviewData.put("reviewFiletype", mainRs.getString("reviewFiletype"));
+		    reviewData.put("productNo", mainRs.getInt("productNo"));
+		    reviewData.put("productName", mainRs.getString("productName"));
+		    reviewData.put("productInfo", mainRs.getString("productInfo"));
+		    reviewData.put("productStatus", mainRs.getString("productStatus"));
+		    reviewData.put("orderNo", mainRs.getInt("orderNo"));
+		    reviewData.put("delivery", mainRs.getString("delivery"));
+		    reviewData.put("orderDate", mainRs.getString("orderDate"));
+		    reviewData.put("productSaveFilename", mainRs.getString("productSaveFilename"));
+		    reviewData.put("productFileType", mainRs.getString("productFileType"));
+
+		    list.add(reviewData);
+		}
+
+
+
+		System.out.println(list+ "<--ArrayList-- ReviewDao.allReviewListByPage");
+
+		return list;
+	}
 	
 	
 //리뷰 테이블 전체 row
