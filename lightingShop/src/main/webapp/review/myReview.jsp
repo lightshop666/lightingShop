@@ -1,7 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="dao.*"%>
+<%@ page import="vo.*" %>
 <%@ page import="java.util.*"%>
 <%
+	//세션 로그인 확인
+	String loginMemberId = "guest";
+	if(session.getAttribute("loginMemberId") != null) {
+		loginMemberId = (String)session.getAttribute("loginMemberId");
+	}
 	//모델 호출
 	ReviewDao reviewDao = new ReviewDao();
 	
@@ -42,7 +48,7 @@
 	}
 	
 	//Review 출력
-	ArrayList<HashMap<String, Object>> reviewList  = reviewDao.selectReviewListByPage(beginRow, rowPerPage);
+	ArrayList<Object> reviewList  = reviewDao.selectReviewListByPage(beginRow, rowPerPage, loginMemberId);
 %>
 <!DOCTYPE html>
 <html>
@@ -51,8 +57,38 @@
 <title>My Review Page</title>
 </head>
 <body>
+<div class="container">	
+	<div>
+		<table class="table table-bordered">
+		<%
+			for (Object row : reviewList) {
+			    // row 리스트에서 Review 객체와 해시맵을 분리하여 변수에 할당
+			    ArrayList<Object> rowData = (ArrayList<Object>) row;
+			    Review review = (Review) rowData.get(0);
+			    HashMap<String, Object> hashMap = (HashMap<String, Object>) rowData.get(1);
+		%>				
+				<tr>
+					<!-- Review 객체의 각 필드 값을 출력합니다 -->
+					<td><%= review.getOrderNo() %> </td>
+					<td><%= review.getReviewTitle() %> </td>
+					<td><%= review.getReviewContent() %> </td>
+					<td><%= review.getCreatedate() %> </td>
+					<td><%= review.getUpdatedate() %> </td>
+					<td><%= review.getReviewOriFilename() %> </td>
+					<td>
+						<img src="/img/review/<%= review.getReviewSaveFilename() %>" alt="Review Image">
+					</td>
+					<td><%= review.getReviewFiletype() %> </td>
+					<!-- 해시맵에서 productName과 orderDate 값을 출력합니다 -->
+					<td><%= hashMap.get("productName") %> </td>
+					<td><%= hashMap.get("orderDate") %> </td>
+				</tr>
+		<%
+			}
+		%>
+		</table>
+	</div>
 
-
-
+</div>
 </body>
 </html>
