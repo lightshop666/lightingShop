@@ -13,7 +13,7 @@ public class BoardDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT q_no qNo, q_title qTitle, id, a_chk aChk, q_pw qPw, createdate FROM question ORDER BY createdate DESC LIMIT ?, ?";
+		String sql = "SELECT q_no qNo, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate FROM question ORDER BY createdate DESC LIMIT ?, ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, beginRow);
 		stmt.setInt(2, rowPerPage);
@@ -23,59 +23,90 @@ public class BoardDao {
 			Question q = new Question();
 			q.setqNo(rs.getInt("qNo"));
 			q.setqTitle(rs.getString("qTitle"));
-			q.setId(rs.getString("id"));
+			q.setId(rs.getString("qName"));
 			q.setaChk(rs.getString("aChk"));
-			q.setqPw(rs.getString("qPw"));
+			q.setqPw(rs.getString("privateChk"));
 			q.setCreatedate(rs.getString("createdate"));
 			list.add(q);
 		}
 		return list;
 	}
 	
-	// 문의글 비밀번호 조회
-	public String selectQuestionOnePw(int qNo) throws Exception {
-		String qPw = "";
-		
+	// 문의글 비밀번호 일치 불일치 조회
+	public boolean questionOnePwChk(int qNo, String inputPw) throws Exception {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT q_pw qPw FROM question WHERE q_no = ?";
+		String sql = "SELECT q_pw FROM question WHERE q_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, qNo);
 		ResultSet rs = stmt.executeQuery();
 		
+		String qPw = "";
 		if(rs.next()) {
 			qPw = rs.getString(1);
 		}
 		
-		return qPw;
+		if(qPw.equals(inputPw)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
-	// 문의글 상세보기
-	public Question selectQuestionOne(int qNo) throws Exception {
+	// 문의글 상세보기 (문의내용 + 답변내용 join)
+	public HashMap<String, Object> selectQuestionOne(int qNo) throws Exception {
+		HashMap<String, Object> map = new HashMap<>();
 		Question question = null;
+		Answer answer = null;
 		
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
-		
-		String sql = "SELECT q_no qNo, product_no productNo, id, q_category qCategory, q_title qTitle, q_content qContent, a_chk aChk, createdate, updatedate FROM question WHERE q_no = ?";
+		/*
+			SELECT
+				q.q_no qNo, -- 문의글 번호
+				q.product_no productNo, -- 상품번호 (상품 미선택시 관리자 번호: 1)
+				q.id qId, -- 문의글 작성자 아이디 (비회원은 guest)
+				q.q_name qName, -- 문의글 작성자 이름
+				q.q_category qCategory, -- 문의 카테고리 (상품/교환환불/결제/배송/기타)
+				q.q_title qTitle, -- 문의글 제목
+				q.q_content qContent, -- 문의글 내용
+				q.private_chk qPrivateChk, -- 문의글 비공개 유무
+				q.createdate qCreatedate, -- 문의글 작성일자
+				q.updatedate qUpdatedate, -- 문의글 수정일자
+				a.a_content aContent, -- 답변 내용
+				a.createdate aCreatedate, -- 답변 작성일자
+				a.updatedate aUpdatedate -- 답변 수정일자
+			FROM question q
+			LEFT JOIN answer a
+			ON q.q_no = a.q_no
+			WHERE q.q_no = ?
+		*/
+		String sql = "SELECT q.q_no qNo, q.product_no productNo, q.id qId, q.q_name qName, q.q_category qCategory, q.q_title qTitle, q.q_content qContent, q.private_chk qPrivateChk, q.createdate qCreatedate, q.updatedate qUpdatedate, a.a_content aContent, a.createdate aCreatedate, a.updatedate aUpdatedate FROM question q LEFT JOIN answer a ON q.q_no = a.q_no WHERE q.q_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, qNo);
 		ResultSet rs = stmt.executeQuery();
 		
 		if(rs.next()) {
 			question = new Question();
+			answer = new Answer();
 			question.setqNo(rs.getInt("qNo"));
 			question.setProductNo(rs.getInt("productNo"));
-			question.setId(rs.getString("id"));
+			question.setId(rs.getString("qId"));
+			question.setqName(rs.getString("qName"));
 			question.setqCategory(rs.getString("qCategory"));
 			question.setqTitle(rs.getString("qTitle"));
 			question.setqContent(rs.getString("qContent"));
-			question.setaChk(rs.getString("aChk"));
-			question.setCreatedate(rs.getString("createdate"));
-			question.setUpdatedate(rs.getString("updatedate"));
+			question.setPrivateChk(rs.getString("qPrivateChk"));
+			question.setCreatedate(rs.getString("qCreatedate"));
+			question.setUpdatedate(rs.getString("qUpdatedate"));
+			answer.setaContent(rs.getString("aContent"));
+			answer.setCreatedate(rs.getString("aCreatedate"));
+			answer.setUpdatedate(rs.getString("aUpdatedate"));
 		}
-		return question;
+		map.put("question", question);
+		map.put("answer", answer);
+		return map;
 	}
 	
 	// 문의글 작성
