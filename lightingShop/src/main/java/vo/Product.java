@@ -10,7 +10,14 @@ public class Product {
 	private String productInfo;
 	private String createdate;
 	private String updatedate;
+	private double productDiscount;
 	
+	public double getProductDiscount() {
+		return productDiscount;
+	}
+	public void setProductDiscount(double productDiscount) {
+		this.productDiscount = productDiscount;
+	}
 	public String getCreatedate() {
 		return createdate;
 	}

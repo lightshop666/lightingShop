@@ -4,8 +4,15 @@ public class Employees {
 	private String id;
 	private String empName;
 	private String empLevel;
+	private String empPhone;
 	private String createdate;
 	private String updatedate;
+	public String getEmpPhone() {
+		return empPhone;
+	}
+	public void setEmpPhone(String empPhone) {
+		this.empPhone = empPhone;
+	}
 	public String getId() {
 		return id;
 	}
