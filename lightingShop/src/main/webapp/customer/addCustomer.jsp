@@ -8,7 +8,6 @@
 		response.sendRedirect(request.getContextPath()+"/home.jsp");
 		return;
 	}
-	
 %>
 <!DOCTYPE html>
 <html>
@@ -20,7 +19,7 @@
 <h1>회원 가입 페이지</h1>
 
 	<form action="<%=request.getContextPath()%>/customer/addCustomerAction.jsp" method="post">
-		<table>
+		<table class="table">
 			<tr>
 				<td>아이디를 입력하세요</td>
 				<td>

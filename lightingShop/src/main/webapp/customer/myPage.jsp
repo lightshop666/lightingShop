@@ -1,8 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="dao.*"%>
 <%
+	//인코딩
+	request.setCharacterEncoding("UTF-8");
+
 	// 세션검사
-	if (session.getAttribute("loginCustomerEmail") != null) {
+	if (session.getAttribute("loginIdListId") != null) {
 		response.sendRedirect(request.getContextPath() + "/home.jsp");
 		return;
 	}
@@ -18,7 +21,7 @@
 <body>
 	<%
 		// 로그인했다면 마이페이지
-		if(session.getAttribute("loginCustomerEmail") != null) {
+		if(session.getAttribute("loginIdListId") != null) {
 	%>
 		<!-- 내정보 상세보기 -->
 		<a type="button" class="btn btn-dark" href="<%=request.getContextPath()%>/customer/customerOne.jsp" role="button">내정보 상세보기</a>
@@ -37,7 +40,7 @@
 	%>
 		<!-- 로그인 폼-->
 		<div>로고</div>
-		<form action="<%=request.getContextPath()%>/member/loginAction.jsp" method="post">
+		<form action="<%=request.getContextPath()%>/customer/loginAction.jsp" method="post">
 			<table>
 				<tr>
 					<td>아이디</td>
@@ -45,7 +48,7 @@
 				</tr>
 				<tr>
 					<td>비밀번호</td>
-					<td><input type="password" name="last_pw"></td>
+					<td><input type="password" name="lastPw"></td>
 				</tr>
 			</table>
 			<button type="submit">로그인</button>
