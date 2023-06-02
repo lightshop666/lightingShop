@@ -4,6 +4,7 @@ public class Question {
 	private int qNo;
 	private int productNo;
 	private String id;
+	private String qName;
 	private String qCategory;
 	private String qTitle;
 	private String qContent;
@@ -29,6 +30,12 @@ public class Question {
 	}
 	public void setId(String id) {
 		this.id = id;
+	}
+	public String getqName() {
+		return qName;
+	}
+	public void setqName(String qName) {
+		this.qName = qName;
 	}
 	public String getqCategory() {
 		return qCategory;
