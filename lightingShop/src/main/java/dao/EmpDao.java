@@ -279,17 +279,34 @@ public class EmpDao {
 	
 	//----------b.회원관리--------------------------//
 	////1) 회원목록
-	public ArrayList< HashMap<String, Object>> selectCustomerListByPage(int beginRow, int rowPerPage) throws Exception {
+	public ArrayList< HashMap<String, Object>> selectCustomerListByPage(String col, String ascDesc,int beginRow, int rowPerPage,String searchCol, String searchWord) throws Exception {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
-		// PreparedStatement
-		String customerSql = "SELECT c.id, c.cstm_name, c.cstm_last_login, c.createdate, il.active from customer c  Inner JOIN id_list il On c.id = il.id limit ?,?";
-		PreparedStatement customerStmt = conn.prepareStatement(customerSql); 
-		customerStmt.setInt(1,beginRow); 	
-		customerStmt.setInt(2,rowPerPage);
+		PreparedStatement customerStmt = null; 			
+			// PreparedStatement
+		String customerSql = "SELECT c.id, c.cstm_name, c.cstm_last_login, c.createdate, il.active FROM customer c INNER JOIN id_list il ON c.id = il.id ";
+		String additionalCondition = ""; // 추가 조건을 담을 변수
+
+		// 검색 및 정렬 조건에 따른 쿼리문 분기	
+		if (!searchWord.equals("") && col != null) {		
+		    // 검색조건, 정렬조건 둘 다 있는 경우
+		    additionalCondition = " ORDER BY " + col + " " + ascDesc + " WHERE " + searchCol + " LIKE %"+ searchWord + "%";
+		} else if (searchWord.equals("") && col != null) {
+		    // 검색조건 없이 정렬조건만 있는 경우
+		    additionalCondition = " ORDER BY " + col + " " + ascDesc;
+		} else if (!searchWord.equals("") && col == null) {
+		    // 검색조건만 있는 경우
+		    additionalCondition = " WHERE " + searchCol + " LIKE %" + searchWord + "%";
+		}
+
+		customerSql += additionalCondition + " LIMIT ?,?";
+
+		customerStmt = conn.prepareStatement(customerSql); 
+		customerStmt.setInt(1, beginRow); 	
+		customerStmt.setInt(2, rowPerPage);
+
 		// ResultSet
-		ResultSet customerRs = customerStmt.executeQuery();
-		
+		ResultSet customerRs = customerStmt.executeQuery();		
 		ArrayList<HashMap<String, Object>> customerList = new ArrayList<HashMap<String, Object>>();
 		while(customerRs.next()) {
 			HashMap<String, Object> customer = new HashMap<String, Object>();
@@ -391,14 +408,31 @@ public class EmpDao {
 	//----------c.직원관리--------------------------//
 	
 	////1) 직원목록
-	public ArrayList<HashMap<String, Object>> selectEmpListByPage(int beginRow, int rowPerPage) throws Exception {
+	public ArrayList<HashMap<String, Object>> selectEmpListByPage(String col, String ascDesc,int beginRow, int rowPerPage,String searchCol, String searchWord) throws Exception {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
-		// PreparedStatement
-		String empSql = "SELECT e.id, e.emp_name, il.last_pw, e.createdate,e.updatedate, il.active from employees e  Inner JOIN id_list il On e.id = il.id limit ?,?";
+		
+		String empSql = "SELECT e.id, e.emp_name, il.last_pw, e.createdate, e.updatedate, il.active FROM employees e INNER JOIN id_list il ON e.id = il.id ";
+		String additionalCondition = ""; // 추가 조건을 담을 변수
+
+		// 검색 및 정렬 조건에 따른 쿼리문 분기	
+		if (!searchWord.equals("") && col != null) {		
+		    // 검색조건, 정렬조건 둘 다 있는 경우
+		    additionalCondition = " ORDER BY " + col + " " + ascDesc + " WHERE " + searchCol + " LIKE %" + searchWord + "%";
+		} else if (searchWord.equals("") && col != null) {
+		    // 검색조건 없이 정렬조건만 있는 경우
+		    additionalCondition = " ORDER BY " + col + " " + ascDesc;
+		} else if (!searchWord.equals("") && col == null) {
+		    // 검색조건만 있는 경우
+		    additionalCondition = " WHERE " + searchCol + " LIKE %" + searchWord + "%";
+		}
+
+		empSql += additionalCondition + " LIMIT ?,?";
+
 		PreparedStatement empStmt = conn.prepareStatement(empSql); 
-		empStmt.setInt(1,beginRow); 	
-		empStmt.setInt(2,rowPerPage);
+		empStmt.setInt(1, beginRow); 	
+		empStmt.setInt(2, rowPerPage);
+		
 		// ResultSet
 		ResultSet empRs = empStmt.executeQuery();
 		
@@ -442,7 +476,6 @@ public class EmpDao {
 				return activeRow;
 			}
 		
-
 	//3)직원 하나 상세 매소드
 		public Employees selectEmpOne(String id) throws Exception {
 			Employees emp = null;
@@ -567,16 +600,26 @@ public class EmpDao {
 	//----------d.주문관리--------------------------//
 	
 	//1) 주문관리페이지 주문 목록 메소드	
-		public ArrayList<HashMap<String, Object>> selectOrdersListByPage(String col, String ascDesc,int beginRow, int rowPerPage) throws Exception {
+		public ArrayList<HashMap<String, Object>> selectOrdersListByPage(String col, String ascDesc,int beginRow, int rowPerPage,String searchCol, String searchWord) throws Exception {
 			ArrayList<HashMap<String, Object>> orderList = new ArrayList<HashMap<String, Object>>();
 			DBUtil dbUtil = new DBUtil();
 			Connection conn = dbUtil.getConnection();
-			// PreparedStatement(select product 테이블 데이터)
-			String orderSql = "SELECT o.createdate, o.id, o.order_address, op.order_product_no, op.order_no, op.product_no, op.product_cnt, op.delivery_status from order_product op  LEFT Join orders o On o.order_no=op.order_no  ORDER BY " + col + " " + ascDesc + "LIMIT ?,?";
-			PreparedStatement orderStmt = conn.prepareStatement(orderSql); 
-			orderStmt.setInt(1,beginRow); 	// beginRow 가져올 행(시작)
-			orderStmt.setInt(2,rowPerPage);	// 페이지별 보여줄 row 수 
-			
+			String orderSql = "SELECT o.createdate, o.id, o.order_address, op.order_product_no, op.order_no, op.product_no, op.product_cnt, op.delivery_status FROM order_product op LEFT JOIN orders o ON o.order_no = op.order_no ";
+			PreparedStatement orderStmt = conn.prepareStatement(orderSql); 	
+			if (!searchWord.equals("") && col != null) {
+			    // 검색조건과 정렬조건이 모두 있는 경우
+			    orderSql += "WHERE " + searchCol + " LIKE %" + searchWord + "% ORDER BY " + col + " " + ascDesc + " LIMIT ?,?";
+			} else if (!searchWord.equals("") && col == null) {
+			    // 검색조건만 있는 경우
+			    orderSql += "WHERE " + searchCol + " LIKE %" + searchWord + "% LIMIT ?,?";
+			} else if (searchWord.equals("") && col != null) {
+			    // 정렬조건만 있는 경우
+			    orderSql += "ORDER BY " + col + " " + ascDesc + " LIMIT ?,?";
+			} else {
+			    // 검색조건과 정렬조건이 모두 없는 경우
+			    orderSql += "LIMIT ?,?";
+			}
+
 			// ResultSet
 			ResultSet orderRs = orderStmt.executeQuery();
 			
