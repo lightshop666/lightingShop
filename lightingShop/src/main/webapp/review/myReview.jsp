@@ -4,7 +4,7 @@
 <%@ page import="java.util.*"%>
 <%
 	//세션 로그인 확인
-	String loginMemberId = "guest";
+	String loginMemberId = "test2";
 	if(session.getAttribute("loginMemberId") != null) {
 		loginMemberId = (String)session.getAttribute("loginMemberId");
 	}
@@ -30,7 +30,7 @@
 	int beginRow = (currentPage-1) * rowPerPage + 1;
 	
 	//총 행을 구하기 위한 메소드
-	int totalRow = reviewDao.selectReviewCnt();
+	int totalRow = reviewDao.selectUserReviewCnt(loginMemberId);
 	
 	//마지막 페이지
 	int lastPage = totalRow / rowPerPage;
@@ -48,44 +48,73 @@
 	}
 	
 	//Review 출력
-	ArrayList<Object> reviewList  = reviewDao.selectReviewListByPage(beginRow, rowPerPage, loginMemberId);
+	 ArrayList<HashMap<String, Object>> reviewList  = reviewDao.selectReviewListByPage(beginRow, rowPerPage, loginMemberId);
 %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>My Review Page</title>
+<!-- Latest compiled and minified CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Latest compiled JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+	a{
+		/* 링크의 라인 없애기  */
+		text-decoration: none;
+	}
+	.p2 {/* 본문 폰트 좌정렬*/
+		font-family: "Lucida Console", "Courier New", monospace;
+		text-align: left;
+	}
+	}
+	h1{	/*제목 폰트*/
+		font-family: 'Black Han Sans', sans-serif;
+		text-align: center;
+	}
+
+</style>
+
 </head>
 <body>
 <div class="container">	
+<h1>나의 리뷰</h1>
 	<div>
 		<table class="table table-bordered">
+			<tr>
+			    <th>Order Product No</th>
+			    <th>Review Title</th>
+			    <th>Review Content</th>
+			    <th>Create Date</th>
+			    <th>Update Date</th>
+			    <th>Review Original Filename</th>
+			    <th>Review Save Filename</th>
+			    <th>Review File Type</th>
+			    <th>Product Name</th>
+			    <th>Order Date</th>
+			</tr>
 		<%
-			for (Object row : reviewList) {
-			    // row 리스트에서 Review 객체와 해시맵을 분리하여 변수에 할당
-			    ArrayList<Object> rowData = (ArrayList<Object>) row;
-			    Review review = (Review) rowData.get(0);
-			    HashMap<String, Object> hashMap = (HashMap<String, Object>) rowData.get(1);
+		    for (HashMap<String, Object> m : reviewList) {
 		%>				
-				<tr>
-					<!-- Review 객체의 각 필드 값을 출력합니다 -->
-					<td><%= review.getOrderNo() %> </td>
-					<td><%= review.getReviewTitle() %> </td>
-					<td><%= review.getReviewContent() %> </td>
-					<td><%= review.getCreatedate() %> </td>
-					<td><%= review.getUpdatedate() %> </td>
-					<td><%= review.getReviewOriFilename() %> </td>
-					<td>
-						<img src="/img/review/<%= review.getReviewSaveFilename() %>" alt="Review Image">
-					</td>
-					<td><%= review.getReviewFiletype() %> </td>
-					<!-- 해시맵에서 productName과 orderDate 값을 출력합니다 -->
-					<td><%= hashMap.get("productName") %> </td>
-					<td><%= hashMap.get("orderDate") %> </td>
-				</tr>
+		    <tr>				
+		        <td><%= m.get("orderProductNo") %> </td>
+		        <td><%= m.get("reviewTitle") %> </td>
+		        <td><%= m.get("reviewContent") %> </td>
+		        <td><%= m.get("createdate") %> </td>
+		        <td><%= m.get("updatedate") %> </td>
+		        <td><%= m.get("reviewOriFilename") %> </td>
+		        <td>
+		            <img src="/img/review/<%= m.get("reviewSaveFilename") %>" alt="Review Image">
+		        </td>
+		        <td><%= m.get("reviewFiletype") %> </td>
+		        <td><%= m.get("productName") %> </td>
+		        <td><%= m.get("orderDate") %> </td>
+		    </tr>
 		<%
-			}
+		    }
 		%>
+
 		</table>
 	</div>
 

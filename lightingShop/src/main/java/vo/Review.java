@@ -1,19 +1,20 @@
 package vo;
 
 public class Review {
-	private int orderNo;
+	private int orderProductNo;
 	private String reviewTitle;
 	private String reviewContent;
+	private String reviewWritten;
 	private String reviewOriFilename;
 	private String reviewSaveFilename;
 	private String reviewFiletype;
 	private String createdate;
 	private String updatedate;
-	public int getOrderNo() {
-		return orderNo;
+	public int getOrderProductNo() {
+		return orderProductNo;
 	}
-	public void setOrderNo(int orderNo) {
-		this.orderNo = orderNo;
+	public void setOrderProductNo(int orderProductNo) {
+		this.orderProductNo = orderProductNo;
 	}
 	public String getReviewTitle() {
 		return reviewTitle;
@@ -26,6 +27,12 @@ public class Review {
 	}
 	public void setReviewContent(String reviewContent) {
 		this.reviewContent = reviewContent;
+	}
+	public String getReviewWritten() {
+		return reviewWritten;
+	}
+	public void setReviewWritten(String reviewWritten) {
+		this.reviewWritten = reviewWritten;
 	}
 	public String getReviewOriFilename() {
 		return reviewOriFilename;
@@ -57,6 +64,7 @@ public class Review {
 	public void setUpdatedate(String updatedate) {
 		this.updatedate = updatedate;
 	}
+	
 	
 	
 }
