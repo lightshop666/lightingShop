@@ -120,10 +120,12 @@ public class ReviewDao {
 	    p.product_no AS productNo,
 	    p.product_name AS productName,
 	    p.product_info AS productInfo,
+	    p.category_name AS categoryName,
+	    p.product_price AS productPrice,
 	    p.product_status AS productStatus,
 	    o.order_no AS orderNo,
-	    op.delivery_status AS orderNo,
 	    o.createdate AS orderDate,
+	    op.delivery_status AS delivery,
 	    pi.product_save_filename AS productSaveFilename,
 	    pi.product_filetype AS productFileType
 	FROM
@@ -145,7 +147,34 @@ public class ReviewDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String mainSql ="SELECT r.order_product_no AS orderProductNo, r.review_title AS reviewTitle, r.review_content AS reviewContent, r.createdate AS createdate, r.updatedate AS updatedate, r.review_save_filename AS reviewSaveFilename, r.review_filetype AS reviewFiletype, p.product_no AS productNo, p.product_name AS productName, p.product_info AS productInfo, p.product_status AS productStatus, o.order_no AS orderNo, op.delivery_status AS orderNo, o.createdate AS orderDate, pi.product_save_filename AS productSaveFilename, pi.product_filetype AS productFileType FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no INNER JOIN product p ON op.product_no = p.product_no INNER JOIN product_img pi ON p.product_no = pi.product_no WHERE r.review_written = 'Y' ORDER BY r.createdate DESC LIMIT ?, ?";
+		String mainSql ="SELECT" +
+		        " r.order_product_no AS orderProductNo," +
+		        " r.review_title AS reviewTitle," +
+		        " r.review_content AS reviewContent," +
+		        " r.createdate AS createdate," +
+		        " r.updatedate AS updatedate," +
+		        " r.review_save_filename AS reviewSaveFilename," +
+		        " r.review_filetype AS reviewFiletype," +
+		        " p.product_no AS productNo," +
+		        " p.product_name AS productName," +
+		        " p.product_info AS productInfo," +
+		        " p.category_name AS categoryName," +
+		        " p.product_price AS productPrice," +
+		        " p.product_status AS productStatus," +
+		        " o.order_no AS orderNo," +
+		        " o.createdate AS orderDate," +
+		        " op.delivery_status AS delivery," +
+		        " pi.product_save_filename AS productSaveFilename," +
+		        " pi.product_filetype AS productFileType" +
+		        " FROM review r" +
+		        " INNER JOIN order_product op ON r.order_product_no = op.order_product_no" +
+		        " INNER JOIN orders o ON op.order_no = o.order_no" +
+		        " INNER JOIN product p ON op.product_no = p.product_no" +
+		        " INNER JOIN product_img pi ON p.product_no = pi.product_no" +
+		        " WHERE r.review_written = 'Y'" +
+		        " ORDER BY r.createdate DESC" +
+		        " LIMIT ?, ?;";
+
 		PreparedStatement mainStmt = conn.prepareStatement(mainSql);
 		//페이징 처리를 위한 SQL 쿼리문에서의 인덱스는 0부터 시작하므로 beginRow를 1을 빼서 0부터 시작하도록 설정
 		mainStmt.setInt(1, beginRow - 1);
@@ -155,6 +184,7 @@ public class ReviewDao {
 		
 		// 결과셋 받아오기
 		while (mainRs.next()) {
+
 		    HashMap<String, Object> reviewData = new HashMap<>();
 		    reviewData.put("orderProductNo", mainRs.getInt("orderProductNo"));
 		    reviewData.put("reviewTitle", mainRs.getString("reviewTitle"));
@@ -174,9 +204,8 @@ public class ReviewDao {
 		    reviewData.put("productFileType", mainRs.getString("productFileType"));
 
 		    list.add(reviewData);
+
 		}
-
-
 
 		System.out.println(list+ "<--ArrayList-- ReviewDao.allReviewListByPage");
 
