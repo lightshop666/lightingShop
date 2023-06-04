@@ -4,11 +4,6 @@
 	//인코딩
 	request.setCharacterEncoding("UTF-8");
 
-	// 세션검사
-	if (session.getAttribute("loginIdListId") != null) {
-		response.sendRedirect(request.getContextPath() + "/home.jsp");
-		return;
-	}
 %>  
 <!DOCTYPE html>
 <html>
@@ -19,12 +14,25 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+	<!-- 브라우저 방문기록 기준으로 이전 페이지로 돌아감 -->
+	<div>
+		<script>
+			function goBack() {
+			  window.history.back();
+			}
+		</script>
+		<button onclick="goBack()">뒤로 가기</button>
+	</div>
+	
 	<%
 		// 로그인했다면 마이페이지
 		if(session.getAttribute("loginIdListId") != null) {
 	%>
 		<!-- 내정보 상세보기 -->
 		<a type="button" class="btn btn-dark" href="<%=request.getContextPath()%>/customer/customerOne.jsp" role="button">내정보 상세보기</a>
+		
+		<!-- 배송지 관리 -->
+		<a type="button" class="btn btn-dark" href="<%=request.getContextPath()%>/customer/addressList.jsp" role="button">배송지 관리</a>
 		
 		<!-- 주문내역 -->
 		
@@ -41,6 +49,7 @@
 		<!-- 로그인 폼-->
 		<div>로고</div>
 		<form action="<%=request.getContextPath()%>/customer/loginAction.jsp" method="post">
+			<input type="hidden" name="active" value="">
 			<table>
 				<tr>
 					<td>아이디</td>

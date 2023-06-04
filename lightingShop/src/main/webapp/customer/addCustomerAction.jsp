@@ -6,31 +6,47 @@
 	request.setCharacterEncoding("utf-8");
 
 	// session 유효성 검사 -> 로그인된 경우 홈으로 리디렉션
-	if(session.getAttribute("loginMemberId") != null) {
+	if(session.getAttribute("loginIdListId") != null) {
 		response.sendRedirect(request.getContextPath()+"/home.jsp");
 		return;
 	}
+	
+	
+	System.out.println(request.getParameter("lastPw")); 
+	System.out.println(request.getParameter("cstmName"));
+	System.out.println(request.getParameter("addressName"));
+	System.out.println(request.getParameter("cstmAddress"));
+	System.out.println(request.getParameter("cstmEmail"));
+	System.out.println(request.getParameter("cstmBirth"));
+	System.out.println(request.getParameter("cstmPhone"));
+	System.out.println(request.getParameter("cstmGender")); 
+	System.out.println(request.getParameter("cstmAgree"));
+	System.out.println(request.getParameter("cstmRank"));
 
 	//유효성 검사 후 입력값이 맞지 않으면 회원가입 페이지로 리디렉션
 	if(request.getParameter("id") == null
 		|| request.getParameter("lastPw") == null
 		|| request.getParameter("cstmName") == null
+		|| request.getParameter("addressName") == null
 		|| request.getParameter("cstmAddress") == null
 		|| request.getParameter("cstmEmail") == null
 		|| request.getParameter("cstmBirth") == null
 		|| request.getParameter("cstmPhone") == null
 		|| request.getParameter("cstmGender") == null
 		|| request.getParameter("cstmAgree") == null
+		|| request.getParameter("cstmRank") == null
 		|| request.getParameter("id").equals("")
 		|| request.getParameter("lastPw").equals("")
 		|| request.getParameter("cstmName").equals("")
+		|| request.getParameter("addressName").equals("")
 		|| request.getParameter("cstmAddress").equals("")
 		|| request.getParameter("cstmEmail").equals("")
 		|| request.getParameter("cstmBirth").equals("")
 		|| request.getParameter("cstmPhone").equals("")
 		|| request.getParameter("cstmGender").equals("")
-		|| request.getParameter("cstmAgree").equals("")) {
-		response.sendRedirect(request.getContextPath()+"/customer/addCustomerAction.jsp");
+		|| request.getParameter("cstmAgree").equals("")
+		|| request.getParameter("cstmRank").equals("")) {
+		response.sendRedirect(request.getContextPath()+"/customer/addCustomer.jsp");
 		return;
 	}
 	
@@ -38,58 +54,73 @@
 	String id = request.getParameter("id");
 	String lastPw = request.getParameter("lastPw");
 	String cstmName = request.getParameter("cstmName");
+	String addressName = request.getParameter("addressName");
 	String cstmAddress = request.getParameter("cstmAddress");
 	String cstmEmail = request.getParameter("cstmEmail");
 	String cstmBirth = request.getParameter("cstmBirth");
 	String cstmPhone = request.getParameter("cstmPhone");
 	String cstmGender = request.getParameter("cstmGender");
 	String cstmAgree = request.getParameter("cstmAgree");
-	
-	// 사용가능한 이메일 검증
-	CustomerDao customerDao = new CustomerDao();
-	IdList idList = customerDao.selectCustomerIdCk(id);
-	
-	if(idList != null) { // 중복된 id가 있는 경우 로그인 페이지로 리다이렉션
-		response.sendRedirect(request.getContextPath()+"/customer/login.jsp");
-		return;
-	}
+	String cstmRank = request.getParameter("cstmRank");
+	System.out.println("[addCustomer컨트롤러 진입]");
+	System.out.println("입력받은 ID : "+id);
 	
 	// idList에 set
-	IdList paramIdList = new IdList();
-	paramIdList.setId(id);
-	paramIdList.setLastPw(lastPw);
+	IdList idList = new IdList();
+	idList.setId(id);
+	idList.setLastPw(lastPw);
+	idList.setActive(cstmAgree); // 약관동의 -> 활성화
 	
-	// id_list에 id, pw 추가
-	int result = customerDao.addIdList(paramIdList);
-	
-	// id리스트에 입력된 값이 있을시
-	if(result > 0) {
 	// customer에 set
-	Customer paramCustomer = new Customer();
-	paramCustomer.setId(id);
-	paramCustomer.setCstmName(cstmName);
-	paramCustomer.setCstmAddress(cstmAddress);
-	paramCustomer.setCstmEmail(cstmEmail);
-	paramCustomer.setCstmBirth(cstmBirth);
-	paramCustomer.setCstmPhone(cstmPhone);
-	paramCustomer.setCstmGender(cstmGender);
-	paramCustomer.setCstmAgree(cstmAgree);
+	Customer customer = new Customer();
+	customer.setId(id);
+	customer.setCstmName(cstmName);
+	customer.setCstmAddress(cstmAddress);
+	customer.setCstmEmail(cstmEmail);
+	customer.setCstmBirth(cstmBirth);
+	customer.setCstmPhone(cstmPhone);
+	customer.setCstmGender(cstmGender);
+	customer.setCstmAgree(cstmAgree);
+	customer.setCstmRank(cstmRank);
 	
-	// customer에 회원입력정보 추가
-	int result2 = customerDao.addCustomer(paramCustomer);
+	// paramPwHistory에 set
+	PwHistory pwHistory = new PwHistory();
+	pwHistory.setId(id);
+	pwHistory.setPw(lastPw);
 	
-	// pw_history에 set
-	PwHistory paramPwHistory = new PwHistory();
-	paramPwHistory.setId(id);
-	paramPwHistory.setPw(lastPw);
+	// address에 set
+	Address address = new Address();
+	address.setId(id);
+	address.setAddressName(addressName);
+	address.setAddress(cstmAddress); // 고객주소와 주소테이블 주소를 동일하게 함.
 	
-	// pw_history에 id, pw 추가
-	int result3 = customerDao.addPwHistory(paramPwHistory);
+	CustomerDao cDao = new CustomerDao();
+	boolean checkId = cDao.customerSigninIdCk(customer);
+	System.out.println("아이디 중복체크 true - 중복 --> :"+checkId);
 	
-	System.out.println("회원가입 성공");
-	response.sendRedirect(request.getContextPath()+"/customer/myPage.jsp");
+	if(checkId) { 
+		// 중복일 경우 회원가입 폼으로 리다이렉션
+		System.out.println("중복된 아이디가 존재합니다");
+		response.sendRedirect(request.getContextPath()+"/customer/addCustomer.jsp");
+		return;
+	}else {
+		// 중복이 아닐경우 회원가입 진행, 메서드 호출
+		CustomerDao customerDao = new CustomerDao();
+		int addIdList = customerDao.addIdList(idList);
+		int addCustomer = customerDao.addCustomer(customer);
+		int addAddress = customerDao.addAddress(address);
+		if(addIdList == 1) {
+		System.out.println("회원가입 성공");
+		// 회원가입시 비밀번호를 pwHistory에 추가
+		int operatePwHistory = customerDao.operatePwHistory(pwHistory);
+		if(operatePwHistory == 1) {
+			System.out.println("비밀번호 pwHistory에 추가완료");
+		}
+		response.sendRedirect(request.getContextPath()+"/customer/myPage.jsp");
+		return;
 	} else { // DB에 값이 입력되지 않은 경우
 	System.out.println("회원가입 실패");
 	response.sendRedirect(request.getContextPath()+"/customer/addCustomer.jsp");
-	}
+		}
+	}	
 %>   

@@ -4,7 +4,7 @@
 	request.setCharacterEncoding("utf-8");
 
 	//session 유효성 검사 -> 로그인된 경우 홈으로 리디렉션
-	if(session.getAttribute("loginCustomerEmail") != null) {
+	if(session.getAttribute("loginIdListId") != null) {
 		response.sendRedirect(request.getContextPath()+"/home.jsp");
 		return;
 	}
@@ -20,6 +20,9 @@
 
 	<form action="<%=request.getContextPath()%>/customer/addCustomerAction.jsp" method="post">
 		<table class="table">
+		<tr>
+			<td><input type="hidden" name="cstmRank" value="동"></td>
+		</tr>
 			<tr>
 				<td>아이디를 입력하세요</td>
 				<td>
@@ -33,6 +36,10 @@
 			<tr>
 				<td>사용자 이름을 입력하세요</td>
 				<td><input type="text" name="cstmName"></td>
+			</tr>
+			<tr>
+				<td>배송지명을 입력해주세요</td>
+				<td><input type="text" name="addressName"></td>
 			</tr>
 			<tr>
 				<td>주소를 입력해주세요</td>
@@ -55,8 +62,8 @@
 				<td>
 					<select name="cstmGender">
 					<option value="">선택하세요</option>
-					<option value="">남성</option>
-					<option value="">여성</option>
+					<option value="남성">남성</option>
+					<option value="여성">여성</option>
 					</select>
 				</td>
 			</tr>

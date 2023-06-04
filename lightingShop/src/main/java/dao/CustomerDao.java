@@ -3,10 +3,13 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import util.DBUtil;
+import vo.Address;
 import vo.Customer;
 import vo.IdList;
 import vo.PwHistory;
@@ -14,25 +17,23 @@ import vo.PwHistory;
 public class CustomerDao {
 
 	// 1-1) 회원가입 시 아이디 중복여부 확인
-	public IdList selectCustomerIdCk(String id) throws Exception {
-		IdList idList = null;
+	public boolean customerSigninIdCk(Customer customer) throws Exception {
+		boolean customerAddCheckId = false;
 		
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
 		
-		// customer, id_list, pw_history의 id가 중복되지 않은 경우를 파악
-		String sql = "SELECT id FROM (SELECT id FROM customer union SELECT id FROM id_list union SELECT id FROM pw_history) t WHERE id = ?";
+		// id_list에서 탈퇴한 id의 id 중복체크
+		String sql = "SELECT id FROM id_list WHERE id=? AND active= 'N'";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, idList.getId());
+		stmt.setString(1, customer.getId()); // 사용자로부터 입력받은 id로 조건 검색
 		
 		ResultSet rs = stmt.executeQuery();
 		
 		if(rs.next()) { // 중복 아이디가 있는 경우
-			idList = new IdList();
-			idList.setId(rs.getString("id"));
-		}
-		// 최종 데이터 반환
-		return idList;
+			customerAddCheckId = true;
+		} 
+		return customerAddCheckId;
 	}
 	
 	// 1-2) 회원가입 - id_list
@@ -40,14 +41,16 @@ public class CustomerDao {
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
 		
-		String addIdListSql = "INSERT INTO id_list(id, last_pw, active, createdate) VALUES(?, PASSWORD(?), Y, NOW())";
+		String addIdListSql = "INSERT INTO id_list(id, last_pw, active, createdate) VALUES(?, PASSWORD(?), ?, NOW())";
 		PreparedStatement addIdListStmt = conn.prepareStatement(addIdListSql);
 		// id_list 테이블에 새로운 ID 값 추가
 		addIdListStmt.setString(1, idList.getId());
 		addIdListStmt.setString(2, idList.getLastPw());
+		addIdListStmt.setString(3, idList.getActive());
 		
-		int result = addIdListStmt.executeUpdate();
-		return result;
+		int addIdList  = addIdListStmt.executeUpdate();
+		return addIdList;
+		
 	}
 	// 1-3) 회원가입 - customer
 	public int addCustomer(Customer customer) throws Exception {
@@ -56,7 +59,7 @@ public class CustomerDao {
 		// customer 테이블에 새로운 입력값 추가
 	 	String addCustomerSql = "INSERT INTO customer(id, cstm_name, cstm_address, cstm_email, cstm_birth, cstm_phone, cstm_gender, "
 				+ " cstm_rank, cstm_point, cstm_last_login, cstm_agree, createdate, updatedate) "
-				+ " VALUES(?, ?, ?, ?, ?, ?, ?, 동, 100, NOW(), Y, NOW(), NOW())";
+				+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, 100, NOW(), ?, NOW(), NOW())";
 		PreparedStatement stmt = conn.prepareStatement(addCustomerSql);
 		stmt.setString(1, customer.getId());
 		stmt.setString(2, customer.getCstmName());
@@ -65,25 +68,30 @@ public class CustomerDao {
 		stmt.setString(5, customer.getCstmBirth());
 		stmt.setString(6, customer.getCstmPhone());
 		stmt.setString(7, customer.getCstmGender());
+		stmt.setString(8, customer.getCstmRank());
+		stmt.setString(9, customer.getCstmAgree());
 		
-		int result = stmt.executeUpdate();
+		int addCustomer = stmt.executeUpdate();
 		
-		return result;
+		return addCustomer;
 	}
-	// 1-4) 회원가입 - pwHistory
-	public int addPwHistory(PwHistory pwHistory) throws Exception {
+	
+	// 1-4) 회원가입 - address
+	public int addAddress(Address address) throws Exception {
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
-		// pw_history 테이블에 새로운 입력값 추가
-	 	String addPwHistorySql = "INSERT INTO pw_history(id, pw, createdate)"
-				+ " VALUES(?, PASSWORD(?), NOW())";
-		PreparedStatement stmt = conn.prepareStatement(addPwHistorySql);
-		stmt.setString(1, pwHistory.getId());
-		stmt.setString(2, pwHistory.getPw());
+		// customer 테이블에 새로운 입력값 추가
+	 	String addCustomerSql = "INSERT INTO address(id, address_name, address, address_last_date, default_address,"
+				+ " createdate, updatedate) "
+				+ " VALUES(?, ?, ?, NOW(), 'Y', NOW(), NOW())";
+		PreparedStatement stmt = conn.prepareStatement(addCustomerSql);
+		stmt.setString(1, address.getId());
+		stmt.setString(2, address.getAddressName() );
+		stmt.setString(3, address.getAddress() );
 		
-		int result = stmt.executeUpdate();
+		int addAddress = stmt.executeUpdate();
 		
-		return result;
+		return addAddress;
 	}
 	
 	// 2) 로그인
@@ -93,7 +101,7 @@ public class CustomerDao {
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
 		
-		String sql = "SELECT id, last_pw, active FROM id_list WHERE id = ? AND last_pw = ?";
+		String sql = "SELECT id, last_pw, active FROM id_list WHERE id = ? AND last_pw = PASSWORD(?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, idList.getId());
 		stmt.setString(2, idList.getLastPw());
@@ -105,62 +113,64 @@ public class CustomerDao {
 			loginIdList = new IdList();
 			loginIdList.setId(rs.getString("id")); // id 반환
 			loginIdList.setLastPw(rs.getString("last_pw")); // 비밀번호 반환
-			loginIdList.setActive(rs.getString("Y")); // 가입탈퇴여부 반환
-			/*
-			loginCustomer.setCstmEmail(rs.getString("cstm_email"));
-			loginCustomer.setCstmBirth(rs.getString("cstm_birth"));
-			loginCustomer.setCstmPhone(rs.getString("cstm_phone"));
-			loginCustomer.setCstmGender(rs.getString("cstm_gender"));
-			loginCustomer.setCstmRank(rs.getString("cstm_rank"));
-			loginCustomer.setCstmPoint(rs.getInt("cstm_point"));
-			loginCustomer.setCstmLastLogin(rs.getString("cstm_last_login"));
-			loginCustomer.setCstmAgree(rs.getString("cstm_agree")); // 가입탈퇴여부 반환
-			*/	
+			loginIdList.setActive(rs.getString("active")); // 가입탈퇴여부 반환
 		}
-		
-		// null -> 로그인 실패, 값이 존재 -> 로그인 성공 
 		return loginIdList;
 	}
 	
+	// 2-1) 로그인 - customer(last_login) update
+	public int lastLoginUpdate(IdList idList) throws Exception {
+		int modifyLastLogin = 0;
+		
+		// 현재 시간 정보 생성 (java.util.Date 클래스 사용)
+		Date now = new Date();
+		Timestamp timestamp = new Timestamp(now.getTime());
+
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		String sql = "UPDATE customer SET cstm_last_login = ? WHERE id = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setTimestamp(1, timestamp);
+		stmt.setString(2, idList.getId());
+		modifyLastLogin = stmt.executeUpdate();
+		
+		return modifyLastLogin;
+	}
 	
-	// 3) 회원정보 수정
-	public HashMap<String, Object> modifyCustomer(Customer customer, IdList idList) throws Exception {
-		
-		/*
-		// Customer,IdList 타입으로 분산 저장
-		Customer c1 = new Customer();
-		c1.setId(c1.getId());
-		c1.setCstmName(c1.getCstmName());
-		c1.setCstmAddress(c1.getCstmAddress());
-		c1.setCstmEmail(c1.getCstmEmail());
-		c1.setCstmBirth(c1.getCstmBirth());
-		c1.setCstmPhone(c1.getCstmPhone());
-		c1.setCstmGender(c1.getCstmGender());
-		
-		IdList i1 = new IdList();
-		i1.setLastPw(i1.getLastPw());
-		
-		// HashMap 타입으로 저장
-		HashMap<String, Object> map = new HashMap<>();
-		map.put("c1", c1);
-		map.put("i1", i1);
-		*/
+	// 3-1) 회원정보 수정 - id_list(id 수정불가)
+	public int modifyIdListOne(IdList idList, IdList modifyIdList) throws Exception {
+		int modifyIdListOne = 0;
 		
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
-		String sql = "UPDATE customer SET id = ?, cstm_name = ?, cstm_address = ?, cstm_email = ?, cstm_birth = ?, cstm_phone = ?,"
+		String sql = "UPDATE id_list SET last_pw = ? WHERE id = ? AND last_pw = PASSWORD(?)";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, modifyIdList.getLastPw());
+		stmt.setString(2, idList.getId());
+		stmt.setString(3, idList.getLastPw() );
+		modifyIdListOne = stmt.executeUpdate();
+		
+		return modifyIdListOne;
+	}
+	
+	// 3-2) 회원정보 수정 - customer(cstm_address는 수정못하도록함 - 배송지리스트 페이지에서 수정)
+	public int modifyCustomerOne(Customer customer, Customer modifyCustomer) throws Exception {
+		int modifyCustomerOne = 0;
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		String sql = "UPDATE customer SET cstm_name = ?, cstm_address = ?, cstm_email = ?, cstm_birth = ?, cstm_phone = ?,"
 				+ " cstm_gender = ?, updatedate =  NOW() WHERE id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, customer.getId());
-		stmt.setString(2, customer.getCstmName());
-		stmt.setString(3, customer.getCstmAddress());
-		stmt.setString(4, customer.getCstmEmail());
-		stmt.setString(5, customer.getCstmBirth());
-		stmt.setString(6, customer.getCstmPhone());
-		stmt.setString(7, customer.getCstmGender());
-		stmt.setString(8, customer.getCstmGender());
+		stmt.setString(1, modifyCustomer.getCstmName());
+		stmt.setString(2, modifyCustomer.getCstmAddress());
+		stmt.setString(3, modifyCustomer.getCstmEmail());
+		stmt.setString(4, modifyCustomer.getCstmBirth());
+		stmt.setString(5, modifyCustomer.getCstmPhone());
+		stmt.setString(6, modifyCustomer.getCstmGender());
+		stmt.setString(7, customer.getId());
+		modifyCustomerOne = stmt.executeUpdate();
 		
-		return null;
+		return modifyCustomerOne;
 	}
 	
 	// 4-1) 회원탈퇴 - active를 N으로 변경
@@ -174,60 +184,59 @@ public class CustomerDao {
 	}
 	
 	// 4-2) 회원탈퇴시 비밀번호 일치여부 확인
-	public IdList passwordCheck(IdList idList) throws Exception {
+	public boolean passwordCheck(IdList idList) throws Exception {
 		
 		// 반환 객체 생성
-		IdList returnIdList = null;
+		boolean pwCk = false;
 		
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
 		
-		String sql = "SELECT id, last_pw FROM id_list WHERE id = ?";
+		String sql = "SELECT id, last_pw FROM id_list WHERE last_pw = PASSWORD(?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, idList.getLastPw());
 		// SQL 명령 실행
 		ResultSet rs = stmt.executeQuery();
 		
 		// 데이터베이스 내용 불러오기
-		while(rs.next()) {
-			returnIdList = new IdList(); // 멤버 객체 생성
-			returnIdList.setId(rs.getString("id"));	// 아이디 반환
-			returnIdList.setLastPw("lastPw"); // 패스워드 반환
+		if(rs.next()) {
+			pwCk = true;
 		}
-		return returnIdList;
+		return pwCk;
 	}
 	
-	// 5) Customer 상세페이지 검색용
-	public Customer selectCustomerOne(Customer customer) throws Exception {
-		
-		Customer customerOne = null;
+	// 5) CustomerOne (+ADDRESS NAME)
+	public HashMap<String, Object> selectCustomerOne(Customer customer) throws Exception {
 		
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
 		
 		// SQL 명령, 명령 준비
-		String sql = ("select c.id, c.cstm_name, c.cstm_address, c.cstm_email, c.cstm_birth, c.cstm_phone, c.cstm_gender, c.cstm_rank, "
-				+ " c.cstm_point, c.cstm_last_login, c.cstm_agree, c.createdate, c.updatedate FROM customer c "
-				+ " WHERE c.id = ? ");
+		String sql = ("SELECT c.id, c.cstm_name, c.cstm_address, c.cstm_email, c.cstm_birth, c.cstm_phone, c.cstm_gender, c.cstm_rank, "
+				+ " c.cstm_point, c.cstm_last_login, c.cstm_agree, c.createdate, a.address_name"
+				+ " FROM customer c INNER JOIN address a "
+				+ " ON c.id = a.id "
+				+ " WHERE c.id = ?");
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, customer.getId()); 	// Customer Id를 입력받는다.
 		
 		ResultSet rs = stmt.executeQuery();
 		
+		HashMap<String, Object> customerOne = new HashMap<>();
 		if (rs.next()) {
-			customer.setId(rs.getString("c.id"));
-			customer.setCstmName(rs.getString("c.cstm_name"));
-			customer.setCstmAddress(rs.getString("c.cstm_address"));
-			customer.setCstmEmail(rs.getString("c.cstm_email"));
-			customer.setCstmBirth(rs.getString("c.cstm_birth"));
-			customer.setCstmPhone(rs.getString("c.cstm_phone"));
-			customer.setCstmGender(rs.getString("c.cstm_gender"));
-			customer.setCstmRank(rs.getString("c.cstm_rank"));
-			customer.setCstmPoint(rs.getInt("c.cstm_point"));
-			customer.setCstmLastLogin(rs.getString("c.cstm_last_login"));
-			customer.setCstmAgree(rs.getString("c.cstm_agree"));
-			customer.setCreatedate(rs.getString("c.createdate"));
-			customer.setUpdatedate(rs.getString("c.updatedate"));
+			customerOne.put("c.id", rs.getString("c.id"));
+			customerOne.put("c.cstm_name", rs.getString("c.cstm_name"));
+			customerOne.put("c.cstm_address", rs.getString("c.cstm_address"));
+			customerOne.put("c.cstm_email", rs.getString("c.cstm_email")); 
+			customerOne.put("c.cstm_birth", rs.getString("c.cstm_birth"));
+			customerOne.put("c.cstm_phone", rs.getString("c.cstm_phone"));
+			customerOne.put("c.cstm_gender", rs.getString("c.cstm_gender"));
+			customerOne.put("c.cstm_rank", rs.getString("c.cstm_rank")); 
+			customerOne.put("c.cstm_point", rs.getInt("c.cstm_point")); 
+			customerOne.put("c.cstm_last_login", rs.getString("c.cstm_last_login")); 
+			customerOne.put("c.cstm_agree", rs.getString("c.cstm_agree")); 
+			customerOne.put("c.createdate", rs.getString("c.createdate")); 
+			customerOne.put("a.address_name", rs.getString("a.address_name"));
 		}
 		return customerOne;
 	}
@@ -248,115 +257,200 @@ public class CustomerDao {
 		return row;
 	}
 	
-	// 7) 회원주소목록
-	public ArrayList<CustomerAddress> myAddressList(Connection conn, CustomerAddress cusAddress) throws Exception {
-		ArrayList<CustomerAddress> list = new ArrayList<CustomerAddress>();
+	// 7) 회원주소목록 (내주소)
+	public ArrayList<Address> myAddressList(Address address) throws Exception {
+		ArrayList<Address> list = new ArrayList<Address>();
 		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
 		// 주소 불러오기
-		String sql = "SELECT address_code, customer_id, address FROM customer_address WHERE customer_id = ?";
+		String sql = "SELECT address_no, id, address_name, address, default_address FROM address WHERE id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, cusAddress.getCustomerId());
+		stmt.setString(1, address.getId());
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
-			CustomerAddress ca = new CustomerAddress();
-			ca.setAddressCode(rs.getInt("address_code"));
-			ca.setCustomerId(rs.getString("customer_id"));
-			ca.setAddress(rs.getString("address"));
-			list.add(ca);
+			Address a = new Address();
+			a.setAddressNo(rs.getInt("address_no"));
+			a.setId(rs.getString("id"));
+			a.setAddressName(rs.getString("address_name"));
+			a.setAddress(rs.getString("address"));
+			list.add(a);
 		}
 		
 		return list;
 	}
 	
 	// 7-1) 개별 주소 불러오기
-	public String myAddress(Connection conn, int addressCode) throws Exception {
-		String myAddress = null;
+	public Address myAddress(int addressNo) throws Exception {
+		Address myAddress = new Address();
 		
-		String sql = "SELECT address FROM customer_address WHERE address_code = ?";
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "SELECT address_no, address_name, address, updatedate FROM address WHERE address_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setInt(1, addressCode);
+		stmt.setInt(1, addressNo);
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
-			myAddress = rs.getString("address");
+			myAddress.setAddressNo(rs.getInt("address_no"));
+			myAddress.setAddressName(rs.getString("address_name"));
+			myAddress.setAddress(rs.getString("address"));
 		}
-		
 		return myAddress;
 	}
 		
 	// 8) 주소추가
-	public int addMyAddress(Connection conn, CustomerAddress cusAddress) throws Exception {
+	public int addMyAddress(Address address) throws Exception {
 		int addMyAddress = 0;
 		
-		String sql = "INSERT INTO customer_address("
-				+ "customer_id, address, createdate"
-				+ ") VALUES (?,?,NOW())"; // point는 기본값 100포인트 부여
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "INSERT INTO address("
+				+ " id, address, address_name, address_last_date, default_address, createdate, updatedate)"
+				+ " VALUES(?, ?, ?, NOW(), 'N', NOW(), NOW())"; 
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, cusAddress.getCustomerId());
-		stmt.setString(2, cusAddress.getAddress());
+		stmt.setString(1, address.getId());
+		stmt.setString(2, address.getAddress());
+		stmt.setString(3, address.getAddressName());
 		
 		addMyAddress = stmt.executeUpdate();
 		
 		return addMyAddress;
 	}
 	
-	// 9) 주소삭제
-	public int removeAddress(Connection conn, CustomerAddress cusAddress) throws Exception {
+	// 9) 주소변경
+	public int modifyAddress(Address address) throws Exception {
+		int modifyAddress = 0;
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "UPDATE address SET address_name = ?, address = ?, updatedate = NOW() WHERE address_no = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, address.getAddressName() );
+		stmt.setString(2, address.getAddress());
+		stmt.setInt(3, address.getAddressNo() );
+		
+		modifyAddress = stmt.executeUpdate();
+		
+		return modifyAddress;
+	}
+	
+	// 10) 주소삭제
+	public int removeAddress(int addressNo) throws Exception {
 		int removeAddress = 0;
 		
-		String sql = "DELETE from customer_address WHERE customer_id = ? AND address = ?";
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "DELETE FROM address WHERE address_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, cusAddress.getCustomerId());
-		stmt.setString(2, cusAddress.getAddress());
+		stmt.setInt(1, addressNo);
 		
 		removeAddress = stmt.executeUpdate();
 				
 		return removeAddress;
 	}
 	
-	// 9-1) 주소삭제 
-	public void removeAllAddress(Connection conn, Customer customerOne) throws Exception {
-		String sql = "DELETE FROM customer_address WHERE customer_id = ?";
+	// 10-1) 주소삭제 (id의 주소 전부삭제 -> 메소드만 구현)
+	public void removeAllAddress(Address address) throws Exception {
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "DELETE FROM address WHERE id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, customerOne.getCustomerId());
+		stmt.setString(1, address.getId());
 		stmt.executeUpdate();
 	}
 	
-	// 10) 주소 총개수
-	public int ttlCntAddress(Connection conn, CustomerAddress cusAddress) throws Exception {
+	// 11) 주소 총개수
+	public int ttlCntAddress(Address address) throws Exception {
 		int ttlAddress = 0;
 		
-		String sql = "SELECT COUNT(*) FROM customer_address WHERE customer_id = ?";
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "SELECT COUNT(*) FROM address WHERE customer_id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, cusAddress.getCustomerId());
+		stmt.setString(1, address.getId());
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
 			ttlAddress = rs.getInt("COUNT(*)");
 		}
-		
 		return ttlAddress;
 	}
 	
 	// 11) pwHistory 이력 추가
-	public int addPwHistory(Connection conn, PwHistory pwHistory) throws Exception {
+	public int addPwHistory(PwHistory pwHistory) throws Exception {
 		int addPwHistory = 0;
 		
-		String sql = "INSERT INTO pw_history(customer_id, pw, createdate)"
-					+ " VALUES(?,PASSWORD(?),NOW())";
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "INSERT INTO pw_history(id, pw, createdate)"
+					+ " VALUES(?, PASSWORD(?), NOW())";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, pwHistory.getCustomerId());
+		stmt.setString(1, pwHistory.getId());
 		stmt.setString(2, pwHistory.getPw());
 		addPwHistory = stmt.executeUpdate();
 		
 		return addPwHistory;
 	}
 	
-	// 12) 데이터 총 개수(최대 3개로 제한)
-	public int ttlCntPwHistory(Connection conn, PwHistory pwHistory) throws Exception {
+	// 12) (회원가입시 or 비밀번호 수정시) pwHistory에 비밀번호 추가 및 최대 4개 넘을 시, 가장 오래된 pw 자동삭제
+	public int operatePwHistory(PwHistory pwHistory) throws Exception {
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		int operatePwHistory = 0;
+		CustomerDao cDao = new CustomerDao();
+		int CntPwHistory = 0;
+		int removePwHistory = 0;
+		PwHistory selectOldestPw = new PwHistory();
+		System.out.println("[operatePwHistory]");
+		
+		if(CntPwHistory < 4) { // 3개 미만일 경우, 이력추가 진행
+			System.out.println("비밀번호내역 4개미만");
+			operatePwHistory = addPwHistory(pwHistory);
+		} else { // 4개 이상일 경우, 가장오래된 비밀번호내역 삭제 후, 이력추가 진행
+			System.out.println("비밀번호내역 4개이상");
+			// 삭제할 가장오래된 비밀번호내역 하나 불러오기
+			selectOldestPw = selectOldestPw(pwHistory);
+			System.out.println("삭제할 pw :" + selectOldestPw.getPw());
+			System.out.println("삭제할 id : "+selectOldestPw.getId());
+			
+			// 오래된 비밀번호내역 삭제
+			removePwHistory = removePwHistory(selectOldestPw);
+			
+			if(removePwHistory == 1) {
+				System.out.println("old 비밀번호내역 삭제 성공");
+				// 수정된 비밀번호 추가
+				operatePwHistory = addPwHistory(pwHistory);
+			} else {
+				System.out.println("old 비밀번호내역 삭제 실패");
+			}
+		}
+		// 총개수
+		CntPwHistory = cDao.ttlCntPwHistory(pwHistory);
+		System.out.println("비밀번호내역 총 갯수 : "+ CntPwHistory);
+		
+		// 비밀번호 이력추가가 됬다면 1 반환 
+		return operatePwHistory;
+	}
+	
+	// 12) 비밀번호 데이터 총 개수(최대 3개로 제한)
+	public int ttlCntPwHistory(PwHistory pwHistory) throws Exception {
 		int ttlCntPwHistory = 0;
 		
-		String sql = "SELECT COUNT(*) FROM pw_history WHERE customer_id = ?";
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "SELECT COUNT(*) FROM pw_history WHERE id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, pwHistory.getCustomerId());
+		stmt.setString(1, pwHistory.getId());
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
 			ttlCntPwHistory = rs.getInt("COUNT(*)");
@@ -364,39 +458,43 @@ public class CustomerDao {
 		return ttlCntPwHistory;
 	}
 	
-	// 13) 이력 삭제
-	public int removePwHistory(Connection conn, PwHistory pwHistory) throws Exception {
+	// 13) 비밀번호 이력 삭제
+	public int removePwHistory(PwHistory pwHistory) throws Exception {
 		int removePwHistory = 0;
 		
-		String sql = "DELETE from pw_history WHERE customer_id = ? AND createdate = ?";
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "DELETE from pw_history WHERE id = ? AND createdate = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, pwHistory.getCustomerId());
+		stmt.setString(1, pwHistory.getId());
 		stmt.setString(2, pwHistory.getCreatedate());
-		System.out.println("[pwHistoryDao]");
-		System.out.println("(1)pwHistory.getCustomerId() : "+pwHistory.getCustomerId());
-		System.out.println("(2)pwHistory.getCreatedate() : "+pwHistory.getCreatedate());
+		System.out.println("pwHistory.getId() : "+pwHistory.getId());
+		System.out.println("pwHistory.getCreatedate() : "+pwHistory.getCreatedate());
 		
 		removePwHistory = stmt.executeUpdate();
-		System.out.println(removePwHistory);
 		
 		return removePwHistory;
 	}
 	
-	// 14) pwHistory select (생성날짜 오름차순)
-	public PwHistory selectOldestPw(Connection conn, PwHistory pwHistory) throws Exception {
+	// 14) 가장오래된 pwHistory 1개 select (생성날짜 오름차순)
+	public PwHistory selectOldestPw(PwHistory pwHistory) throws Exception {
 		PwHistory selectOldestPw = null;
 		
-		String sql = "SELECT customer_id, createdate FROM pw_history"
-					+ " WHERE customer_id = ?"
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "SELECT id, createdate FROM pw_history"
+					+ " WHERE id = ?"
 					+ " ORDER BY createdate"
 					+ " LIMIT 0,1";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		
-		stmt.setString(1, pwHistory.getCustomerId());
+		stmt.setString(1, pwHistory.getId());
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
 			selectOldestPw = new PwHistory();
-			selectOldestPw.setCustomerId(rs.getString("customer_id"));
+			selectOldestPw.setId(rs.getString("id"));
 			selectOldestPw.setCreatedate(rs.getString("createdate"));
 		}
 		
@@ -404,28 +502,34 @@ public class CustomerDao {
 	}
 	
 	// 15) 회원탈퇴시 pwHistory 삭제
-	public int removePwHistoryByRemoveCustomer(Connection conn, Customer customer) throws Exception {
+	public int removePwHistoryByRemoveCustomer(Customer customer) throws Exception {
 		int removePwHistory = 0;
 		
-		String sql = "DELETE FROM pw_history WHERE customer_id = ?";
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "DELETE FROM pw_history WHERE id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, customer.getCustomerId());
+		stmt.setString(1, customer.getId());
 		removePwHistory = stmt.executeUpdate();
 		
 		return removePwHistory;
 	}
 	
 	// 16) 비밀번호 수정 시, 중복체크를 위한 select
-	public boolean selectPwHistoryCk(Connection conn, Customer customer) throws Exception {
+	public boolean selectPwHistoryCk(Customer modifyCustomer, IdList modyfyIdList) throws Exception {
 		boolean checkPw = false;
 		
-		String sql = "SELECT * FROM pw_history WHERE customer_id = ? AND pw = PASSWORD(?)";
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "SELECT * FROM pw_history WHERE id = ? AND pw = PASSWORD(?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, customer.getCustomerId());
-		stmt.setString(2, customer.getCustomerPw());
+		stmt.setString(1, modifyCustomer.getId());
+		stmt.setString(2, modyfyIdList.getLastPw());
 		System.out.println("[pwHistory중복체크dao]");
-		System.out.println("customer_id : "+customer.getCustomerId());
-		System.out.println("customer_pw : "+customer.getCustomerPw());
+		System.out.println("id :"+modifyCustomer.getId());
+		System.out.println("ldList_pw : "+modyfyIdList.getLastPw());
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
 			checkPw = true;

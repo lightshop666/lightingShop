@@ -20,15 +20,18 @@
 		response.sendRedirect(request.getContextPath() + "/customer/login.jsp");
 	}
 	// 객체 파라미터로 넘겨줌
-	IdList paramidList = new IdList();
-	paramidList.setId(id);
-	paramidList.setLastPw(lastPw);
+	IdList idList = new IdList();
+	idList.setId(id);
+	idList.setLastPw(lastPw);
 	
-	// 회원가입 메서드 실행
+	
+	// 로그인 메서드 실행
 	CustomerDao cDao = new CustomerDao();
-	IdList loginIdList = cDao.loginMethod(paramidList);
+	IdList loginIdList = cDao.loginMethod(idList);
+	cDao.lastLoginUpdate(idList); // 마지막 로그인시간 업데이트
 	
-	//System.out.println(memberEmail + " " + memberPw); // 디버깅
+	System.out.println(id + " " + lastPw); // 디버깅
+	System.out.println(loginIdList.getActive()); // 디버깅
 	
 	if (loginIdList != null && loginIdList.getActive().equals("Y")) { // 활성화가 되어있고 id와 pw 일치할경우
 		// 로그인 정보를 Session에 저장
@@ -43,11 +46,11 @@
 	else {	// 로그인에 실패했을 경우
 		if (loginIdList.getActive().equals("N")) {	// Y면 가입된 사용자, N이면 탈퇴한 사용자
 			System.out.println("탈퇴된 사용자입니다.");
-			response.sendRedirect(request.getContextPath() + "/customer/login.jsp");
+			response.sendRedirect(request.getContextPath() + "/customer/myPage.jsp");
 			
 		} else {
 			System.out.println("아이디 혹은 비밀번호가 틀렸습니다.\n다시 한 번 확인해주세요.");
-			response.sendRedirect(request.getContextPath() + "/customer/login.jsp");
+			response.sendRedirect(request.getContextPath() + "/customer/myPage.jsp");
 		}
 	}
 	
