@@ -19,11 +19,7 @@
 		System.out.println(currentPage + "<--crt-- ReviewList.jsp 새로 들어간 페이지 넘버");
 	}
 	//페이지에 보여주고 싶은 행의 개수
-	int rowPerPage = 4;
-	if(request.getParameter("rowPerPage")!=null){
-		rowPerPage = Integer.parseInt(request.getParameter("rowPerPage"));
-		System.out.println(rowPerPage + "<--crt-- ReviewList.jsp 새로 들어간 페이지 당 행의 수");
-	}
+	int rowPerPage = 5;
 	//페이지 주변부에 보여주고싶은 리스트의 개수
 	int pageRange = 2;
 	//시작 행

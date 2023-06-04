@@ -18,17 +18,14 @@
 		currentPage = Integer.parseInt(request.getParameter("currentPage"));
 	}
 	//페이지에 보여주고 싶은 행의 개수
-	int rowPerPage = 4;
-	if(request.getParameter("rowPerPage")!=null){
-		rowPerPage = Integer.parseInt(request.getParameter("rowPerPage"));
-	}
+	int rowPerPage = 5;
 	//페이지 주변부에 보여주고싶은 리스트의 개수
-	int pageRange = 2;
+	int pageRange = 3;
 	//시작 행
 	int beginRow = (currentPage-1) * rowPerPage + 1;
 	
 	//총 행을 구하기 위한 메소드
-	int totalRow = reviewDao.selectUserReviewCnt(loginMemberId);
+	int totalRow = reviewDao.selectReviewCnt();
 	
 	//마지막 페이지
 	int lastPage = totalRow / rowPerPage;
@@ -86,6 +83,7 @@
 	<%
 		for (HashMap<String, Object> m : AllReviewList) {
 	%>
+			<h4>리뷰</h4>
 			<p>Order Product No: <%= m.get("orderProductNo") %></p>
 			<p>Review Title: <%= m.get("reviewTitle") %></p>
 			<p>Review Content: <%= m.get("reviewContent") %></p>
@@ -125,7 +123,7 @@
 	<%
 			}else{
 	%>
-				<a href="<%=request.getContextPath()%>/review/reviwList.jsp?currentPage=<%=i%>"><%=i %></a>
+				<a href="<%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=i%>"><%=i %></a>
 	<%
 			}
 		}
@@ -134,7 +132,7 @@
 		if(maxPage != lastPage ){
 	%>
 			<!-- maxPage+1해도 동일하다 -->
-			<a href="<%=request.getContextPath()%>/review/reviwList.jsp?currentPage=<%=minPage+pageRange%>">다음</a>
+			<a href="<%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=minPage+pageRange%>">다음</a>
 	<%
 		}
 	%>

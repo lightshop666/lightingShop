@@ -1,5 +1,4 @@
 package dao;
-
 import java.sql.*;
 import java.util.*;
 import vo.*;
@@ -7,6 +6,7 @@ import util.*;
 import java.io.File;
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
+
 
 public class ReviewDao {
 	
@@ -168,16 +168,16 @@ public class ReviewDao {
 		        " pi.product_filetype AS productFileType" +
 		        " FROM review r" +
 		        " INNER JOIN order_product op ON r.order_product_no = op.order_product_no" +
-		        " INNER JOIN orders o ON op.order_no = o.order_no" +
-		        " INNER JOIN product p ON op.product_no = p.product_no" +
-		        " INNER JOIN product_img pi ON p.product_no = pi.product_no" +
+			        " INNER JOIN orders o ON op.order_no = o.order_no" +
+			        	" INNER JOIN product p ON op.product_no = p.product_no" +
+			        		" INNER JOIN product_img pi ON p.product_no = pi.product_no" +
 		        " WHERE r.review_written = 'Y'" +
 		        " ORDER BY r.createdate DESC" +
 		        " LIMIT ?, ?;";
 
 		PreparedStatement mainStmt = conn.prepareStatement(mainSql);
 		//페이징 처리를 위한 SQL 쿼리문에서의 인덱스는 0부터 시작하므로 beginRow를 1을 빼서 0부터 시작하도록 설정
-		mainStmt.setInt(1, beginRow - 1);
+		mainStmt.setInt(1, beginRow);
 		mainStmt.setInt(2, rowPerPage);
 		
 		ResultSet mainRs = mainStmt.executeQuery();
@@ -221,17 +221,25 @@ public class ReviewDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT COUNT(*) FROM review"; 
+		String sql = "SELECT COUNT(*) FROM review	WHERE review_written = 'Y'"; 
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
 			row = rs.getInt("COUNT(*)");
 		}
-		
+		System.out.println(row+ "<--ArrayList-- ReviewDao.selectReviewCnt");
+
 		return row;
 	}
 	
-	
+
+//리뷰 이미지 출력
+	public String reviewImg(int orderProductNo) throws Exception {
+		String result =null;
+		
+		
+		return result;
+	}
 	
 
 	
