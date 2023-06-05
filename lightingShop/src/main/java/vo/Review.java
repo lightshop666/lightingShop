@@ -8,6 +8,7 @@ public class Review {
 	private String reviewOriFilename;
 	private String reviewSaveFilename;
 	private String reviewFiletype;
+	private String reviewPath;
 	private String createdate;
 	private String updatedate;
 	public int getOrderProductNo() {
@@ -52,6 +53,12 @@ public class Review {
 	public void setReviewFiletype(String reviewFiletype) {
 		this.reviewFiletype = reviewFiletype;
 	}
+	public String getReviewPath() {
+		return reviewPath;
+	}
+	public void setReviewPath(String reviewPath) {
+		this.reviewPath = reviewPath;
+	}
 	public String getCreatedate() {
 		return createdate;
 	}
@@ -64,6 +71,7 @@ public class Review {
 	public void setUpdatedate(String updatedate) {
 		this.updatedate = updatedate;
 	}
+	
 	
 	
 	

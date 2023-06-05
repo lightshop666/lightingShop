@@ -11,7 +11,7 @@ import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 public class ReviewDao {
 	
 	
-//마이리뷰 출력
+//1-1)마이리뷰 출력
 	/*	JOIN 문
 	SELECT
 	    r.order_product_no AS orderProductNo,
@@ -21,7 +21,7 @@ public class ReviewDao {
 	    r.updatedate AS updatedate,
 	    r.review_ori_filename AS reviewOriFilename,
 	    r.review_save_filename AS reviewSaveFilename,
-	    r.review_filetype AS reviewFiletype,
+	     r.review_ori_filename AS reviewOriFilename, r.review_path AS reviewPath
 	    p.product_name AS productName,
 	    o.createdate AS orderDate
 	FROM
@@ -46,7 +46,7 @@ public class ReviewDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String mainSql ="SELECT r.order_product_no AS orderProductNo, r.review_title AS reviewTitle,  r.review_content AS reviewContent, r.createdate AS createdate, r.updatedate AS updatedate, r.review_ori_filename AS reviewOriFilename, r.review_save_filename AS reviewSaveFilename, r.review_filetype AS reviewFiletype, p.product_name AS productName, o.createdate AS orderDate FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no INNER JOIN product p ON op.product_no = p.product_no WHERE o.id = ? AND r.review_written = 'Y' ORDER BY  r.createdate DESC LIMIT ?, ?";
+		String mainSql ="SELECT r.order_product_no AS orderProductNo, r.review_title AS reviewTitle,  r.review_content AS reviewContent, r.createdate AS createdate, r.updatedate AS updatedate, r.review_ori_filename AS reviewOriFilename, r.review_save_filename AS reviewSaveFilename,  r.review_ori_filename AS reviewOriFilename, r.review_path AS reviewPath p.product_name AS productName, o.createdate AS orderDate FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no INNER JOIN product p ON op.product_no = p.product_no WHERE o.id = ? AND r.review_written = 'Y' ORDER BY  r.createdate DESC LIMIT ?, ?";
 		PreparedStatement mainStmt = conn.prepareStatement(mainSql);
 		mainStmt.setString(1, loginMemberId);
 		//페이징 처리를 위한 SQL 쿼리문에서의 인덱스는 0부터 시작하므로 beginRow를 1을 빼서 0부터 시작하도록 설정
@@ -66,6 +66,7 @@ public class ReviewDao {
 	        reviewData.put("reviewOriFilename", mainRs.getString("reviewOriFilename"));
 	        reviewData.put("reviewSaveFilename", mainRs.getString("reviewSaveFilename"));
 	        reviewData.put("reviewFiletype", mainRs.getString("reviewFiletype"));
+	        reviewData.put("reviewPath", mainRs.getString("reviewPath"));
 	        reviewData.put("productName", mainRs.getString("productName"));
 	        reviewData.put("orderDate", mainRs.getString("orderDate"));
 
@@ -78,7 +79,7 @@ public class ReviewDao {
 		return list;
 	}	
 	
-//마이리뷰 페이징 카운트
+//1-2)마이리뷰 페이징 카운트
 	/*
 	SELECT COUNT(*) 
 	FROM review r 
@@ -107,7 +108,7 @@ public class ReviewDao {
 	    return row;
 	}
 
-//리뷰 테이블 전체 출력
+//2-1)리뷰 테이블 전체 출력
 	/*
 	SELECT
 	    r.order_product_no AS orderProductNo,
@@ -116,7 +117,7 @@ public class ReviewDao {
 	    r.createdate AS createdate,
 	    r.updatedate AS updatedate,
 	    r.review_save_filename AS reviewSaveFilename,
-	    r.review_filetype AS reviewFiletype,
+	     r.review_ori_filename AS reviewOriFilename, r.review_path AS reviewPath
 	    p.product_no AS productNo,
 	    p.product_name AS productName,
 	    p.product_info AS productInfo,
@@ -154,7 +155,7 @@ public class ReviewDao {
 		        " r.createdate AS createdate," +
 		        " r.updatedate AS updatedate," +
 		        " r.review_save_filename AS reviewSaveFilename," +
-		        " r.review_filetype AS reviewFiletype," +
+		        "  r.review_ori_filename AS reviewOriFilename, r.review_path AS reviewPath" +
 		        " p.product_no AS productNo," +
 		        " p.product_name AS productName," +
 		        " p.product_info AS productInfo," +
@@ -193,6 +194,7 @@ public class ReviewDao {
 		    reviewData.put("updatedate", mainRs.getString("updatedate"));
 		    reviewData.put("reviewSaveFilename", mainRs.getString("reviewSaveFilename"));
 		    reviewData.put("reviewFiletype", mainRs.getString("reviewFiletype"));
+	        reviewData.put("reviewPath", mainRs.getString("reviewPath"));
 		    reviewData.put("productNo", mainRs.getInt("productNo"));
 		    reviewData.put("productName", mainRs.getString("productName"));
 		    reviewData.put("productInfo", mainRs.getString("productInfo"));
@@ -213,7 +215,7 @@ public class ReviewDao {
 	}
 	
 	
-//리뷰 테이블 전체 row
+//2-2)리뷰 테이블 전체 row
 
 	public int selectReviewCnt() throws Exception {
 	//검색을 하거나, 특정 where절이 있으면 입력값이 필요할 수 있다.
@@ -233,15 +235,89 @@ public class ReviewDao {
 	}
 	
 
-//리뷰 이미지 출력
-	public String reviewImg(int orderProductNo) throws Exception {
-		String result =null;
+//3-1)리뷰 이미지 출력
+	public Review reviewImg(int orderProductNo) throws Exception {
+		Review review = null;
 		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
 		
-		return result;
+		String sql = "SELECT review_ori_filename reviewOrifileName, review_save_filename reviewSaveFilename, review_filetype reviewFiletype, review_path reviewPath FROM review WHERE orderProductNo=?"; 
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, orderProductNo);
+		ResultSet rs = stmt.executeQuery();
+		if (rs.next()){
+			review = new Review();
+			review.setReviewOriFilename("reviewOrifileName");
+			review.setReviewSaveFilename("reviewSaveFilename");
+			review.setReviewFiletype("reviewFiletype");
+			review.setReviewPath("reviewPath");
+		}
+		
+		return review;
 	}
 	
+	
+//3-2)리뷰 텍스트 출력
+	public Review reviewText(int orderProductNo) throws Exception {
+		Review review = null;
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		
+		String sql = "SELECT review_title reviewTitle, review_content reviewContent, createdate, updatedate  WHERE orderProductNo=?"; 
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, orderProductNo);
+		ResultSet rs = stmt.executeQuery();
+		if (rs.next()){
+			review = new Review();
+			review.setReviewTitle("reviewTitle");
+			review.setReviewContent("reviewContent");
+			review.setCreatedate("createdate");
+			review.setUpdatedate("updatedate");
+		}
+		
+		return review;
+	}	
 
+//4)리뷰 insert
+	/*
+	INSERT INTO review
+		(order_product_no, review_title, review_content,
+		review_written, review_ori_filename, review_save_filename, review_filetype, createdate, updatedate)
+	VALUES
+		(?,?,?,'Y',?,?,?, now(), now())
+	
+	 * 
+	 */
+	public int addReview(Review review ) throws Exception {
+		int row = 0;
+		DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
+
+	    String sql = "INSERT INTO review (order_product_no, review_title, review_content, review_written, review_ori_filename, review_save_filename, review_filetype, review_path, createdate, updatedate)"+
+	    			" VALUES (?,?,?,'Y',?,?,?,?, now(), now())";
+	    PreparedStatement stmt = conn.prepareStatement(sql);
+	    stmt.setInt(1, review.getOrderProductNo());
+	    stmt.setString(2, review.getReviewTitle());
+	    stmt.setString(3, review.getReviewContent());
+	    stmt.setString(4, review.getReviewOriFilename());
+	    stmt.setString(5, review.getReviewSaveFilename());
+	    stmt.setString(6, review.getReviewFiletype());
+	    stmt.setString(7, "reviewImg");
+	    row = stmt.executeUpdate();
+	    
+	    
+	    if (row !=0) {
+	        System.out.println(row +"행 리뷰 추가 성공<--addReview");
+         }else{
+        	 row=0;
+            System.out.println(row +"행 리뷰 추가 실패<--addReview");
+         }
+
+	    return row;
+		
+	}
 	
 	
 	

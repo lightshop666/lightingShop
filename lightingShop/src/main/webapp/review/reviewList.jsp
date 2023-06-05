@@ -49,7 +49,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>All Review List</title>
+<title>리뷰 게시판</title>
 <!-- Latest compiled and minified CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- Latest compiled JavaScript -->
@@ -74,7 +74,7 @@
 </head>
 <body>
 <div class="container">	
-<h1>나의 리뷰</h1>
+<h1>리뷰 게시판</h1>
 	<div>	<!-- 
 			템플릿 적용 후 수정 사항
 			모든 리뷰 출력, 글 누르면 상품페이지로
@@ -89,7 +89,9 @@
 			<p>Review Content: <%= m.get("reviewContent") %></p>
 			<p>Create Date: <%= m.get("createdate") %></p>
 			<p>Update Date: <%= m.get("updatedate") %></p>
-			<p>Review Save Filename: <%= m.get("reviewSaveFilename") %></p>
+			<p>
+				<img src="<%= m.get("reviewSaveFilename") %>" alt="Review Image">
+			</p>
 			<p>Review File Type: <%= m.get("reviewFiletype") %></p>
 			<p>Product No: <%= m.get("productNo") %></p>
 			<p>Product Name: <%= m.get("productName") %></p>

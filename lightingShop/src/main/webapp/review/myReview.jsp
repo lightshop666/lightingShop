@@ -111,7 +111,7 @@
 		        <td><%= m.get("updatedate") %> </td>
 		        <td><%= m.get("reviewOriFilename") %> </td>
 		        <td>
-		            <img src="/img/review/<%= m.get("reviewSaveFilename") %>" alt="Review Image">
+		            <img src="/reviewImg<%= m.get("reviewSaveFilename") %>" alt="Review Image">
 		        </td>
 		        <td><%= m.get("reviewFiletype") %> </td>
 		        <td><%= m.get("productName") %> </td>

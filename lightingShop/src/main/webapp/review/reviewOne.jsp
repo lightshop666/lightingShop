@@ -10,7 +10,7 @@
 		return;	
 	}
 	//파라미터 값 확인
-	//boradNo 파라미터값 확인
+	//orderProductNo 파라미터값 확인
 	System.out.println(request.getParameter("orderProductNo")+"<--orderProductNo--reviewOne parm ");
 	int orderProductNo = Integer.parseInt(request.getParameter("orderProductNo"));
 	
@@ -23,7 +23,10 @@
 
 	//리뷰사진 출력, 글 클릭시 상품 페이지로 이동
 	//리뷰사진출력을 위한 dao 호출
-
+	ReviewDao reviewdao = new ReviewDao();
+	Review reviewImg = reviewdao.reviewImg(orderProductNo);
+	//리뷰 텍스트 호출
+	Review reviewtext = reviewdao.reviewText(orderProductNo);
 
 %>
 <!DOCTYPE html>
@@ -55,8 +58,41 @@
 <body>
 <div class="container">	
 <h1>리뷰 상세 페이지</h1>
-	<div>
-
+		<div>
+		<table class="table table-bordered ">
+			<tr>			
+				<th>리뷰 사진</th>
+				<th>리뷰 제목</th>
+				<th>리뷰 내용</th>
+				<th>등록일</th>
+				<th>수정일</th>
+			</tr>		
+			<tr>	
+				<td>
+					<img src="<%=reviewImg.getReviewSaveFilename()%>" alt="Review Image">
+					
+				</td>
+				<td><%=reviewtext.getReviewTitle()%></td>
+				<td><%=reviewtext.getUpdatedate()%></td>
+				<td><%=reviewtext.getCreatedate()%></td>
+			</tr>
+		</table>
+		<div class="row">
+			
+			<div class="col-5 text-center">
+				<form action="<%=request.getContextPath()%>/teacher/modifyTeacher.jsp" method="post">
+					<input type="hidden" name="teacherNo" value="<%=teacher.getTeacherNo()%>">
+					<button class="btn btn-warning btn-lg" type="submit">수정</button>
+				</form>
+			</div>
+			<div class="col-6 text-center">
+				
+				<form action="<%=request.getContextPath()%>/teacher/removeTeacherActrion.jsp" method="post">
+					<input type="hidden" name="teacherNo" value="<%=teacher.getTeacherNo()%>">
+					<button class="btn btn-warning btn-lg" type="submit">삭제</button>
+				</form>
+			</div>
+		</div>
 	</div>
 </div>
 </body>
