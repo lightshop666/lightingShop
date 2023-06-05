@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
-	/*
 	// 유효성 검사 // qNo
 	if(request.getParameter("qNo") == null
 			|| request.getParameter("qNo").equals("")) {
@@ -8,8 +7,6 @@
 		return;
 	}
 	int qNo = Integer.parseInt(request.getParameter("qNo"));
-	*/
-	int qNo = 1; // 테스트용
 %>
 
 <!DOCTYPE html>
@@ -28,6 +25,7 @@
 				<th>PASSWORD</th>
 				<td><input type="text" name="inputPw"></td>
 				<td><button type="submit">입력</button></td>
+				<!-- msg 발생시 출력 -->
 				<%
 					if(request.getParameter("msg") != null) {
 				%>
@@ -37,6 +35,7 @@
 				%>
 			</tr>
 		</table>
+		<a href="<%=request.getContextPath()%>/board/questionBoardList.jsp">목록으로</a>
 	</form>
 </body>
 </html>

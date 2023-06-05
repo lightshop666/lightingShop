@@ -1,20 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
-	// 유효성 검사
-	// qNo, qId
-	/*
+	// 유효성 검사 // qNo, qId
 	if(request.getParameter("qNo") == null
 			|| request.getParameter("qNo").equals("")
-			|| request.getParameter("qId") = null
+			|| request.getParameter("qId") == null
 			|| request.getParameter("qId").equals("")) {
 		response.sendRedirect(request.getContextPath() + "/board/questionBoardList.jsp");
 		return;
 	}
 	int qNo = Integer.parseInt(request.getParameter("qNo"));
 	String qId = request.getParameter("qId");
-	*/
-	int qNo = 5; // 테스트용
-	String qId = "admin"; // 테스트용
 %>
 <!DOCTYPE html>
 <html>
@@ -28,7 +23,6 @@
 		<input type="hidden" name="qNo" value="<%=qNo%>">
 		<input type="hidden" name="qId" value="<%=qId%>">
 		<table>
-			<!-- 작성자 아이디와 세션 아이디가 일치하는 경우 비밀번호 입력란 출력X -->
 			<%
 				if(session.getAttribute("loginIdListId") == null
 						|| !session.getAttribute("loginIdListId").equals(qId)) {
@@ -51,7 +45,7 @@
 						</td>
 					</tr>
 			<%
-				} else {
+				} else { // 작성자 아이디와 현재 로그인 아이디가 일치하는 경우 비밀번호 입력란 출력X
 			%>
 					<tr>
 						<h5>정말 삭제하시겠습니까?</h5>

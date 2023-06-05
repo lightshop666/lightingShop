@@ -2,8 +2,7 @@
 <%@ page import = "dao.*" %>
 <%@ page import = "java.net.*" %>
 <%
-	// 유효성 검사
-	// qNo, qId
+	// 유효성 검사 // qNo, qId
 	if(request.getParameter("qNo") == null
 			|| request.getParameter("qNo").equals("")
 			|| request.getParameter("qId") == null

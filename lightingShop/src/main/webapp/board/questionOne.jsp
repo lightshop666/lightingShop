@@ -3,33 +3,21 @@
 <%@ page import = "vo.*" %>
 <%@ page import = "java.util.*" %>
 <%
-	// 유효성 검사
-	// qNo
-	/*
+	// 유효성 검사 // qNo
 	if(request.getParameter("qNo") == null
 			|| request.getParameter("qNo").equals("")) {
 		response.sendRedirect(request.getContextPath() + "/board/questionBoardList.jsp");
 		return;
 	}
 	int qNo = Integer.parseInt(request.getParameter("qNo"));
-	*/
-	int qNo = 5; // 테스트용
 	// 메서드 호출
 	BoardDao dao = new BoardDao();
-	// HashMap, Question, Answer 에 값 넣기
+	// 객체에 값 넣기
 	HashMap<String, Object> map = dao.selectQuestionOne(qNo);
 	Question question = (Question)map.get("question");
 	Answer answer = (Answer)map.get("answer");
-	/*
-	// 비공개일 경우, 세션 아이디가 null이거나 일치하지 않으면 비밀번호 입력 페이지로 이동
-	if(question.getPrivateChk().equals("Y")) {
-		if(session.getAttribute("loginIdListId") == null
-				|| !session.getAttribute("loginIdListId").equals(question.getId())) {
-			response.sendRedirect(request.getContextPath() + "/board/inputPassword.jsp?qNo=" + qNo);
-			return;
-		}
-	}
-	*/
+	Product product = (Product)map.get("product");
+	ProductImg productImg = (ProductImg)map.get("productImg");
 %>
 <!DOCTYPE html>
 <html>
@@ -43,11 +31,11 @@
 		<%
 			if(question.getPrivateChk().equals("Y")) {
 		%>
-				[비공개]
+				(잠긴 자물쇠 아이콘)
 		<%
 			} else {
 		%>
-				[공개]
+				(열린 자물쇠 아이콘)
 		<%
 			}
 		%>
@@ -73,24 +61,23 @@
 			<th>작성자</th>
 			<td><%=question.getqName()%></td>
 		</tr>
-		<tr>
-			<th>상품</th>
 			<%
+				// 상품 선택시 (qNo가 1이 아니면) 해당 상품의 이미지와 이름 출력
 				if(question.getProductNo() != 1) {
 			%>
-					<td>
-						(구현중)상품 선택 O, 상품 이미지와 이름 출력 + 클릭시 해당 상품 상세페이지로 이동
-					</td>
-			<%
-				} else {
-			%>
-					<td>
-						(구현중) 상품 선택 X
-					</td>
+					<tr>
+						<th>상품</th>
+						<td>
+							<!-- 상품이미지 or 상품 이름 클릭 시 해당 상품 상세페이지로 이동 -->
+							<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=question.getProductNo()%>">
+								<img src="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>" >
+								<br><%=product.getProductName()%>
+							</a>
+						</td>
+					</tr>
 			<%
 				}
 			%>
-		</tr>
 		<tr>
 			<th>문의 유형</th>
 			<td><%=question.getqCategory()%></td>
@@ -113,13 +100,13 @@
 		</tr>
 		<tr>
 			<td>
-				<a href="<%=request.getContextPath()%>/board/questiBoardList.jsp">
+				<a href="<%=request.getContextPath()%>/board/questionBoardList.jsp">
 				 	목록으로
 				</a>
-				<a href="<%=request.getContextPath()%>/board/modifyQuestion.jsp?pNo=<%=qNo%>">
+				<a href="<%=request.getContextPath()%>/board/modifyQuestion.jsp?qNo=<%=qNo%>">
 				 	수정
 				</a>
-				<a href="<%=request.getContextPath()%>/board/removeQuestion.jsp?pNo=<%=qNo%>&qId=<%=question.getId()%>">
+				<a href="<%=request.getContextPath()%>/board/removeQuestion.jsp?qNo=<%=qNo%>&qId=<%=question.getId()%>">
 					삭제
 				</a>
 			</td>
@@ -127,7 +114,7 @@
 	</table>
 	<h1>답변</h1>
 	<%
-		if(answer.getaContent() != null) {
+		if(answer.getaContent() != null) { // 답변이 있으면
 	%>
 		<table>
 			<tr>
@@ -148,7 +135,7 @@
 			</tr>
 		</table>
 	<%
-		} else {
+		} else { // 답변이 없으면
 	%>
 			<h4>관리자가 확인 후 답변을 남겨드리겠습니다</h4>
 	<%

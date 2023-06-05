@@ -5,9 +5,9 @@ public class ProductImg {
 	private String productOriFilename;
 	private String productSaveFilename;
 	private String productFiletype;
+	private String productPath;
 	private String createdate;
 	private String updatedate;
-	
 	
 	public int getProductNo() {
 		return productNo;
@@ -24,14 +24,20 @@ public class ProductImg {
 	public String getProductSaveFilename() {
 		return productSaveFilename;
 	}
-	public void setProductSaveFilename(String productSaneFilename) {
-		this.productSaveFilename = productSaneFilename;
+	public void setProductSaveFilename(String productSaveFilename) {
+		this.productSaveFilename = productSaveFilename;
 	}
 	public String getProductFiletype() {
 		return productFiletype;
 	}
 	public void setProductFiletype(String productFiletype) {
 		this.productFiletype = productFiletype;
+	}
+	public String getProductPath() {
+		return productPath;
+	}
+	public void setProductPath(String productPath) {
+		this.productPath = productPath;
 	}
 	public String getCreatedate() {
 		return createdate;

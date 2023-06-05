@@ -3,23 +3,21 @@
 <%@ page import = "vo.*" %>
 <%@ page import = "java.util.*" %>
 <%
-	// 유효성 검사
-	// qNo
-	/*
+	// 유효성 검사 // qNo
 	if(request.getParameter("qNo") == null
 			|| request.getParameter("qNo").equals("")) {
 		response.sendRedirect(request.getContextPath() + "/board/questionBoardList.jsp");
 		return;
 	}
 	int qNo = Integer.parseInt(request.getParameter("qNo"));
-	*/
-	int qNo = 1; // 테스트용
 	// 메서드 호출
 	BoardDao dao = new BoardDao();
-	// HashMap, Question, Answer 에 값 넣기
+	// 객체에 값 넣기
 	HashMap<String, Object> map = dao.selectQuestionOne(qNo);
 	Question question = (Question)map.get("question");
 	Answer answer = (Answer)map.get("answer");
+	Product product = (Product)map.get("product");
+	ProductImg productImg = (ProductImg)map.get("productImg");
 %>
 <!DOCTYPE html>
 <html>
@@ -53,24 +51,20 @@
 				<th>작성자</th>
 				<td><%=question.getqName()%></td>
 			</tr>
-			<tr>
-				<th>상품</th>
 				<%
+					// 상품 선택시 (qNo가 1이 아니면) 해당 상품의 이미지와 이름 출력
 					if(question.getProductNo() != 1) {
 				%>
-						<td>
-							(구현중)상품 선택 O, 상품 이미지와 이름 출력 + 클릭시 해당 상품 상세페이지로 이동
-						</td>
-				<%
-					} else {
-				%>
-						<td>
-							(구현중) 상품 선택 X
-						</td>
+						<tr>
+							<th>상품</th>
+							<td>
+								<img src="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>" >
+								<br><%=product.getProductName()%>
+							</td>
+						</tr>
 				<%
 					}
 				%>
-			</tr>
 			<tr>
 				<!-- 수정 가능 -->
 				<th>문의 유형</th>
@@ -124,7 +118,7 @@
 					<input type="radio" name="privateChk" value="Y" <%if(question.getPrivateChk().equals("Y")) { %> checked <% } %>>비공개
 				</td>
 			</tr>
-			<!-- 작성자 아이디와 세션 아이디가 일치하는 경우 비밀번호 입력란 출력X -->
+			<!-- 작성자 아이디와 현재 로그인 아이디가 일치하는 경우 비밀번호 입력란 출력X -->
 			<%
 				if(session.getAttribute("loginIdListId") == null
 						|| !session.getAttribute("loginIdListId").equals(question.getId())) {
