@@ -6,26 +6,174 @@ import java.util.*;
 
 public class BoardDao {
 	
-	// 문의글 리스트 조회
-	public ArrayList<Question> selectQuestionListByPage(int beginRow, int rowPerPage) throws Exception {
+	// 문의글 리스트 조회 + 페이징, 검색단어(작성자,제목+내용), 카테고리 선택
+	public ArrayList<Question> selectQuestionListByPage(int beginRow, int rowPerPage, String qCategory, String searchCategory, String searchWord) throws Exception {
+		ArrayList<Question> list = new ArrayList<>();
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		/*
+			정렬 : 최신순 (생성일자 내림차순)
+			선택 가능 값 : qCategory(select태그 사용), searchWord
+			경우의 수 :
+			1) 둘다 null
+			SELECT * FROM question ORDER BY createdate DESC LIMIT ?, ?
+			2) qCategory만 선택
+			SELECT * FROM question WHERE q_category = ? ORDER BY createdate DESC LIMIT ?, ?
+			3) searchCategory : qName
+		 	SELECT * FROM question WHERE q_name LIKE ? ORDER BY createdate DESC LIMIT ?, ?
+			4) searchCategory : qtitleAndContent
+			SELECT * FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ? ORDER BY createdate DESC LIMIT ?, ?
+			5) qCategory + searchCategory : qName
+			SELECT * FROM question WHERE q_category = ? AND q_name LIKE ? ORDER BY createdate DESC LIMIT ?, ?
+			6) qCategory + searchCategory : qtitleAndContent
+			SELECT * FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ? ORDER BY createdate DESC LIMIT ?, ?
+		*/
+		String sql = "";
+		PreparedStatement stmt = null;
+		
+		// 1) 둘다 null
+		if(qCategory.equals("") && searchCategory.equals("")) {
+			sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate FROM question ORDER BY createdate DESC LIMIT ?, ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, beginRow);
+			stmt.setInt(2, rowPerPage);
+		// 2) qCategory만 선택
+		} else if(!qCategory.equals("") && searchCategory.equals("")) {
+			sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate FROM question WHERE q_category = ? ORDER BY createdate DESC LIMIT ?, ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, qCategory);
+			stmt.setInt(2, beginRow);
+			stmt.setInt(3, rowPerPage);
+		// 3) searchCategory : qName
+		} else if(searchCategory.equals("qName") && qCategory.equals("")) {
+			sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate FROM question WHERE q_name LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, "%"+searchWord+"%");
+			stmt.setInt(2, beginRow);
+			stmt.setInt(3, rowPerPage);
+		// 4) searchCategory : qtitleAndContent
+		} else if(searchCategory.equals("qtitleAndContent") && qCategory.equals("")) {
+			sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, "%"+searchWord+"%");
+			stmt.setInt(2, beginRow);
+			stmt.setInt(3, rowPerPage);
+		// 5) qCategory + searchCategory : qName
+		} else if(!qCategory.equals("") && searchCategory.equals("qName")) {
+			sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate FROM question WHERE q_category = ? AND q_name LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, qCategory);
+			stmt.setString(2, "%"+searchWord+"%");
+			stmt.setInt(3, beginRow);
+			stmt.setInt(4, rowPerPage);
+		// 6) qCategory + searchCategory : qtitleAndContent
+		} else if(!qCategory.equals("") && searchCategory.equals("qtitleAndContent")) { 
+			sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, qCategory);
+			stmt.setString(2, "%"+searchWord+"%");
+			stmt.setInt(3, beginRow);
+			stmt.setInt(4, rowPerPage);
+		}
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			Question q = new Question();
+			q.setqNo(rs.getInt("qNo"));
+			q.setId(rs.getString("id"));
+			q.setqCategory(rs.getString("qCategory"));
+			q.setqTitle(rs.getString("qTitle"));
+			q.setqName(rs.getString("qName"));
+			q.setaChk(rs.getString("aChk"));
+			q.setPrivateChk(rs.getString("privateChk"));
+			q.setCreatedate(rs.getString("createdate"));
+			list.add(q);
+		}
+		return list;
+	}
+	
+	// 검색단어, 카테고리 선택에 따른 문의글 전체 수 (totalRow)
+	public int selectQuestionCnt(String qCategory, String searchCategory, String searchWord) throws Exception {
+		int totalRow = 0;
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		/*
+			경우의 수 :
+			1) 둘다 null
+			SELECT COUNT(*) FROM question
+			2) qCategory만 선택
+			SELECT COUNT(*) FROM question WHERE q_category = ?
+			3) searchCategory : qName
+		 	SELECT COUNT(*) FROM question question WHERE q_name LIKE ?
+			4) searchCategory : qtitleAndContent
+			SELECT COUNT(*) FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ?
+			5) qCategory + searchCategory : qName
+			SELECT COUNT(*) FROM question WHERE q_category = ? AND q_name LIKE ?
+			6) qCategory + searchCategory : qtitleAndContent
+			SELECT COUNT(*) FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ?
+		*/
+		String sql = "";
+		PreparedStatement stmt = null;
+		
+		// 1) 둘다 null
+		if(qCategory.equals("") && searchCategory.equals("")) {
+			sql = "SELECT COUNT(*) FROM question";
+			stmt = conn.prepareStatement(sql);
+		// 2) qCategory만 선택
+		} else if(!qCategory.equals("") && searchCategory.equals("")) {
+			sql = "SELECT COUNT(*) FROM question WHERE q_category = ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, qCategory);
+		// 3) searchCategory : qName
+		} else if(searchCategory.equals("qName") && qCategory.equals("")) {
+			sql = "SELECT COUNT(*) FROM question question WHERE q_name LIKE ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, "%"+searchWord+"%");
+		// 4) searchCategory : qtitleAndContent
+		} else if(searchCategory.equals("qtitleAndContent") && qCategory.equals("")) {
+			sql = "SELECT COUNT(*) FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, "%"+searchWord+"%");
+		// 5) qCategory + searchCategory : qName
+		} else if(!qCategory.equals("") && searchCategory.equals("qName")) {
+			sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND q_name LIKE ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, qCategory);
+			stmt.setString(2, "%"+searchWord+"%");
+		// 6) qCategory + searchCategory : qtitleAndContent
+		} else if(!qCategory.equals("") && searchCategory.equals("qtitleAndContent")) {
+			sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, qCategory);
+			stmt.setString(2, "%"+searchWord+"%");
+		}
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) {
+			totalRow = rs.getInt(1);
+		}
+		return totalRow;
+	}
+	
+	// 특정 아이디의 문의글 리스트 조회 (마이페이지 내 문의 관리)
+	public ArrayList<Question> selectMyQuestionList(String loginId) throws Exception {
 		ArrayList<Question> list = new ArrayList<>();
 		
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT q_no qNo, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate FROM question ORDER BY createdate DESC LIMIT ?, ?";
+		String sql = "SELECT q_no qNo, product_no productNo, q_category qCategory, q_title qTitle, a_chk aChk, createdate FROM question WHERE id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setInt(1, beginRow);
-		stmt.setInt(2, rowPerPage);
+		stmt.setString(1, loginId);
 		ResultSet rs = stmt.executeQuery();
 		
 		while(rs.next()) {
 			Question q = new Question();
 			q.setqNo(rs.getInt("qNo"));
+			q.setProductNo(rs.getInt("productNo"));
+			q.setqCategory(rs.getString("qCategory"));
 			q.setqTitle(rs.getString("qTitle"));
-			q.setId(rs.getString("qName"));
 			q.setaChk(rs.getString("aChk"));
-			q.setqPw(rs.getString("privateChk"));
 			q.setCreatedate(rs.getString("createdate"));
 			list.add(q);
 		}
@@ -54,11 +202,13 @@ public class BoardDao {
 		}
 	}
 	
-	// 문의글 상세보기 (문의내용 + 답변내용 join)
+	// 문의글 상세보기 (문의내용 + 답변내용 + 상품이름 + 상품이미지 join)
 	public HashMap<String, Object> selectQuestionOne(int qNo) throws Exception {
 		HashMap<String, Object> map = new HashMap<>();
 		Question question = null;
 		Answer answer = null;
+		Product product = null;
+		ProductImg productImg = null;
 		
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
@@ -76,13 +226,20 @@ public class BoardDao {
 				q.updatedate qUpdatedate, -- 문의글 수정일자
 				a.a_content aContent, -- 답변 내용
 				a.createdate aCreatedate, -- 답변 작성일자
-				a.updatedate aUpdatedate -- 답변 수정일자
+				a.updatedate aUpdatedate, -- 답변 수정일자
+				p.product_name productName, -- 상품이름
+				i.product_save_filename productSaveFilename, -- 상품이미지 저장이름
+				i.product_path productPath -- 상품 이미지 저장폴더
 			FROM question q
 			LEFT JOIN answer a
 			ON q.q_no = a.q_no
+				LEFT JOIN product p
+				ON q.product_no = p.product_no
+					LEFT JOIN product_img i
+					on p.product_no = i.product_no
 			WHERE q.q_no = ?
 		*/
-		String sql = "SELECT q.q_no qNo, q.product_no productNo, q.id qId, q.q_name qName, q.q_category qCategory, q.q_title qTitle, q.q_content qContent, q.private_chk qPrivateChk, q.createdate qCreatedate, q.updatedate qUpdatedate, a.a_content aContent, a.createdate aCreatedate, a.updatedate aUpdatedate FROM question q LEFT JOIN answer a ON q.q_no = a.q_no WHERE q.q_no = ?";
+		String sql = "SELECT q.q_no qNo, q.product_no productNo, q.id qId, q.q_name qName, q.q_category qCategory, q.q_title qTitle, q.q_content qContent, q.private_chk qPrivateChk, q.createdate qCreatedate, q.updatedate qUpdatedate, a.a_content aContent, a.createdate aCreatedate, a.updatedate aUpdatedate, p.product_name productName, i.product_save_filename productSaveFilename, i.product_path productPath FROM question q LEFT JOIN answer a ON q.q_no = a.q_no LEFT JOIN product p ON q.product_no = p.product_no LEFT JOIN product_img i ON p.product_no = i.product_no WHERE q.q_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, qNo);
 		ResultSet rs = stmt.executeQuery();
@@ -90,6 +247,8 @@ public class BoardDao {
 		if(rs.next()) {
 			question = new Question();
 			answer = new Answer();
+			product = new Product();
+			productImg = new ProductImg();
 			question.setqNo(rs.getInt("qNo"));
 			question.setProductNo(rs.getInt("productNo"));
 			question.setId(rs.getString("qId"));
@@ -103,9 +262,14 @@ public class BoardDao {
 			answer.setaContent(rs.getString("aContent"));
 			answer.setCreatedate(rs.getString("aCreatedate"));
 			answer.setUpdatedate(rs.getString("aUpdatedate"));
+			product.setProductName(rs.getString("productName"));
+			productImg.setProductSaveFilename(rs.getString("productSaveFilename"));
+			productImg.setProductPath(rs.getString("productPath"));
 		}
 		map.put("question", question);
 		map.put("answer", answer);
+		map.put("product", product);
+		map.put("productImg", productImg);
 		return map;
 	}
 	
