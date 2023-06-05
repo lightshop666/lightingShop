@@ -69,7 +69,28 @@
 		font-family: 'Black Han Sans', sans-serif;
 		text-align: center;
 	}
-
+	
+	/*이미지 사이즈, 클릭시 풀스크린*/
+	.thumbnail {
+    max-width: 200px;
+    cursor: pointer;
+  	}
+	.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  	}
+	.fullscreen img {
+    max-width: 80%;
+    max-height: 80%;
+	}
 </style>
 
 </head>
@@ -99,24 +120,49 @@
 			    <th>Review File Type</th>
 			    <th>Product Name</th>
 			    <th>Order Date</th>
+			    <th colspan="2">수정/삭제</th>
 			</tr>
 		<%
 		    for (HashMap<String, Object> m : reviewList) {
 		%>				
-		    <tr>				
-		        <td><%= m.get("orderProductNo") %> </td>
-		        <td><%= m.get("reviewTitle") %> </td>
-		        <td><%= m.get("reviewContent") %> </td>
-		        <td><%= m.get("createdate") %> </td>
-		        <td><%= m.get("updatedate") %> </td>
-		        <td><%= m.get("reviewOriFilename") %> </td>
-		        <td>
-		            <img src="/reviewImg<%= m.get("reviewSaveFilename") %>" alt="Review Image">
-		        </td>
-		        <td><%= m.get("reviewFiletype") %> </td>
-		        <td><%= m.get("productName") %> </td>
-		        <td><%= m.get("orderDate") %> </td>
-		    </tr>
+				<tr>				
+					<td><%= m.get("orderProductNo") %> </td>
+					<td><%= m.get("reviewTitle") %> </td>
+					<td><%= m.get("reviewContent") %> </td>
+					<td><%= m.get("createdate") %> </td>
+					<td><%= m.get("updatedate") %> </td>
+					<td><%= m.get("reviewOriFilename") %> </td>
+					<td>
+					    <img class="thumbnail" src="<%= request.getContextPath() %>/<%= (String) m.get("reviewPath") %>/<%= (String)m.get("reviewSaveFilename") %>" alt="Review Image">
+						<script>
+							// 이미지 클릭 시 확대/축소
+							document.querySelector('.thumbnail').addEventListener('click', function() {
+								var img = document.createElement('img');
+								img.src = this.src;
+								img.classList.add('fullscreen');
+								img.addEventListener('click', function() {
+									document.body.removeChild(this);
+								});
+								document.body.appendChild(img);
+							});
+						</script>
+					</td>					 
+					<td><%= m.get("reviewFiletype") %> </td>
+					<td><%= m.get("productName") %> </td>
+					<td><%= m.get("orderDate") %> </td>
+					<td>
+						<form action="<%=request.getContextPath()%>/review/modifyReview.jsp" method="post">
+							<input type="hidden" name="orderProductNo" value="<%= m.get("orderProductNo") %> ">
+						<button type="submit">수정</button>
+						</form>					
+					</td>
+					<td>
+						<form action="<%=request.getContextPath()%>/review/removeReview.jsp" method="post">
+							<input type="hidden" name="orderProductNo" value="<%= m.get("orderProductNo") %> ">
+						<button type="submit">삭제</button>
+						</form>					
+					</td>
+				</tr>
 		<%
 		    }
 		%>

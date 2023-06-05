@@ -3,15 +3,13 @@
 <%@ page import="vo.*" %>
 <%@ page import="java.util.*"%>
 <%
-	//order_product_no가 review테이블 외래키이자 기본키다.
+	//order_product_no가 테이블 외래키이자 기본키다.
 	if(request.getParameter("orderProductNo") == null){
 		response.sendRedirect(request.getContextPath()+"/review/reviewList.jsp");	
-		System.out.println("reviewList.jsp로 리턴");
+		System.out.println("orderProductNo 유효성 검사에서 튕긴다<--reviewOne.jsp");
 		return;	
 	}
-	//파라미터 값 확인
-	//orderProductNo 파라미터값 확인
-	System.out.println(request.getParameter("orderProductNo")+"<--orderProductNo--reviewOne parm ");
+	System.out.println(request.getParameter("orderProductNo")+"<--orderProductNo--reviewOne.jsp parm ");
 	int orderProductNo = Integer.parseInt(request.getParameter("orderProductNo"));
 	
 	//세션 로그인 확인
@@ -23,17 +21,19 @@
 
 	//리뷰사진 출력, 글 클릭시 상품 페이지로 이동
 	//리뷰사진출력을 위한 dao 호출
-	ReviewDao reviewdao = new ReviewDao();
-	Review reviewImg = reviewdao.reviewImg(orderProductNo);
+	ReviewDao reviewDao = new ReviewDao();
+	Review reviewImg = new Review();
+	Review reviewText = new Review();
+	reviewImg = reviewDao.reviewImg(orderProductNo);
 	//리뷰 텍스트 호출
-	Review reviewtext = reviewdao.reviewText(orderProductNo);
+	reviewText = reviewDao.reviewText(orderProductNo);
 
 %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Review One</title>
+<title>리뷰 상세</title>
 <!-- Latest compiled and minified CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- Latest compiled JavaScript -->
@@ -52,7 +52,28 @@
 		font-family: 'Black Han Sans', sans-serif;
 		text-align: center;
 	}
-
+	
+	/*이미지 사이즈, 클릭시 풀스크린*/
+	.thumbnail {
+    max-width: 200px;
+    cursor: pointer;
+  	}
+	.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  	}
+	.fullscreen img {
+    max-width: 80%;
+    max-height: 80%;
+	}
 </style>
 </head>
 <body>
@@ -69,28 +90,38 @@
 			</tr>		
 			<tr>	
 				<td>
-					<img src="<%=reviewImg.getReviewSaveFilename()%>" alt="Review Image">
-					
+					<img class="thumbnail" src="<%= request.getContextPath()%>/<%=(String)reviewImg.getReviewPath()%>/<%=(String)reviewImg.getReviewSaveFilename()%>" alt="Review Image">
+					<script>
+						// 이미지 클릭 시 확대/축소
+						document.querySelector('.thumbnail').addEventListener('click', function() {
+							var img = document.createElement('img');
+							img.src = this.src;
+							img.classList.add('fullscreen');
+							img.addEventListener('click', function() {
+								document.body.removeChild(this);
+							});
+							document.body.appendChild(img);
+						});
+					</script>
 				</td>
-				<td><%=reviewtext.getReviewTitle()%></td>
-				<td><%=reviewtext.getUpdatedate()%></td>
-				<td><%=reviewtext.getCreatedate()%></td>
+				<td><%=reviewText.getReviewTitle()%></td>
+				<td><%=reviewText.getReviewContent()%></td>
+				<td><%=reviewText.getCreatedate()%></td>
+				<td><%=reviewText.getUpdatedate()%></td>
 			</tr>
 		</table>
-		<div class="row">
-			
+		<div>			
 			<div class="col-5 text-center">
-				<form action="<%=request.getContextPath()%>/teacher/modifyTeacher.jsp" method="post">
-					<input type="hidden" name="teacherNo" value="<%=teacher.getTeacherNo()%>">
-					<button class="btn btn-warning btn-lg" type="submit">수정</button>
-				</form>
+				<form action="<%=request.getContextPath()%>/review/modifyReview.jsp" method="post">
+							<input type="hidden" name="orderProductNo" value="<%=orderProductNo %> ">
+						<button type="submit">수정</button>
+				</form>		
 			</div>
-			<div class="col-6 text-center">
-				
-				<form action="<%=request.getContextPath()%>/teacher/removeTeacherActrion.jsp" method="post">
-					<input type="hidden" name="teacherNo" value="<%=teacher.getTeacherNo()%>">
-					<button class="btn btn-warning btn-lg" type="submit">삭제</button>
-				</form>
+			<div class="col-6 text-center">				
+				<form action="<%=request.getContextPath()%>/review/removeReview.jsp" method="post">
+							<input type="hidden" name="orderProductNo" value="<%=orderProductNo  %> ">
+						<button type="submit">삭제</button>
+				</form>	
 			</div>
 		</div>
 	</div>

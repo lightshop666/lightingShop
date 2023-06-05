@@ -21,14 +21,15 @@ public class ReviewDao {
 	    r.updatedate AS updatedate,
 	    r.review_ori_filename AS reviewOriFilename,
 	    r.review_save_filename AS reviewSaveFilename,
-	     r.review_ori_filename AS reviewOriFilename, r.review_path AS reviewPath
+	    r.review_filetype AS reviewFiletype ,
+	    r.review_path AS reviewPath,
 	    p.product_name AS productName,
 	    o.createdate AS orderDate
 	FROM
 	    review r
 	    INNER JOIN order_product op ON r.order_product_no = op.order_product_no
-	    	INNER JOIN orders o ON op.order_no = o.order_no
-	    		INNER JOIN product p ON op.product_no = p.product_no
+	    INNER JOIN orders o ON op.order_no = o.order_no
+	    INNER JOIN product p ON op.product_no = p.product_no
 	WHERE
 	    o.id = ?
 	    AND r.review_written = 'Y'
@@ -46,7 +47,25 @@ public class ReviewDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String mainSql ="SELECT r.order_product_no AS orderProductNo, r.review_title AS reviewTitle,  r.review_content AS reviewContent, r.createdate AS createdate, r.updatedate AS updatedate, r.review_ori_filename AS reviewOriFilename, r.review_save_filename AS reviewSaveFilename,  r.review_ori_filename AS reviewOriFilename, r.review_path AS reviewPath p.product_name AS productName, o.createdate AS orderDate FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no INNER JOIN product p ON op.product_no = p.product_no WHERE o.id = ? AND r.review_written = 'Y' ORDER BY  r.createdate DESC LIMIT ?, ?";
+		String mainSql = "SELECT r.order_product_no AS orderProductNo,"
+		        + " r.review_title AS reviewTitle,"
+		        + " r.review_content AS reviewContent,"
+		        + " r.createdate AS createdate,"
+		        + " r.updatedate AS updatedate,"
+		        + " r.review_ori_filename AS reviewOriFilename,"
+		        + " r.review_save_filename AS reviewSaveFilename,"
+		        + " r.review_filetype AS reviewFiletype ,r.review_path AS reviewPath,"
+		        + " p.product_name AS productName,"
+		        + " o.createdate AS orderDate"
+		        + " FROM review r"
+		        + " INNER JOIN order_product op ON r.order_product_no = op.order_product_no"
+		        + " INNER JOIN orders o ON op.order_no = o.order_no"
+		        + " INNER JOIN product p ON op.product_no = p.product_no"
+		        + " WHERE o.id = ?"
+		        + " AND r.review_written = 'Y'"
+		        + " ORDER BY r.createdate DESC"
+		        + " LIMIT ?, ?";
+		
 		PreparedStatement mainStmt = conn.prepareStatement(mainSql);
 		mainStmt.setString(1, loginMemberId);
 		//페이징 처리를 위한 SQL 쿼리문에서의 인덱스는 0부터 시작하므로 beginRow를 1을 빼서 0부터 시작하도록 설정
@@ -114,10 +133,12 @@ public class ReviewDao {
 	    r.order_product_no AS orderProductNo,
 	    r.review_title AS reviewTitle,
 	    r.review_content AS reviewContent,
+	    r.review_filetype AS reviewFiletype,
 	    r.createdate AS createdate,
 	    r.updatedate AS updatedate,
 	    r.review_save_filename AS reviewSaveFilename,
-	     r.review_ori_filename AS reviewOriFilename, r.review_path AS reviewPath
+	    r.review_ori_filename AS reviewOriFilename, 
+	    r.review_path AS reviewPath,
 	    p.product_no AS productNo,
 	    p.product_name AS productName,
 	    p.product_info AS productInfo,
@@ -131,10 +152,10 @@ public class ReviewDao {
 	    pi.product_filetype AS productFileType
 	FROM
 	    review r
-		    INNER JOIN order_product op ON r.order_product_no = op.order_product_no
+		     JOIN order_product op ON r.order_product_no = op.order_product_no
 			    INNER JOIN orders o ON op.order_no = o.order_no
 				    INNER JOIN product p ON op.product_no = p.product_no
-				    	INNER JOIN product_img pi ON p.product_no = pi.product_no
+				    	left JOIN product_img pi ON p.product_no = pi.product_no
 	WHERE
 	    r.review_written = 'Y'
 	ORDER BY
@@ -148,37 +169,25 @@ public class ReviewDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String mainSql ="SELECT" +
-		        " r.order_product_no AS orderProductNo," +
-		        " r.review_title AS reviewTitle," +
-		        " r.review_content AS reviewContent," +
-		        " r.createdate AS createdate," +
-		        " r.updatedate AS updatedate," +
-		        " r.review_save_filename AS reviewSaveFilename," +
-		        "  r.review_ori_filename AS reviewOriFilename, r.review_path AS reviewPath" +
-		        " p.product_no AS productNo," +
-		        " p.product_name AS productName," +
-		        " p.product_info AS productInfo," +
-		        " p.category_name AS categoryName," +
-		        " p.product_price AS productPrice," +
-		        " p.product_status AS productStatus," +
-		        " o.order_no AS orderNo," +
-		        " o.createdate AS orderDate," +
-		        " op.delivery_status AS delivery," +
-		        " pi.product_save_filename AS productSaveFilename," +
-		        " pi.product_filetype AS productFileType" +
-		        " FROM review r" +
-		        " INNER JOIN order_product op ON r.order_product_no = op.order_product_no" +
-			        " INNER JOIN orders o ON op.order_no = o.order_no" +
-			        	" INNER JOIN product p ON op.product_no = p.product_no" +
-			        		" INNER JOIN product_img pi ON p.product_no = pi.product_no" +
-		        " WHERE r.review_written = 'Y'" +
-		        " ORDER BY r.createdate DESC" +
-		        " LIMIT ?, ?;";
+		String mainSql = "SELECT r.order_product_no AS orderProductNo, r.review_title AS reviewTitle, r.review_content AS reviewContent, "
+				+ "r.createdate AS createdate, r.updatedate AS updatedate, r.review_save_filename AS reviewSaveFilename, "
+				+ "r.review_ori_filename AS reviewOriFilename,  r.review_filetype AS reviewFiletype, r.review_path AS reviewPath, p.product_no AS productNo, "
+				+ "p.product_name AS productName, p.product_info AS productInfo, p.category_name AS categoryName, "
+				+ "p.product_price AS productPrice, p.product_status AS productStatus, o.order_no AS orderNo, "
+				+ "o.createdate AS orderDate, op.delivery_status AS delivery, pi.product_save_filename AS productSaveFilename, "
+				+ "pi.product_filetype AS productFileType "
+				+ "FROM review r "
+				+ "JOIN order_product op ON r.order_product_no = op.order_product_no "
+				+ "INNER JOIN orders o ON op.order_no = o.order_no "
+				+ "INNER JOIN product p ON op.product_no = p.product_no "
+				+ "LEFT JOIN product_img pi ON p.product_no = pi.product_no "
+				+ "WHERE r.review_written = 'Y' "
+				+ "ORDER BY r.createdate DESC "
+				+ "LIMIT ?, ?";
 
 		PreparedStatement mainStmt = conn.prepareStatement(mainSql);
 		//페이징 처리를 위한 SQL 쿼리문에서의 인덱스는 0부터 시작하므로 beginRow를 1을 빼서 0부터 시작하도록 설정
-		mainStmt.setInt(1, beginRow);
+		mainStmt.setInt(1, beginRow-1);
 		mainStmt.setInt(2, rowPerPage);
 		
 		ResultSet mainRs = mainStmt.executeQuery();
@@ -223,7 +232,7 @@ public class ReviewDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT COUNT(*) FROM review	WHERE review_written = 'Y'"; 
+		String sql = "SELECT COUNT(*) FROM review WHERE review_written = 'Y'"; 
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
@@ -242,16 +251,16 @@ public class ReviewDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT review_ori_filename reviewOrifileName, review_save_filename reviewSaveFilename, review_filetype reviewFiletype, review_path reviewPath FROM review WHERE orderProductNo=?"; 
+		String sql = "SELECT review_ori_fileName reviewOrifileName, review_save_filename reviewSaveFilename, review_filetype reviewFiletype, review_path reviewPath FROM review WHERE order_product_no=?"; 
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, orderProductNo);
 		ResultSet rs = stmt.executeQuery();
 		if (rs.next()){
 			review = new Review();
-			review.setReviewOriFilename("reviewOrifileName");
-			review.setReviewSaveFilename("reviewSaveFilename");
-			review.setReviewFiletype("reviewFiletype");
-			review.setReviewPath("reviewPath");
+			review.setReviewOriFilename(rs.getString("reviewOriFileName"));
+			review.setReviewSaveFilename(rs.getString("reviewSaveFilename"));
+			review.setReviewFiletype(rs.getString("reviewFiletype"));
+			review.setReviewPath(rs.getString("reviewPath"));
 		}
 		
 		return review;
@@ -265,22 +274,23 @@ public class ReviewDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT review_title reviewTitle, review_content reviewContent, createdate, updatedate  WHERE orderProductNo=?"; 
+		String sql = "SELECT order_product_no orderProductNo, review_title reviewTitle, review_content reviewContent, createdate, updatedate FROM review WHERE order_product_no=?"; 
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, orderProductNo);
 		ResultSet rs = stmt.executeQuery();
 		if (rs.next()){
 			review = new Review();
-			review.setReviewTitle("reviewTitle");
-			review.setReviewContent("reviewContent");
-			review.setCreatedate("createdate");
-			review.setUpdatedate("updatedate");
+			review.setReviewTitle(rs.getString("reviewTitle"));
+			review.setReviewContent(rs.getString("reviewContent"));
+			review.setCreatedate(rs.getString("createdate"));
+			review.setUpdatedate(rs.getString("updatedate"));
+		
 		}
 		
 		return review;
 	}	
 
-//4)리뷰 insert
+//4-1)리뷰 insert
 	/*
 	INSERT INTO review
 		(order_product_no, review_title, review_content,
@@ -307,24 +317,75 @@ public class ReviewDao {
 	    stmt.setString(7, "reviewImg");
 	    row = stmt.executeUpdate();
 	    
-	    
 	    if (row !=0) {
 	        System.out.println(row +"행 리뷰 추가 성공<--addReview");
          }else{
         	 row=0;
             System.out.println(row +"행 리뷰 추가 실패<--addReview");
          }
-
-	    return row;
-		
+	    return row;		
 	}
 	
 	
+//5) 리뷰 파일 삭제
+    public void deleteInvalidFile(String saveFilename, String dir) throws Exception  {
+    	File f = new File(dir+"/"+saveFilename);
+		//이미 파일은 업데이트가 됐기 때문에 파일이 진짜로 있다면
+		if(f.exists()){
+			//파일삭제
+			f.delete();
+		}
+    }
+    
+//6-1)리뷰 파일 업로드 안됐을 때 수정 
+    
+    public int updateReviewWithoutFile(Review review)throws Exception {
+    	int row = 0;
+		DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
+
+	    String sql = "UPDATE review SET review_title = ?, review_content = ?, updatedate=NOW() WHERE order_product_no = ?";
+	    PreparedStatement stmt = conn.prepareStatement(sql);
+	    stmt.setString(1, review.getReviewTitle());
+	    stmt.setString(2, review.getReviewContent());
+	    stmt.setInt(3, review.getOrderProductNo());
+	    stmt.executeUpdate();
+	    
+	    if (row !=0) {
+	        System.out.println(row +"행 리뷰 수정 성공<--addReview");
+         }else{
+        	 row=0;
+            System.out.println(row +"행 리뷰 수정 실패<--addReview");
+         }
+    	return row;
+    }
 	
-	
-	
-	
-	
+
+//6-2)리뷰 파일 업로드하며 수정 updateReviewWithFile
+    public int updateReviewWithFile(Review review)throws Exception {
+    	int row = 0;
+		DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
+
+	    String sql = "UPDATE review SET review_title = ?, review_content = ?, review_filetype = ?, review_orifilename = ?, review_savefilename = ?, updatedate = NOW() WHERE order_product_no = ?";
+	    PreparedStatement stmt = conn.prepareStatement(sql);
+	    stmt.setString(1, review.getReviewTitle());
+	    stmt.setString(2, review.getReviewContent());
+	    stmt.setString(3, review.getReviewFiletype());
+	    stmt.setString(4, review.getReviewOriFilename());
+	    stmt.setString(5, review.getReviewSaveFilename());
+	    stmt.setInt(6, review.getOrderProductNo());
+	    stmt.executeUpdate();
+
+	    
+	    if (row !=0) {
+	        System.out.println(row +"행 리뷰 수정 성공<--addReview");
+         }else{
+        	 row=0;
+            System.out.println(row +"행 리뷰 수정 실패<--addReview");
+         }
+    	return row;
+    }
 	
 	
 	

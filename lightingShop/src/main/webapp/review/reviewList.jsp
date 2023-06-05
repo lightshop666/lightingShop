@@ -64,11 +64,32 @@
 		text-align: left;
 	}
 	}
-	h1{	/*제목 폰트*/
+	h1{	
 		font-family: 'Black Han Sans', sans-serif;
 		text-align: center;
 	}
-
+	/*이미지 사이즈, 클릭시 풀스크린*/
+	.thumbnail {
+    max-width: 200px;
+    cursor: pointer;
+  	}
+	.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  	}
+	.fullscreen img {
+    max-width: 80%;
+    max-height: 80%;
+	}
+	
 </style>
 
 </head>
@@ -86,12 +107,26 @@
 			<h4>리뷰</h4>
 			<p>Order Product No: <%= m.get("orderProductNo") %></p>
 			<p>Review Title: <%= m.get("reviewTitle") %></p>
-			<p>Review Content: <%= m.get("reviewContent") %></p>
+			<p>
+				<a href="<%=request.getContextPath()%>/review/reviewOne.jsp?orderProductNo=<%=m.get("orderProductNo")%>">Review Content: <%= m.get("reviewContent") %></a>			
+			</p>
 			<p>Create Date: <%= m.get("createdate") %></p>
 			<p>Update Date: <%= m.get("updatedate") %></p>
 			<p>
-				<img src="<%= m.get("reviewSaveFilename") %>" alt="Review Image">
+				<img class="thumbnail" src="<%= request.getContextPath() %>/<%= (String) m.get("reviewPath") %>/<%= (String) m.get("reviewSaveFilename") %>" alt="Review Image">
 			</p>
+			<script>
+				// 이미지 클릭 시 확대/축소
+				document.querySelector('.thumbnail').addEventListener('click', function() {
+					var img = document.createElement('img');
+					img.src = this.src;
+					img.classList.add('fullscreen');
+					img.addEventListener('click', function() {
+						document.body.removeChild(this);
+					});
+					document.body.appendChild(img);
+				});
+			</script>
 			<p>Review File Type: <%= m.get("reviewFiletype") %></p>
 			<p>Product No: <%= m.get("productNo") %></p>
 			<p>Product Name: <%= m.get("productName") %></p>
@@ -114,7 +149,7 @@
 		//1번 페이지보다 작은데 나오면 음수로 가버린다
 		if (minPage > 1) {
 	%>
-			<a href="<%=request.getContextPath()%>/review/reviwList.jsp?currentPage=<%=minPage-pageRange%>">이전</a>
+			<a href="<%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=minPage-pageRange%>">이전</a>
 	
 	<%	
 		}

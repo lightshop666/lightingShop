@@ -12,6 +12,9 @@
 	if(session.getAttribute("loginMemberId") != null) {
 		loginMemberId = (String)session.getAttribute("loginMemberId");
 	}
+
+	//모델 호출
+	ReviewDao reviewDao = new ReviewDao();
 	/*
 	else{
 		//review 추가는 로그인 한 사람만 하게 해준다.
@@ -52,13 +55,9 @@
 		String saveFilename = mRequest.getFilesystemName("reviewFile");
 		System.out.println(saveFilename+ "<--saveFilename-- addReviewAction.jsp");
 
-		//File을 가져온다 (경로 / saveFilename)의 이름인
-		File f = new File(dir+"\\"+saveFilename);
-		//파일이 진짜로 있다면
-		if(f.exists()){
-			//삭제한다.
-			f.delete();
-		}
+	    // DAO 메서드 호출하여 파일 삭제
+	    reviewDao.deleteInvalidFile(saveFilename, dir);
+
 		//파일을 삭제해줬으니 리턴시킨다.
 		response.sendRedirect(request.getContextPath()+"/review/addReview.jsp?orderProductNo=" + mRequest.getParameter("orderProductNo"));
 		System.out.println("업로드 파일이 jpg가 아니라 리턴합니다 <-- addReviewAction.jsp");
@@ -94,8 +93,6 @@
 	review.setReviewOriFilename(originFilename);
 	review.setReviewSaveFilename(saveFilename);
 	
-	//review 삽입 테이블 호출
-	ReviewDao reviewDao = new ReviewDao();
 	
 	if(reviewDao.addReview(review) != 0){
 		System.out.println("추가 성공 <-- addReviewAction.jsp");
