@@ -6,30 +6,11 @@ public class Product {
 	private String productName;
 	private double productPrice;
 	private String productStatus;
-	private String productStock;
+	private int productStock;
 	private String productInfo;
 	private String createdate;
 	private String updatedate;
-	private double productDiscount;
 	
-	public double getProductDiscount() {
-		return productDiscount;
-	}
-	public void setProductDiscount(double productDiscount) {
-		this.productDiscount = productDiscount;
-	}
-	public String getCreatedate() {
-		return createdate;
-	}
-	public void setCreatedate(String createdate) {
-		this.createdate = createdate;
-	}
-	public String getUpdatedate() {
-		return updatedate;
-	}
-	public void setUpdatedate(String updatedate) {
-		this.updatedate = updatedate;
-	}
 	public int getProductNo() {
 		return productNo;
 	}
@@ -60,10 +41,10 @@ public class Product {
 	public void setProductStatus(String productStatus) {
 		this.productStatus = productStatus;
 	}
-	public String getProductStock() {
+	public int getProductStock() {
 		return productStock;
 	}
-	public void setProductStock(String productStock) {
+	public void setProductStock(int productStock) {
 		this.productStock = productStock;
 	}
 	public String getProductInfo() {
@@ -72,6 +53,16 @@ public class Product {
 	public void setProductInfo(String productInfo) {
 		this.productInfo = productInfo;
 	}
-
-	
+	public String getCreatedate() {
+		return createdate;
+	}
+	public void setCreatedate(String createdate) {
+		this.createdate = createdate;
+	}
+	public String getUpdatedate() {
+		return updatedate;
+	}
+	public void setUpdatedate(String updatedate) {
+		this.updatedate = updatedate;
+	}
 }
