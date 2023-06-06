@@ -11,35 +11,17 @@
 	String loginMemberId = null;
 	if(session.getAttribute("loginMemberId") != null) {
 		loginMemberId = (String)session.getAttribute("loginMemberId");
-	}
-
+	}	/*
+	else{
+	//review 추가는 로그인 한 사람만 하게 해준다.
+	System.out.println("reviewList.jsp로 리턴<---addReviewAction.jsp");
+	response.sendRedirect(request.getContextPath() + "/review/reviewList.jsp");		
+	return;
+}
+*/
 	//모델 호출
 	ReviewDao reviewDao = new ReviewDao();
-	/*
-	else{
-		//review 추가는 로그인 한 사람만 하게 해준다.
-		System.out.println("reviewList.jsp로 리턴<---addReviewAction.jsp");
-		response.sendRedirect(request.getContextPath() + "/review/reviewList.jsp");		
-		return;
-	}
-	*/
-	//orderProductNo 유효성 검사
-		//order_product_no가 review테이블 외래키이자 기본키다.
-	int orderProductNo = 26;
-	//orderProductNo null이면 리턴, 아니면 그 값을 넣어준다.
-	/*
-	if(request.getParameter("orderProductNo") == null){
-		response.sendRedirect(request.getContextPath()+"/review/reviewList.jsp");	
-		System.out.println("reviewList.jsp로 리턴");
-		return;	
-	}else{
-		//orderProductNo 파라미터값 확인
-		System.out.println(request.getParameter("orderProductNo")+"<--orderProductNo--reviewOne parm ");
-		orderProductNo = Integer.parseInt(request.getParameter("orderProductNo"));
-	}
-	*/
-	
-	
+
 	String dir = request.getServletContext().getRealPath("/reviewImg"); // 이 프로젝트 내 파일 호출
 	System.out.println(dir);
 	
@@ -49,6 +31,23 @@
 	// DefaultFileRenamePolicy() 파일 중복이름 방지 -- 후에 다른 방법으로 사용
 	MultipartRequest mRequest = new MultipartRequest(request, dir, max, "utf-8", new DefaultFileRenamePolicy());
 	
+	
+
+	//orderProductNo 유효성 검사
+	//order_product_no가 review테이블 외래키이자 기본키다.
+	int orderProductNo = 0;
+	//orderProductNo null이면 리턴, 아니면 그 값을 넣어준다.
+
+	if(mRequest.getParameter("orderProductNo") == null){
+		response.sendRedirect(request.getContextPath()+"/review/reviewList.jsp");	
+		System.out.println("reviewList.jsp로 리턴");
+		return;	
+	}else{
+		//orderProductNo 파라미터값 확인
+		System.out.println(mRequest.getParameter("orderProductNo")+"<--orderProductNo--reviewOne parm ");
+		orderProductNo = Integer.parseInt(mRequest.getParameter("orderProductNo"));
+	}
+
 	//업로드 파일이 jpg 파일이 아니면 리턴하겠다. cos.jar에서는 이미 파일이 들어온 이후다.--> 삭제 API import="java.io.File"
 	if(mRequest.getContentType("reviewFile").equals("image/jpeg") == false){
 		//이미 저장된 파일 삭제

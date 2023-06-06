@@ -367,7 +367,7 @@ public class ReviewDao {
 		DBUtil dbUtil = new DBUtil();
 	    Connection conn = dbUtil.getConnection();
 
-	    String sql = "UPDATE review SET review_title = ?, review_content = ?, review_filetype = ?, review_orifilename = ?, review_savefilename = ?, updatedate = NOW() WHERE order_product_no = ?";
+	    String sql = "UPDATE review SET review_title = ?, review_content = ?, review_filetype = ?, review_ori_filename = ?, review_save_filename = ?, updatedate = NOW() WHERE order_product_no = ?";
 	    PreparedStatement stmt = conn.prepareStatement(sql);
 	    stmt.setString(1, review.getReviewTitle());
 	    stmt.setString(2, review.getReviewContent());

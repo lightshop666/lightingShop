@@ -120,6 +120,7 @@
 				<td><%=reviewText.getUpdatedate()%></td>
 			</tr>
 		</table>
+		<input type="hidden" name="pastSaveFilename" value="<%=reviewImg.getReviewSaveFilename()%>">
 		<input type="hidden" name="orderProductNo" value="<%=String.valueOf(orderProductNo).trim()%>">
 		<button type="submit">수정</button>
 	</form>		
