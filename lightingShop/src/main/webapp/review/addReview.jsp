@@ -14,9 +14,8 @@
 	}
 	*/
 	//order_product_no가 review테이블 외래키이자 기본키다.
-	int orderProductNo = 27;
+	int orderProductNo = 0;
 	//orderProductNo null이면 리턴, 아니면 그 값을 넣어준다.
-	/*
 	if(request.getParameter("orderProductNo") == null){
 		response.sendRedirect(request.getContextPath()+"/review/reviewList.jsp");	
 		System.out.println("reviewList.jsp로 리턴");
@@ -26,7 +25,6 @@
 		System.out.println(request.getParameter("orderProductNo")+"<--orderProductNo--reviewOne parm ");
 		orderProductNo = Integer.parseInt(request.getParameter("orderProductNo"));
 	}
-	*/
 %>
 <!DOCTYPE html>
 <html>
