@@ -15,6 +15,8 @@ import vo.IdList;
 import vo.PwHistory;
 
 public class CustomerDao {
+	
+	// -------------------a.customer 관련---------------------
 
 	// 1-1) 회원가입 시 아이디 중복여부 확인
 	public boolean customerSigninIdCk(Customer customer) throws Exception {
@@ -94,26 +96,35 @@ public class CustomerDao {
 		return addAddress;
 	}
 	
-	// 2) 로그인
-	public IdList loginMethod(IdList idList) throws Exception {
+	// 2) 로그인 - active여부는 loginAction에서 수행
+	public HashMap<String, Object> loginMethod(IdList idList) throws Exception {
 		// 반환 객체 생성
-		IdList loginIdList = null;
+		HashMap<String, Object> loginIdList = new HashMap<>();
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
 		
-		String sql = "SELECT id, last_pw, active FROM id_list WHERE id = ? AND last_pw = PASSWORD(?)";
+		/*
+			SELECT i.id, i.last_pw, i.active, e.emp_level
+			FROM id_list i INNER JOIN	employees e 
+			ON i.id = e.id
+			WHERE i.id = 'admin'
+		*/
+		
+		String sql = "SELECT i.id id, i.last_pw lastPw, i.active active, e.emp_level empLevel FROM id_list i "
+				+ " INNER JOIN employees e ON i.id = e.id"
+				+ " WHERE i.id = ? AND i.last_pw = PASSWORD(?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, idList.getId());
 		stmt.setString(2, idList.getLastPw());
 		
 		ResultSet rs = stmt.executeQuery();
 		
-		// DB 내용 불러오기
+		// DB 내용 저장
 		if(rs.next()) {
-			loginIdList = new IdList();
-			loginIdList.setId(rs.getString("id")); // id 반환
-			loginIdList.setLastPw(rs.getString("last_pw")); // 비밀번호 반환
-			loginIdList.setActive(rs.getString("active")); // 가입탈퇴여부 반환
+			loginIdList.put("id", rs.getString("id"));
+			loginIdList.put("lastPw", rs.getString("lastPw")); 
+			loginIdList.put("active" , rs.getString("active")); // 가입탈퇴여부 반환
+			loginIdList.put("empLevel", rs.getString("empLevel")); // 레벨 권한 
 		}
 		return loginIdList;
 	}
@@ -257,7 +268,8 @@ public class CustomerDao {
 		return row;
 	}
 	
-	// 7) 회원주소목록 (내주소)
+	// -------------------b.address 관련---------------------
+	// 1) 회원주소목록 (내주소)
 	public ArrayList<Address> myAddressList(Address address) throws Exception {
 		ArrayList<Address> list = new ArrayList<Address>();
 		
@@ -280,7 +292,7 @@ public class CustomerDao {
 		return list;
 	}
 	
-	// 7-1) 개별 주소 불러오기
+	// 1-1) 개별 주소 불러오기
 	public Address myAddress(int addressNo) throws Exception {
 		Address myAddress = new Address();
 		
@@ -299,7 +311,7 @@ public class CustomerDao {
 		return myAddress;
 	}
 		
-	// 8) 주소추가
+	// 2) 주소추가
 	public int addMyAddress(Address address) throws Exception {
 		int addMyAddress = 0;
 		
@@ -319,7 +331,7 @@ public class CustomerDao {
 		return addMyAddress;
 	}
 	
-	// 9) 주소변경
+	// 3) 주소변경
 	public int modifyAddress(Address address) throws Exception {
 		int modifyAddress = 0;
 		
@@ -337,7 +349,7 @@ public class CustomerDao {
 		return modifyAddress;
 	}
 	
-	// 10) 주소삭제
+	// 4) 주소삭제
 	public int removeAddress(int addressNo) throws Exception {
 		int removeAddress = 0;
 		
@@ -353,7 +365,7 @@ public class CustomerDao {
 		return removeAddress;
 	}
 	
-	// 10-1) 주소삭제 (id의 주소 전부삭제 -> 메소드만 구현)
+	// 4-1) 주소삭제 (id의 주소 전부삭제 -> 메소드만 구현)
 	public void removeAllAddress(Address address) throws Exception {
 		
 		DBUtil dbutil = new DBUtil();
@@ -365,7 +377,7 @@ public class CustomerDao {
 		stmt.executeUpdate();
 	}
 	
-	// 11) 주소 총개수
+	// 5) 주소 총개수
 	public int ttlCntAddress(Address address) throws Exception {
 		int ttlAddress = 0;
 		
@@ -382,7 +394,8 @@ public class CustomerDao {
 		return ttlAddress;
 	}
 	
-	// 11) pwHistory 이력 추가
+	// -------------------c.pwHistory 관련---------------------
+	// 1) pwHistory 이력 추가
 	public int addPwHistory(PwHistory pwHistory) throws Exception {
 		int addPwHistory = 0;
 		
@@ -399,7 +412,7 @@ public class CustomerDao {
 		return addPwHistory;
 	}
 	
-	// 12) (회원가입시 or 비밀번호 수정시) pwHistory에 비밀번호 추가 및 최대 4개 넘을 시, 가장 오래된 pw 자동삭제
+	// 2) (회원가입시 or 비밀번호 수정시) pwHistory에 비밀번호 추가 및 최대 4개 넘을 시, 가장 오래된 pw 자동삭제
 	public int operatePwHistory(PwHistory pwHistory) throws Exception {
 		
 		DBUtil dbutil = new DBUtil();
@@ -412,7 +425,7 @@ public class CustomerDao {
 		PwHistory selectOldestPw = new PwHistory();
 		System.out.println("[operatePwHistory]");
 		
-		if(CntPwHistory < 4) { // 3개 미만일 경우, 이력추가 진행
+		if(CntPwHistory < 4) { // 3개 이하일 경우, 이력추가 진행
 			System.out.println("비밀번호내역 4개미만");
 			operatePwHistory = addPwHistory(pwHistory);
 		} else { // 4개 이상일 경우, 가장오래된 비밀번호내역 삭제 후, 이력추가 진행
@@ -441,7 +454,7 @@ public class CustomerDao {
 		return operatePwHistory;
 	}
 	
-	// 12) 비밀번호 데이터 총 개수(최대 3개로 제한)
+	// 3) 비밀번호 데이터 총 개수(최대 4개로 제한)
 	public int ttlCntPwHistory(PwHistory pwHistory) throws Exception {
 		int ttlCntPwHistory = 0;
 		
@@ -458,7 +471,7 @@ public class CustomerDao {
 		return ttlCntPwHistory;
 	}
 	
-	// 13) 비밀번호 이력 삭제
+	// 4) 비밀번호 이력 삭제
 	public int removePwHistory(PwHistory pwHistory) throws Exception {
 		int removePwHistory = 0;
 		
@@ -477,7 +490,7 @@ public class CustomerDao {
 		return removePwHistory;
 	}
 	
-	// 14) 가장오래된 pwHistory 1개 select (생성날짜 오름차순)
+	// 5) 가장오래된 pwHistory 1개 select (생성날짜 오름차순)
 	public PwHistory selectOldestPw(PwHistory pwHistory) throws Exception {
 		PwHistory selectOldestPw = null;
 		
@@ -501,7 +514,7 @@ public class CustomerDao {
 		return selectOldestPw;
 	}
 	
-	// 15) 회원탈퇴시 pwHistory 삭제
+	// 6) 회원탈퇴시 pwHistory 삭제 -> 메서드만 구현한 상태
 	public int removePwHistoryByRemoveCustomer(Customer customer) throws Exception {
 		int removePwHistory = 0;
 		
@@ -516,7 +529,7 @@ public class CustomerDao {
 		return removePwHistory;
 	}
 	
-	// 16) 비밀번호 수정 시, 중복체크를 위한 select
+	// 7) 비밀번호 수정 시, 중복체크를 위한 select
 	public boolean selectPwHistoryCk(Customer modifyCustomer, IdList modyfyIdList) throws Exception {
 		boolean checkPw = false;
 		

@@ -1,4 +1,4 @@
-package dao;
+package dao2;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -180,14 +180,15 @@ public class EmpDao {
 		Connection conn = dbUtil.getConnection();
 		
 		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
-		String sql = "SELECT q_no, a_content, createdate FROM answer WHERE q_no = ?";
+		String sql = "SELECT q_no qNo, id, a_content aContent, createdate FROM answer WHERE q_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, qNo);
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			HashMap<String, Object> m = new HashMap<>();
-			m.put("q_no", rs.getInt("q_no"));
-			m.put("a_content", rs.getString("a_content"));
+			m.put("qNo", rs.getInt("qNo"));
+			m.put("id", rs.getString("id"));
+			m.put("aContent", rs.getString("aContent"));
 			m.put("createdate", rs.getString("createdate"));
 			list.add(m);
 		}
@@ -229,6 +230,5 @@ public class EmpDao {
 		modifyAnswer = stmt.executeUpdate();
 		return modifyAnswer;
 	}
-	
 	
 }

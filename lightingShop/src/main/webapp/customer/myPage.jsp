@@ -1,9 +1,23 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="dao.*"%>
+<%@ page import="vo.*"%>
+<%@ page import="java.util.*"%>
 <%
 	//인코딩
 	request.setCharacterEncoding("UTF-8");
 
+	//변수저장
+	String id = (String)session.getAttribute("loginIdListId");
+	String lastPw = (String)session.getAttribute("loginIdListLastPw");
+
+	// 객체생성
+	IdList idList = new IdList();
+	idList.setId(id);
+	idList.setLastPw(lastPw);
+	
+	CustomerDao cDao = new CustomerDao();
+	HashMap<String, Object> loginIdList = cDao.loginMethod(idList);
+	
 %>  
 <!DOCTYPE html>
 <html>
@@ -49,7 +63,9 @@
 		<!-- 로그인 폼-->
 		<div>로고</div>
 		<form action="<%=request.getContextPath()%>/customer/loginAction.jsp" method="post">
-			<input type="hidden" name="active" value="">
+			<!-- 세션에 저장할 active값과 emp_level 값 -->
+			<input type="hidden" name="active" value="<%=loginIdList.get("active")%>">
+			<input type="hidden" name="empLevel" value="<%=loginIdList.get("empLevel")%>">
 			<table>
 				<tr>
 					<td>아이디</td>
