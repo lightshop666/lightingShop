@@ -113,14 +113,15 @@
 		<div>			
 			<div class="col-5 text-center">
 				<form action="<%=request.getContextPath()%>/review/modifyReview.jsp" method="post">
-							<input type="hidden" name="orderProductNo" value="<%=orderProductNo %> ">
-						<button type="submit">수정</button>
+					<input type="hidden" name="orderProductNo" value="<%=orderProductNo %> ">
+					<button type="submit">수정</button>
 				</form>		
 			</div>
 			<div class="col-6 text-center">				
-				<form action="<%=request.getContextPath()%>/review/removeReview.jsp" method="post">
-							<input type="hidden" name="orderProductNo" value="<%=orderProductNo  %> ">
-						<button type="submit">삭제</button>
+				<form action="<%=request.getContextPath()%>/review/removeReviewAction.jsp" method="post" >
+					<input type="hidden" name="orderProductNo" value="<%=orderProductNo  %> ">
+					<input type="hidden" name="saveFilename" value="<%=(String)reviewImg.getReviewSaveFilename()%> ">
+					<button type="submit">삭제</button>
 				</form>	
 			</div>
 		</div>

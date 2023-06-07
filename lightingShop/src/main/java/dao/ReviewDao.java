@@ -387,7 +387,26 @@ public class ReviewDao {
     	return row;
     }
 	
-	
+    
+//7)리뷰 컬럼 삭제
+    public int deleteReview(int orderProductNo)throws Exception {
+    	int row = 0;
+		DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
+
+	    String sql = "DELETE FROM review WHERE order_product_no=?";
+	    PreparedStatement stmt = conn.prepareStatement(sql);
+	    stmt.setInt(1, orderProductNo);
+	    row = stmt.executeUpdate();
+	    
+	    if (row !=0) {
+	        System.out.println(row +"행 리뷰 삭제 성공<--deleteReview");
+         }else{
+        	 row=0;
+            System.out.println(row +"행 리뷰 삭제 실패<--deleteReview");
+         }
+    	return row;
+    }
 	
 	
 	
