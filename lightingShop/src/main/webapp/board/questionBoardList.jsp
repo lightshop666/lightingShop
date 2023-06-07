@@ -177,7 +177,7 @@
 	<%
 			} else {
 	%>
-				<a href="<%=request.getContextPath()%>/subject/subjectList.jsp?currentPage=<%=i%>&rowPerPage=<%=rowPerPage%>">
+				<a href="<%=request.getContextPath()%>/board/questionBoardList.jsp?currentPage=<%=i%>&rowPerPage=<%=rowPerPage%>">
 					<%=i%>
 				</a>&nbsp;
 	<%
@@ -186,7 +186,7 @@
 		// 다음은 마지막 페이지에서는 출력되면 안 된다
 		if(endPage != lastPage) {
 	%>
-			<a href="<%=request.getContextPath()%>/subject/subjectList.jsp?currentPage=<%=endPage + 1%>&rowPerPage=<%=rowPerPage%>">
+			<a href="<%=request.getContextPath()%>/board/questionBoardList.jsp?currentPage=<%=endPage + 1%>&rowPerPage=<%=rowPerPage%>">
 				&raquo;
 			</a>
 	<%

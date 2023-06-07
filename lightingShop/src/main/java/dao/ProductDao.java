@@ -8,7 +8,7 @@ import util.DBUtil;
 import vo.*;
 
 public class ProductDao {
-	// 상품 상세보기 + 상품 이미지 (product, product_img, discount join)
+	// 상품 상세보기 (product, product_img, discount join)
 	public HashMap<String, Object> selectProductAndImgOne(int productNo) throws Exception {
 		HashMap<String, Object> map = new HashMap<>();
 		Product product = null;
@@ -44,7 +44,7 @@ public class ProductDao {
 				ON p.product_no = d.product_no
 			WHERE p.product_no = ?
 		*/
-		String sql = "";
+		String sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.product_stock productStock, p.product_info productInfo, p.createdate productCreatedate, p.updatedate productUpdatedate, i.product_ori_filename productImgOriFilename, i.product_save_filename productImgSaveFilename, i.product_filetype productImgFiletype, i.product_path productImgPath, i.createdate productImgCreatedate, i.updatedate productImgUpdatedate, d.discount_start discountStart, d.discount_end discountEnd, d.discount_rate discountRate FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.product_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, productNo);
 		ResultSet rs = stmt.executeQuery();
@@ -75,6 +75,43 @@ public class ProductDao {
 		map.put("product", product);
 		map.put("productImg", productImg);
 		map.put("discount", discount);
+		return map;
+	}
+	
+	// 상품 이름 + 이미지 조회 (product, product_img join)
+	public HashMap<String, Object> selectProductAndImg(int productNo) throws Exception {
+		HashMap<String, Object> map = new HashMap<>();
+		Product product = null;
+		ProductImg productImg = null;
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		/*
+			SELECT 
+				p.product_no productNo, -- 상품번호
+				p.product_name productName, -- 상품이름
+				i.product_save_filename productSaveFilename, -- 상품이미지 저장이름
+				i.product_path productPath -- 상품 이미지 저장폴더
+			FROM product p
+			INNER JOIN product_img i
+			ON p.product_no = i.product_no
+			WHERE p.product_no = ?
+		*/
+		String sql = "SELECT p.product_no productNo, p.product_name productName, i.product_save_filename productSaveFilename, i.product_path productPath FROM product p INNER JOIN product_img i ON p.product_no = i.product_no WHERE p.product_no = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, productNo);
+		ResultSet rs = stmt.executeQuery();
+		
+		if(rs.next()) {
+			product = new Product();
+			productImg = new ProductImg();
+			product.setProductNo(rs.getInt("productNo"));
+			product.setProductName(rs.getString("productName"));
+			productImg.setProductSaveFilename(rs.getString("productSaveFilename"));
+			productImg.setProductPath(rs.getString("productPath"));
+		}
+		map.put("product", product);
+		map.put("productImg", productImg);
 		return map;
 	}
 }
