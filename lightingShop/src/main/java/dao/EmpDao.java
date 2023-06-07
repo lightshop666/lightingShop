@@ -109,7 +109,7 @@ public class EmpDao {
 			
 		}
 		
-		return product; 
+		return product;
 	}
 	
 	//2) 상품관리 상품추가 메소드
