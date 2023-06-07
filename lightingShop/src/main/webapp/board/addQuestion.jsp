@@ -1,4 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import = "vo.*" %>
+<%@ page import = "dao.*" %>
+<%@ page import = "java.util.*" %>
 <%
 	// 요청값 검사
 	// id
@@ -11,6 +14,11 @@
 	if(request.getParameter("productNo") != null) {
 		productNo = Integer.parseInt(request.getParameter("productNo"));
 	}
+	// 상품 이름 + 이미지 조회 메서드 호출
+	ProductDao dao = new ProductDao();
+	HashMap<String, Object> map = dao.selectProductAndImg(productNo);
+	Product product = (Product)map.get("product");
+	ProductImg productImg = (ProductImg)map.get("productImg");
 %>
 <!DOCTYPE html>
 <html>
@@ -23,7 +31,24 @@
 	<%
 		if(productNo != 1) {
 	%>
-			(구현예정)상품 선택시 이름+이미지 출력
+			<table>
+				<th>상품</th>
+				<td>
+					<!-- 상품이미지 or 상품 이름 클릭 시 해당 상품 상세페이지로 이동 -->
+					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>">
+						<img src="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>" >
+						<br><%=product.getProductName()%>
+					</a>
+				</td>
+			</table>
+	<%
+		}
+	%>
+	<!-- msg 발생시 출력 -->
+	<%
+		if(request.getParameter("msg") != null) {
+	%>
+			<%=request.getParameter("msg")%>
 	<%
 		}
 	%>
@@ -67,8 +92,17 @@
 				<th>비밀번호</th>
 				<td><input type="text" name="qPw"></td>
 			</tr>
+			<tr>
+				<td>
+					<a href="<%=request.getContextPath()%>/board/questionBoardList.jsp">
+					 	취소
+					</a>
+				</td>
+				<td>
+					<button type="submit">작성</button>
+				</td>
+			</tr>
 		</table>
-		<button type="submit">작성</button>
 	</form>
 </body>
 </html>

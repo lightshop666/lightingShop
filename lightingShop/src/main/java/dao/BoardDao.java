@@ -279,6 +279,7 @@ public class BoardDao {
 		
 		int productNo = question.getProductNo();
 		String id = question.getId();
+		String qName = question.getqName();
 		String qCategory = question.getqCategory();
 		String qTitle = question.getqTitle();
 		String qContent = question.getqContent();
@@ -289,17 +290,18 @@ public class BoardDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "INSERT INTO question(product_no, id, q_category, q_title, q_content, q_pw, a_chk, private_chk, createdate, updatedate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+		String sql = "INSERT INTO question(product_no, id, q_name, q_category, q_title, q_content, q_pw, a_chk, private_chk, createdate, updatedate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		// RETURN_GENERATED_KEYS -> 방금 insert한 키 값을 받아올 수 있다
 		stmt.setInt(1, productNo);
 		stmt.setString(2, id);
-		stmt.setString(3, qCategory);
-		stmt.setString(4, qTitle);
-		stmt.setString(5, qContent);
-		stmt.setString(6, qPw);
-		stmt.setString(7, aChk);
-		stmt.setString(8, privateChk);
+		stmt.setString(3, qName);
+		stmt.setString(4, qCategory);
+		stmt.setString(5, qTitle);
+		stmt.setString(6, qContent);
+		stmt.setString(7, qPw);
+		stmt.setString(8, aChk);
+		stmt.setString(9, privateChk);
 		rowAndKey[0] = stmt.executeUpdate(); // 배열에 row값 저장
 		
 		// 키 값 (qNo) 받아오기

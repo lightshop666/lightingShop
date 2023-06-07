@@ -135,6 +135,8 @@
 					<a href="<%=request.getContextPath()%>/board/questionOne.jsp?qNo=<%=qNo%>">
 					 	취소
 					</a>
+				</td>
+				<td>
 					<button type="submit">수정</button>
 				</td>
 			<tr>

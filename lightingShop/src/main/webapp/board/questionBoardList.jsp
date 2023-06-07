@@ -66,7 +66,7 @@
 			<tr>
 				<td> <!-- 문의 유형 카테고리 선택 -->
 					<select name="qCategory" onchange="this.form.submit()"> <!-- 옵션 선택시 바로 submit -->
-						<option value="" <%if(qCategory.equals("")) {%> selected <%}%>>전체</option>
+						<option value="" <%if(qCategory.equals("")) {%> selected <%}%>>전체보기</option>
 						<option value="상품" <%if(qCategory.equals("상품")) {%> selected <%}%>>상품</option>
 						<option value="교환/환불" <%if(qCategory.equals("교환/환불")) {%> selected <%}%>>교환/환불</option>
 						<option value="결제" <%if(qCategory.equals("결제")) {%> selected <%}%>>결제</option>
@@ -159,6 +159,13 @@
 			}
 		%>
 	</table>
+	<%
+		if(totalRow == 0) {
+	%>
+			문의글이 없습니다
+	<%
+		}
+	%>
 	<!------------------ 페이지 출력부 ------------------>
 	<%
 		// 이전은 1페이지에서는 출력되면 안 된다
