@@ -85,7 +85,7 @@ public class EmpDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection(); 
 		// PreparedStatement
-		String productOneSql = "SELECT pi.product_ori_filename, pi.product_save_filename, pi.product_filetype, p.product_no, p.category_name, p.product_name, p.product_price, p.product_status, p.product_stock, p.product_info, p.createdate, p.updatedate from product p  INNER JOIN product_img pi On p.product_no = pi.product_no where p.product_no=?";
+		String productOneSql = "SELECT pi.product_ori_filename, pi.product_save_filename, pi.product_filetype, p.product_no, p.category_name, p.product_name, p.product_price, p.product_status, p.product_stock, p.product_info, p.createdate, p.updatedate from product p  Left JOIN product_img pi On p.product_no = pi.product_no where p.product_no=?";
 
 		PreparedStatement productOneStmt = conn.prepareStatement(productOneSql); 
 		productOneStmt.setInt(1,productNo); 	
@@ -137,29 +137,15 @@ public class EmpDao {
 	
 	//3) 상품관리  상품이미치추가(product_img)메소드
 
-	public int insertProductImg(HttpServletRequest request, ProductImg productImg, String productFile) throws Exception {
-		//프로젝트안 upload폴더의 실제 물리적 위치를 반환				
+	public int insertProductImg(HashMap<Object,String> productImg, int productNo) throws Exception {
 		
-		String dir = request.getServletContext().getRealPath("/productImg"); 
-		System.out.println(dir+"<--dir"); // commit 되기전 값이 저장되지만 war 파일로 만들면 위치가 고정된다.
-		int maxFileSize = 1024*1024*10;
-		
-		// vo에 가져온 값들 넣어주기
-		
-		DefaultFileRenamePolicy fp = new DefaultFileRenamePolicy(); //rename cos API
-		
-		
-		//MultipartRequest 클래스를 사용하여 원본 타입의 객체를 cos API로 래핑
-		//MultipartRequest 생성자의 매개변수로는 원본 타입, 업로드 폴더 경로, 최대 파일 크기(byte), 인코딩 방식 등을 전달
-
-		MultipartRequest mRequest = new MultipartRequest(request, dir, maxFileSize,"utf-8", fp);
 		
 		//업로드 파일이 PDF파일이 아니면
-		 if(mRequest.getContentType(productFile).equals("image/jpeg")==false){
+		 if(productImg.get("productFileType").equals("image/jpeg")==false){
 			 //이미 upload폴더에 저장된 파일을 삭제
 			 System.out.println("image/jpeg파일이 아닙니다");
-			 String saveFilename = mRequest.getFilesystemName(productFile); //저장된 파일네임 가져오기
-			 File f = new File(dir+"/"+saveFilename); //파일 객체 f 를 가져온 파일명으로 지정 / = new File("d:/abc/uploadsign.파일명")
+			 String saveFilename = (String)productImg.get("productSaveFilename"); //저장된 파일네임 가져오기
+			 File f = new File(productImg.get("dir")+"/"+saveFilename); //파일 객체 f 를 가져온 파일명으로 지정 / = new File("d:/abc/uploadsign.파일명")
 			 //역슬러쉬가 window 기본 포맷
 			 if(f.exists()){
 				 f.delete();
@@ -177,12 +163,13 @@ public class EmpDao {
 		
 		if(productImg!=null) {
 		
+		
 		String productImgSql = "INSERT INTO produc_img(product_no, product_ori_filename, product_save_filename, product_filetype, createdate) VALUES(?, ?, ?, ?, NOW())";
 		PreparedStatement productImgStmt = conn.prepareStatement(productImgSql);
-		productImgStmt.setInt(1, productImg.getProductNo());
-		productImgStmt.setString(2, productImg.getProductOriFilename());
-		productImgStmt.setString(3, productImg.getProductSaveFilename());
-		productImgStmt.setString(4, productImg.getProductFiletype());
+		productImgStmt.setInt(1,productNo);
+		productImgStmt.setString(2, productImg.get("productOriFilename"));
+		productImgStmt.setString(3, productImg.get("productSaveFilename"));
+		productImgStmt.setString(4, productImg.get("productFiletype"));
 		productImgStmt.executeUpdate(); // board_file 입력	
 		
 			if(insertProductImgRow==1) {
@@ -199,7 +186,7 @@ public class EmpDao {
 	
 	
 	//4) 상품상세 수정
-	public int updateProduct(HttpServletRequest request,HashMap<String, Object> product, String productFile) throws Exception {
+	public int updateProduct(HashMap<String, Object> product) throws Exception {
 		int updateProductRow=0;
 		
 		DBUtil dbUtil = new DBUtil();
@@ -223,29 +210,17 @@ public class EmpDao {
 				updateProductRow=0;
 				System.out.println("수정실패");
 			}
-					
-		
-		String dir = request.getServletContext().getRealPath("/productImg"); 
-		System.out.println(dir+"<--dir"); // commit 되기전 값이 저장되지만 war 파일로 만들면 위치가 고정된다.
-		int maxFileSize = 1024*1024*10;
-		
-		
-		DefaultFileRenamePolicy fp = new DefaultFileRenamePolicy(); //rename cos API
-		
-		
-		//MultipartRequest 클래스를 사용하여 원본 타입의 객체를 cos API로 래핑
-		//MultipartRequest 생성자의 매개변수로는 원본 타입, 업로드 폴더 경로, 최대 파일 크기(byte), 인코딩 방식 등을 전달
-
-		MultipartRequest mRequest = new MultipartRequest(request, dir, maxFileSize,"utf-8", fp);
-		
-		
+			//파일 정보값 가져오기 
+			String contentType = (String)product.get("contentType");
+			String saveFilename = (String)product.get("saveFilename");
+			String dir = (String)product.get("dir");
+			
 		//4-2)Update 상품이미지 쿼리 및 실제 파일삭제
 		//업로드 파일이 이미지 파일 여부 확인
-			if(mRequest.getOriginalFileName(productFile) != null){
-				String originFilename = mRequest.getOriginalFileName(productFile);
-				if(mRequest.getContentType(productFile).equals("image/jpeg")==false){
+			if((String)product.get("originalFileName")!= null){
+				String originFilename =(String)product.get("originalFileName");
+				if(contentType.equals("image/jpeg")==false){
 					System.out.println("이미지파일이 아닙니다");
-					 String saveFilename = mRequest.getFilesystemName(productFile); //저장된 파일네임 가져오기
 					 File f = new File(dir+"/"+saveFilename); //파일 객체 f 를 가져온 파일명으로 지정 / = new File("d:/abc/uploadsign.파일명")
 					 if(f.exists()){
 						 f.delete();
@@ -253,11 +228,7 @@ public class EmpDao {
 						 }
 					}else{
 						//이미지파일인지 먼저 확인후 맞다면 이전파일 삭제, db수정(update)
-						String type = mRequest.getContentType(productFile);
-						originFilename =mRequest.getOriginalFileName(productFile); //prouduct img 테이블 저장용
-						String saveFilename = mRequest.getFilesystemName(productFile);	
 						
-						 System.out.println(saveFilename+"새파일삭제");		 
 						
 						//4-2-2) 이전파일 삭제 
 						String saveFilenameSql = "Select product_save_filename from product_img WHERE product_no =?";
@@ -282,7 +253,7 @@ public class EmpDao {
 						PreparedStatement productImgStmt = conn.prepareStatement(productImgSql);
 						productImgStmt.setString(1,originFilename);
 						productImgStmt.setString(2,saveFilename);
-						productImgStmt.setString(3,type);
+						productImgStmt.setString(3,contentType);
 						productImgStmt.setInt(4,(Integer)product.get("productNo"));
 					
 						System.out.println(productImgStmt+"boardFileStmt");

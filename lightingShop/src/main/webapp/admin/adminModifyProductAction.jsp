@@ -8,6 +8,7 @@
 <%@ page import="com.oreilly.servlet.multipart.*"%>
 
 <%
+	
 	//enctype 에 대해 request하기위해
 	String dir = request.getServletContext().getRealPath("/productImg"); 
 	System.out.println(dir+"<--dir"); // commit 되기전 값이 저장되지만 war 파일로 만들면 위치가 고정된다.
@@ -21,15 +22,8 @@
 	MultipartRequest mRequest = new MultipartRequest(request, dir, maxFileSize,"utf-8", fp);
 	
 	request.setCharacterEncoding("UTF-8");
-	//유효성 검사	
 	
-	 System.out.println("productNo: " + mRequest.getParameter("productNo"));
-	
-    if (mRequest.getParameter("productNo") == null) {
-       	response.sendRedirect(request.getContextPath()+"/admin/adminProductList.jsp");
-       	
-       	return;
-    }
+ 
 	
 	//요청값 변환
 	String categoryName = mRequest.getParameter("categoryName");
@@ -38,7 +32,12 @@
 	String productStatus = mRequest.getParameter("productStatus");
 	int productStock = Integer.parseInt(mRequest.getParameter("productStock"));
 	String productInfo = mRequest.getParameter("productInfo");
+	
+	//요청 파일 정보값 변환
 	String productFile = mRequest.getFilesystemName("productFile"); // getFilesystemName() 메서드로 파일 시스템 이름 가져오기
+	String originalFileName = mRequest.getOriginalFileName("productFile");
+	String contentType = mRequest.getContentType("productFile"); 
+	String saveFilename = mRequest.getFilesystemName("productFile");
 	
 	// 변환값 디버깅 
     System.out.println("categoryName: " + categoryName);
@@ -59,12 +58,15 @@
 	product.put("productStock", productStock);
 	product.put("productInfo", productInfo);
 	product.put("productNo", productNo);
+	product.put("productFile", productFile);
+	product.put("originalFileName", originalFileName); //요청 파일 정보값 변환
+	product.put("contentType", contentType); 
+	product.put("saveFilename", saveFilename);
+	product.put("dir", dir);
 	
 	EmpDao empDao = new EmpDao();
 	
-	int updateProductRow = empDao.updateProduct(request, product, productFile);
-	
-	
+	int updateProductRow = empDao.updateProduct(product);
 	
 	if (updateProductRow == 1) {
 		System.out.println("수정성공");
