@@ -166,31 +166,31 @@ public class BoardDao {
 			선택 가능 값 : createdate, searchWord(qTitle, qContent)
 			경우의 수 :
 			1) 둘다 null
-			SELECT * FROM question WHERE id = ? ORDER BY createdate DESC LIMTI ?,?
+			SELECT * FROM question WHERE id = ? ORDER BY createdate DESC LIMIT ?,?
 			2) createdate
-			SELECT * FROM question WHERE id = ? AND createdate BETWEEN ? AND ? ORDER BY createdate DESC LIMTI ?,?
+			SELECT * FROM question WHERE id = ? AND createdate BETWEEN ? AND ? ORDER BY createdate DESC LIMIT ?,?
 			3) searchCategory : qTitle
-			SELECT * FROM question WHERE id = ? AND q_title LIKE ? ORDER BY createdate DESC LIMTI ?,?
+			SELECT * FROM question WHERE id = ? AND q_title LIKE ? ORDER BY createdate DESC LIMIT ?,?
 			4) searchCategory : qContent
-			SELECT * FROM question WHERE id = ? AND q_content LIKE ? ORDER BY createdate DESC LIMTI ?,?
+			SELECT * FROM question WHERE id = ? AND q_content LIKE ? ORDER BY createdate DESC LIMIT ?,?
 			5) createdate + searchCategory : qTitle
-			SELECT * FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_title LIKE ? ORDER BY createdate DESC LIMTI ?,?
+			SELECT * FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_title LIKE ? ORDER BY createdate DESC LIMIT ?,?
 			6) createdate + searchCategory : qContent
-			SELECT * FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_content LIKE ? ORDER BY createdate DESC LIMTI ?,?
+			SELECT * FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_content LIKE ? ORDER BY createdate DESC LIMIT ?,?
 		*/
 		String sql = "";
 		PreparedStatement stmt = null;
 		
 		// 1) 둘다 null
 		if(beginDate.equals("") && endDate.equals("") && searchCategory.equals("")) {
-			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? ORDER BY createdate DESC LIMTI ?,?";
+			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? ORDER BY createdate DESC LIMIT ?,?";
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, loginId);
-			stmt.setInt(1, beginRow);
-			stmt.setInt(2, rowPerPage);
+			stmt.setInt(2, beginRow);
+			stmt.setInt(3, rowPerPage);
 		// 2) createdate
 		} else if(!beginDate.equals("") && !endDate.equals("") && searchCategory.equals("")) {
-			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? AND createdate BETWEEN ? AND ? ORDER BY createdate DESC LIMTI ?,?";
+			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? AND createdate BETWEEN ? AND ? ORDER BY createdate DESC LIMIT ?,?";
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, loginId);
 			stmt.setString(2, beginDate+" 00:00:00");
@@ -199,7 +199,7 @@ public class BoardDao {
 			stmt.setInt(5, rowPerPage);
 		// 3) searchCategory : qTitle
 		} else if(beginDate.equals("") && endDate.equals("") && !searchCategory.equals("qTitle")) {
-			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? AND q_title LIKE ? ORDER BY createdate DESC LIMTI ?,?";
+			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? AND q_title LIKE ? ORDER BY createdate DESC LIMIT ?,?";
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, loginId);
 			stmt.setString(2, "%"+searchWord+"%");
@@ -207,7 +207,7 @@ public class BoardDao {
 			stmt.setInt(4, rowPerPage);
 		// 4) searchCategory : qContent
 		} else if(beginDate.equals("") && endDate.equals("") && !searchCategory.equals("qContent")) {
-			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? AND q_content LIKE ? ORDER BY createdate DESC LIMTI ?,?";
+			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? AND q_content LIKE ? ORDER BY createdate DESC LIMIT ?,?";
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, loginId);
 			stmt.setString(2, "%"+searchWord+"%");
@@ -215,7 +215,7 @@ public class BoardDao {
 			stmt.setInt(4, rowPerPage);
 		// 5) createdate + searchCategory : qTitle
 		} else if(!beginDate.equals("") && !endDate.equals("") && searchCategory.equals("qTitle")) {
-			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_title LIKE ? ORDER BY createdate DESC LIMTI ?,?";
+			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_title LIKE ? ORDER BY createdate DESC LIMIT ?,?";
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, loginId);
 			stmt.setString(2, beginDate+" 00:00:00");
@@ -225,7 +225,7 @@ public class BoardDao {
 			stmt.setInt(6, rowPerPage);
 		// 6) createdate + searchCategory : qContent
 		} else if(!beginDate.equals("") && !endDate.equals("") && searchCategory.equals("qContent")) {
-			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_content LIKE ? ORDER BY createdate DESC LIMTI ?,?";
+			sql = "SELECT q_no qNo, q_category qCategory, q_name qName, q_title qTitle, private_chk privateChk, createdate, a_chk aChk FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_content LIKE ? ORDER BY createdate DESC LIMIT ?,?";
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, loginId);
 			stmt.setString(2, beginDate+" 00:00:00");
@@ -250,7 +250,78 @@ public class BoardDao {
 	}
 	
 	// 검색단어, 조회기간 선택에 따른 특정 아이디의 문의글 전체 수 (totalRow)
-	// 구현예정
+	public int selectMyQuestionCnt(int beginRow, int rowPerPage, String loginId, String beginDate, String endDate, String searchCategory, String searchWord) throws Exception {
+		int totalRow = 0;
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		/*
+ 			경우의 수 :
+ 			1) 둘다 null
+ 			SELECT COUNT(*) FROM question WHERE id = ?
+ 			2) createdate
+ 			SELECT COUNT(*) FROM question WHERE id = ? AND createdate BETWEEN ? AND ?
+ 			3) searchCategory : qTitle
+ 			SELECT COUNT(*) FROM question WHERE id = ? AND q_title LIKE ?
+ 			4) searchCategory : qContent
+ 			SELECT COUNT(*) FROM question WHERE id = ? AND q_content LIKE ?
+ 			5) createdate + searchCategory : qTitle
+ 			SELECT COUNT(*) FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_title LIKE ?
+ 			6) createdate + searchCategory : qContent
+ 			SELECT COUNT(*) FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_content LIKE ?
+		*/
+		String sql = "";
+		PreparedStatement stmt = null;
+		
+		// 1) 둘다 null
+		if(beginDate.equals("") && endDate.equals("") && searchCategory.equals("")) {
+			sql = "SELECT COUNT(*) FROM question WHERE id = ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, loginId);
+		// 2) createdate
+		} else if(!beginDate.equals("") && !endDate.equals("") && searchCategory.equals("")) {
+			sql = "SELECT COUNT(*) FROM question WHERE id = ? AND createdate BETWEEN ? AND ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, loginId);
+			stmt.setString(2, beginDate+" 00:00:00");
+			stmt.setString(3, endDate+" 23:59:59");
+		// 3) searchCategory : qTitle
+		} else if(beginDate.equals("") && endDate.equals("") && !searchCategory.equals("qTitle")) {
+			sql = "SELECT COUNT(*) FROM question WHERE id = ? AND q_title LIKE ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, loginId);
+			stmt.setString(2, "%"+searchWord+"%");
+		// 4) searchCategory : qContent
+		} else if(beginDate.equals("") && endDate.equals("") && !searchCategory.equals("qContent")) {
+			sql = "SELECT COUNT(*) FROM question WHERE id = ? AND q_content LIKE ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, loginId);
+			stmt.setString(2, "%"+searchWord+"%");
+			
+		// 5) createdate + searchCategory : qTitle
+		} else if(!beginDate.equals("") && !endDate.equals("") && searchCategory.equals("qTitle")) {
+			sql = "SELECT COUNT(*) FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_title LIKE ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, loginId);
+			stmt.setString(2, beginDate+" 00:00:00");
+			stmt.setString(3, endDate+" 23:59:59");
+			stmt.setString(4, "%"+searchWord+"%");
+			
+		// 6) createdate + searchCategory : qContent
+		} else if(!beginDate.equals("") && !endDate.equals("") && searchCategory.equals("qContent")) {
+			sql = "SELECT COUNT(*) FROM question WHERE id = ? AND createdate BETWEEN ? AND ? AND q_content LIKE ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, loginId);
+			stmt.setString(2, beginDate+" 00:00:00");
+			stmt.setString(3, endDate+" 23:59:59");
+			stmt.setString(4, "%"+searchWord+"%");
+		}
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) {
+			totalRow = rs.getInt(1);
+		}
+		return totalRow;
+	}
 	
 	// 문의글 비밀번호 일치 불일치 조회
 	public boolean questionOnePwChk(int qNo, String inputPw) throws Exception {
@@ -412,16 +483,29 @@ public class BoardDao {
 		return row;
 	}
 	
-	// 문의글 삭제
-	public int deleteQuestion(int qNo) throws Exception {
+	// 문의글 삭제 (+ 마이페이지에서 접근시 다중 선택 후 일괄 삭제 가능)
+	public int deleteQuestion(int[] intCkQno) throws Exception {
 		int row = 0;
 		
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
+		PreparedStatement stmt = null;
 		
-		String sql = "DELETE FROM question WHERE q_no = ?";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setInt(1, qNo);
+		// 1) 쿼리 작성
+		// 기본쿼리는 물음표 1개를 넣고 시작
+		String sql = "DELETE FROM question WHERE q_no IN(?";
+		// 쿼리에 물음표가 몇개 들어갈지 셋팅
+		for(int i=1; i<intCkQno.length; i++) {
+			sql += ",?";
+		}
+		sql += ")"; // length만큼 물음표가 출력되고 마지막에 괄호 닫기
+		stmt = conn.prepareStatement(sql);
+		
+		// 2) 물음표에 들어갈 값 넣기
+		for(int i=0; i<intCkQno.length; i++) {
+			stmt.setInt(i+1, intCkQno[i]);
+			// 첫번째 물음표(i+1)에 배열의 값(인덱스 0부터) 순서대로 넣어주기
+		}
 		row = stmt.executeUpdate();
 		
 		return row;
