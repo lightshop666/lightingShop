@@ -252,6 +252,26 @@ public class CustomerDao {
 		return customerOne;
 	}
 	
+	// 5-1) CustomerOne 포인트 내역 출력
+		public int selectPointCustomer(String id) throws Exception {
+			
+			int point = 0;
+			DBUtil dbutil = new DBUtil();
+			Connection conn = dbutil.getConnection();
+			
+			// SQL 명령, 명령 준비
+			String sql = "SELECT cstm_point FROM customer WHERE id= ?";
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setString(1, id); 	// Customer Id를 입력받는다.
+			
+			ResultSet rs = stmt.executeQuery();
+			
+			if (rs.next()) {
+				point = rs.getInt("point");
+			}
+			return point;
+		}
+	
 	// 6) Customer 전체 행 출력 메소드
 	public int selectCustomerCnt() throws Exception {
 		// 검색 or 특정 where절이 있으면 입력값이 필요할 수 있다.
