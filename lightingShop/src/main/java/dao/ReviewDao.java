@@ -347,7 +347,7 @@ public class ReviewDao {
 	    stmt.setString(1, review.getReviewTitle());
 	    stmt.setString(2, review.getReviewContent());
 	    stmt.setInt(3, review.getOrderProductNo());
-	    stmt.executeUpdate();
+	    row = stmt.executeUpdate();
 	    
 	    if (row !=0) {
 	        System.out.println(row +"행 리뷰 수정 성공<--addReview");
@@ -373,7 +373,7 @@ public class ReviewDao {
 	    stmt.setString(4, review.getReviewOriFilename());
 	    stmt.setString(5, review.getReviewSaveFilename());
 	    stmt.setInt(6, review.getOrderProductNo());
-	    stmt.executeUpdate();
+	    row = stmt.executeUpdate();
 
 	    
 	    if (row !=0) {

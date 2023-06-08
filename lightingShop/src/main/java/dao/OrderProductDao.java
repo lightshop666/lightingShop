@@ -73,8 +73,34 @@ public class OrderProductDao {
 	    return row;
 	}
 	
-//2)배송 상태에 따른 버튼 분기
+//2)orderProductNo 수취확인 구매확정 함수
+	/*
+	UPDATE order_product_no
+	SET	delivery_status=?
+	WHERE order_product_no=?
+	*/
+	public int OPNDeleiveryStatus(String deliStatus, int orderProductNo) throws Exception {
+	    int row = 0;
+	    DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
 
+	    String sql = "UPDATE order_product  \r\n"
+	    		+ "	SET	delivery_status=?    \r\n"
+	    		+ "	WHERE order_product_no=? ";
+	    PreparedStatement stmt = conn.prepareStatement(sql);
+	    stmt.setString(1, deliStatus);
+	    stmt.setInt(2, orderProductNo);
+	    row = stmt.executeUpdate();
+	    
+	    if (row !=0) {
+	        System.out.println(row +"행 배송상태 수정 성공<--OPNDeleiveryStatus");
+         }else{
+        	 row=0;
+            System.out.println(row +"행 배송상태 수정 실패<--OPNDeleiveryStatus");
+         }
+	    
+	    return row;
+	}
 	
 	
 	
