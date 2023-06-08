@@ -34,11 +34,19 @@
 	}
 	
 	// DELETE 메서드 호출
-	int row = dao.deleteQuestion(qNo);
+	/*
+		문의글 삭제 메서드는 문의글 다중 선택후
+		일괄 삭제도 가능하게 하기 위해
+		배열로 값을 입력받는다
+	*/
+	int[] intCkQno = new int[1];
+	intCkQno[0] = qNo;
+	int row = dao.deleteQuestion(intCkQno);
 	
 	// 리다이렉션
 	if(row == 1) {
-		response.sendRedirect(request.getContextPath() + "/board/questionBoardList.jsp");
+		msg = URLEncoder.encode("삭제되었습니다", "utf-8");
+		response.sendRedirect(request.getContextPath() + "/board/questionBoardList.jsp?msg=" + msg);
 		return;
 	} else {
 		msg = URLEncoder.encode("삭제되지 않았습니다 다시 시도해주세요", "utf-8");
