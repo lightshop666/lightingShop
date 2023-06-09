@@ -132,7 +132,7 @@
 		<%
 			System.out.println(m.get("deliveryStatus"));
 			System.out.println(m.get("reviewWritten"));
-		    if (m.get("deliveryStatus").equals("주문확인중")) {
+		    if (m.get("deliveryStatus").equals("구매확정")) {	//주문확인중 이 맞는데 임시로
 		        // 주문 취소 버튼 클릭 시 동작
 		%>
 		        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelAction.jsp?orderNo=<%=m.get("orderNo")%>'">주문취소</button>

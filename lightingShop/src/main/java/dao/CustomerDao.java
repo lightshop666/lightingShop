@@ -267,7 +267,7 @@ public class CustomerDao {
 			ResultSet rs = stmt.executeQuery();
 			
 			if (rs.next()) {
-				point = rs.getInt("point");
+				point = rs.getInt("cstm_point");
 			}
 			return point;
 		}

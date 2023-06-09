@@ -13,15 +13,26 @@
 	}
 
 // 컬럼 업데이트 처리 후 리다이렉트
-	String orderNo = request.getParameter("orderNo");
+	int orderNo = Integer.parseInt(request.getParameter("orderNo"));
 	String deliStatus = "취소중";						//취소 액션이니까 주문취소 버튼을 누르면 배송상태가 취소중으로 바뀐다.
 	
 // 컬럼 업데이트 처리 모델 소환
+	//기본 주문one 소환
+	OrderDao orderDao = new OrderDao();
+	HashMap<String, Object> map = orderDao.selectOrdersOne(orderNo);
+	//vo에 나눠담기
+	Orders orders = (Orders) map.get("orders");
+	OrderProduct orderProduct = (OrderProduct) map.get("orderProduct");
+	System.out.println(orders.getId() + "getId <-- orderCancelAction.jsp");
+	String id = orders.getId();
+
 	//기존 주문에서 포인트 얼마나 증가했는지 불러오는 모델 소환 (customer, point_history)	
-	
-	
 	CustomerDao customerDao = new CustomerDao();
-	int totalPoint = customerDao.selectPointCustomer(id);
+	int totalPoint = 0;
+	totalPoint = customerDao.selectPointCustomer(id);
+	
+	//업데이트 쿼리 호출
+	orderDao.OPNDeleiveryStatus((String)orders.getDeliveryStatus(), (int)orderProduct.getOrderProductNo());
 
 	
 	// 다시 리스트로 리다이렉트

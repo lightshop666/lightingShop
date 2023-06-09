@@ -3,43 +3,65 @@ import vo.*;
 import java.sql.*;
 import java.util.*;
 import util.DBUtil;
+import java.time.LocalDate;
 
 public class OrderDao {
 	
+	//주문일부터 한 달 지나면 리뷰를 못쓰게 하기 위한 오늘 날짜
+	public class DateDao {
+	    public LocalDate getCurrentDate() {
+	        return LocalDate.now();
+	    }
+	}
+	
 //1)특정 주문 조회One
 	/*
-	SELECT *
+	SELECT 
+		o.order_no orderNo
+		, o.id id
+		, o.order_address orderAddress
+		, o.order_price orderPrice
+		, o.createdate orderDay
+		, op.order_product_no orderProductNo
+		, op.product_no productNo
+		, op.product_cnt productCnt
+		, op.delivery_status deliveryStatus
 	FROM orders o
-	   INNER JOIN order_product op ON o.order_no = op.order_no
-	      INNER JOIN product p ON p.product_no = p.product_no
-	         INNER JOIN product_img pim ON p.product_no = pim.product_no
-	WHERE o.order_no = 1
-	
-	지금 결과 2개가 아니라 여러개 나와서 봐야합니다.
+		INNER JOIN order_product op ON o.order_no = op.order_no
+	WHERE o.order_no = ?
+
 	 */
-	public ArrayList<HashMap<String, Object>> selectOrdersOne(String loginMemberId, int orderNo) throws Exception {
-		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+	public HashMap<String, Object> selectOrdersOne(int orderNo) throws Exception {
+		HashMap<String, Object> map = new HashMap<>();
+		Orders orders = null;
+		OrderProduct orderProduct = null;
+		
 	    DBUtil dbUtil = new DBUtil();
 	    Connection conn = dbUtil.getConnection();
 
-	    String sql = "";
+	    String sql = "SELECT  o.order_no orderNo, o.id id, o.order_address orderAddress, o.order_price orderPrice, o.createdate orderDay, op.order_product_no orderProductNo, op.product_no productNo, op.product_cnt productCnt, op.delivery_status deliveryStatus FROM orders o INNER JOIN order_product op ON o.order_no = op.order_no WHERE o.order_no = ?";
 
 	    PreparedStatement mainStmt = conn.prepareStatement(sql);
-		mainStmt.setString(1, loginMemberId);
-		//페이징 처리를 위한 SQL 쿼리문에서의 인덱스는 0부터 시작하므로 beginRow를 1을 빼서 0부터 시작하도록 설정
-		mainStmt.setInt(2, orderNo);
-		
-		ResultSet mainRs = mainStmt.executeQuery();
+		mainStmt.setInt(1, orderNo);
+		ResultSet rs = mainStmt.executeQuery();
 		
 		//결과셋 받아오기
-		while (mainRs.next()) {
-	        HashMap<String, Object> o = new HashMap<>();
-	        o.put("orderNo", mainRs.getInt("orderNo"));
-
-	        list.add(o);
-	    }
-		System.out.println(list+ "<--ArrayList-- ReviewDao.selectCustomerOrderList");
-		return list;
+		if(rs.next()) {
+			orders = new Orders();
+			orderProduct = new OrderProduct();
+			orders.setOrderNo(rs.getInt("orderNo"));
+			orders.setId(rs.getString("id"));
+			orders.setOrderAddress(rs.getString("orderAddress"));
+			orders.setOrderPrice(rs.getInt("orderPrice"));
+			orders.setCreatedate(rs.getString("orderDay"));
+			orderProduct.setOrderProductNo(rs.getInt("orderProductNo"));
+			orderProduct.setProductNo(rs.getInt("productNo"));
+			orderProduct.setProductCnt(rs.getInt("productCnt"));
+			orderProduct.setDeliveryStatus(rs.getString("deliveryStatus"));
+		}
+		map.put("orders", orders);
+		map.put("orderProduct", orderProduct);
+		return map;
 	}
 	
 	
