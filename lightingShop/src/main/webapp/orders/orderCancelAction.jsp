@@ -23,13 +23,14 @@
 	//vo에 나눠담기
 	Orders orders = (Orders) map.get("orders");
 	OrderProduct orderProduct = (OrderProduct) map.get("orderProduct");
-	System.out.println(orders.getId() + "getId <-- orderCancelAction.jsp");
-	String id = orders.getId();
-
-	//기존 주문에서 포인트 얼마나 증가했는지 불러오는 모델 소환 (customer, point_history)	
+	System.out.println(orders.getId() + " <--getId-- orderCancelAction.jsp");
+	
+	//총 포인트에서 주문시 포인트 빼기
+	//총 포인트 호출 모델.
 	CustomerDao customerDao = new CustomerDao();
-	int totalPoint = 0;
-	totalPoint = customerDao.selectPointCustomer(id);
+	int totalPoint  = customerDao.selectPointCustomer(orders.getId());
+	
+	//기존 주문에서 포인트 얼마나 증가했는지 불러오는 모델 소환 (customer, point_history)
 	
 	//업데이트 쿼리 호출
 	orderDao.OPNDeleiveryStatus((String)orders.getDeliveryStatus(), (int)orderProduct.getOrderProductNo());
