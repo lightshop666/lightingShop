@@ -38,7 +38,7 @@ public class CustomerDao {
 		return customerAddCheckId;
 	}
 	
-	// 1-2) 회원가입 - id_list
+	// 1-2) 회원가입 - id_list -> 회원가입시 id_list, customer, address 3곳에 데이터 추가
 	public int addIdList(IdList idList) throws Exception {
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
@@ -105,13 +105,13 @@ public class CustomerDao {
 		
 		/*
 			SELECT i.id, i.last_pw, i.active, e.emp_level
-			FROM id_list i INNER JOIN	employees e 
+			FROM id_list i LEFT OUTER JOIN	employees e 
 			ON i.id = e.id
 			WHERE i.id = 'admin'
 		*/
 		
 		String sql = "SELECT i.id id, i.last_pw lastPw, i.active active, e.emp_level empLevel FROM id_list i "
-				+ " INNER JOIN employees e ON i.id = e.id"
+				+ " LEFT OUTER JOIN employees e ON i.id = e.id"
 				+ " WHERE i.id = ? AND i.last_pw = PASSWORD(?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, idList.getId());
@@ -126,6 +126,7 @@ public class CustomerDao {
 			loginIdList.put("active" , rs.getString("active")); // 가입탈퇴여부 반환
 			loginIdList.put("empLevel", rs.getString("empLevel")); // 레벨 권한 
 		}
+		
 		return loginIdList;
 	}
 	

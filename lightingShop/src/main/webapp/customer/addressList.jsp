@@ -59,7 +59,6 @@
 			%>
 	      </table>
 	      	<div>	
-		      	<button type="submit" class="btn btn-default" onclick="<%=request.getContextPath()%>/customer/myPage.jsp">선택</button>
 		        <button type="submit" class="btn btn-default" onclick="<%=request.getContextPath()%>/customer/myPage.jsp">취소</button>
 			</div>	 
       </form> 
