@@ -1,11 +1,8 @@
 package dao;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.HashMap;
-
 import util.DBUtil;
 import vo.*;
+import java.util.*;
+import java.sql.*;
 
 public class ProductDao {
 	// 상품 상세보기 (product, product_img, discount join)
@@ -113,5 +110,64 @@ public class ProductDao {
 		map.put("product", product);
 		map.put("productImg", productImg);
 		return map;
+	}
+	
+	/* 구현중....
+	// (상품 상세페이지 리뷰 탭 클릭시) 해당 상품의 리뷰 리스트 + 리뷰 키워드 검색 기능
+	public HashMap<String, Object> selectProductReviewList(int productNo) throws Exception {
+		HashMap<String, Object> map = new HashMap<>();
+		Review review = null;
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		
+		
+		
+		return map;
+	}
+	*/
+	
+	// (상품 상세페이지 문의 탭 클릭시) 해당 상품의 문의 리스트 + 페이징
+	public ArrayList<Question> selectProductQuestionListByPage(int beginRow, int rowPerPage, int productNo) throws Exception {
+		ArrayList<Question> list = new ArrayList<>();
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		
+		String sql = "SELECT q_no qNo, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate FROM question WHERE product_no = ? ORDER BY createdate DESC LIMIT ?, ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, productNo);
+		stmt.setInt(2, beginRow);
+		stmt.setInt(3, rowPerPage);
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			Question q = new Question();
+			q.setqNo(rs.getInt("qNo"));
+			q.setqCategory(rs.getString("qCategory"));
+			q.setqTitle(rs.getString("qTitle"));
+			q.setqName(rs.getString("qName"));
+			q.setaChk(rs.getString("aChk"));
+			q.setPrivateChk(rs.getString("privateChk"));
+			q.setCreatedate(rs.getString("createdate"));
+			list.add(q);
+		}
+		return list;
+	}
+	
+	// (상품 상세페이지 문의 탭 클릭시) 해당 상품의 문의 수 (totalRow)
+	public int selectProductQuestionCnt(int productNo) throws Exception {
+		int totalRow = 0;
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		
+		String sql = "SELECT COUNT(*) FROM question WHERE product_no = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, productNo);
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) {
+			totalRow = rs.getInt(1);
+		}
+		return totalRow;
 	}
 }
