@@ -84,8 +84,8 @@ public class OrderProductDao {
 	    DBUtil dbUtil = new DBUtil();
 	    Connection conn = dbUtil.getConnection();
 
-	    String sql = "UPDATE order_product  \r\n"
-	    		+ "	SET	delivery_status=?    \r\n"
+	    String sql = "UPDATE order_product   "
+	    		+ "	SET	delivery_status=?     "
 	    		+ "	WHERE order_product_no=? ";
 	    PreparedStatement stmt = conn.prepareStatement(sql);
 	    stmt.setString(1, deliStatus);
@@ -102,8 +102,40 @@ public class OrderProductDao {
 	    return row;
 	}
 	
+//3) 할인기간 적용하여 할인 된 가격 받아오기
+	/*
+	SELECT 
+	       CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() 
+	            THEN p.product_price - (p.product_price * d.discount_rate) 
+	            ELSE p.product_price 
+	       END AS discountedPrice
+	FROM product p 
+		LEFT JOIN discount d ON p.product_no = d.product_no 
+	WHERE p.product_no = 4
+
+	*/
+	public int discountedPrice(int productNo) throws Exception {
+		int result = 0;
+		
+	    DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
 	
-	
+	    String sql = "SELECT  "
+	    		+ "       CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW()  "
+	    		+ "            THEN p.product_price - (p.product_price * d.discount_rate)  "
+	    		+ "            ELSE p.product_price  "
+	    		+ "       END AS discountedPrice "
+	    		+ "FROM product p LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.product_no = ?";
+	    PreparedStatement mainStmt = conn.prepareStatement(sql);
+		mainStmt.setInt(1, productNo);
+		ResultSet rs = mainStmt.executeQuery();
+		
+		//결과셋 받아오기
+		if(rs.next()) {
+			result = rs.getInt("discountedPrice");
+		}
+		return result;
+	}
 	
 	
 	
