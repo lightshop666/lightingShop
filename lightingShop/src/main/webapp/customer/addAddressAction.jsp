@@ -32,7 +32,7 @@
 	address.setAddressName(addressName);
 	address.setAddress(addressStr); 
 	
-	// 중복이 아닐경우 회원가입 진행, 메서드 호출
+	// 주소추가 메서드 
 	CustomerDao cDao = new CustomerDao();
 	int addMyAddress = cDao.addMyAddress(address);
 	

@@ -34,6 +34,7 @@
 	address.setAddressName(addressName);
 	address.setAddress(addressStr);
 	
+	// 주소변경 메서드 실행
 	CustomerDao cDao = new CustomerDao();
 	int modifyAddress = cDao.modifyAddress(address);
 	

@@ -1,8 +1,12 @@
 package dao;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import util.DBUtil;
-import vo.*;
 
 public class PointHistoryDao {
 	
@@ -49,6 +53,32 @@ public class PointHistoryDao {
          }
 		
 		return row;
+	}
+	// 2) 고객 - 최신주문 순서별 포인트 내역 확인
+	public ArrayList<HashMap<String, Object>> CustomerPointList(int beginRow, int rowPerPage) throws Exception {
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = " SELECT p.order_no orderNo, p.point_info pointInfo, p.point point, p.createdate createdate" 
+				+ " FROM customer c INNER JOIN orders o ON  c.id = o.id" 
+				+ " INNER JOIN point_history p ON o.order_no = p.order_no" 
+				+ " WHERE c.id = ? ORDER BY p.createdate DESC LIMIT ?,?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, beginRow);
+		stmt.setInt(2, rowPerPage);
+		ResultSet rs = stmt.executeQuery();
+		
+		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+		while(rs.next()) {
+			HashMap<String, Object> m = new HashMap<>();
+			m.put("orderNo", rs.getInt("orderNo"));
+			m.put("pointInfo", rs.getString("pointInfo") );
+			m.put("point", rs.getString("point") );
+			m.put("createdate", rs.getString("createdate") );
+			list.add(m);	
+		}
+		return list;
 	}
 
 }

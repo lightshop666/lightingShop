@@ -11,15 +11,6 @@
 		return;
 	}
 	
-	System.out.println(request.getParameter("lastPw")); 
-	System.out.println(request.getParameter("customerNewPw")); 
-	System.out.println(request.getParameter("customerNewPwCk")); 
-	System.out.println(request.getParameter("cstmName"));
-	System.out.println(request.getParameter("cstmEmail"));
-	System.out.println(request.getParameter("cstmBirth"));
-	System.out.println(request.getParameter("cstmPhone"));
-	System.out.println(request.getParameter("cstmGender")); 
-	
 	//유효성 검사 후 입력값이 맞지 않으면 회원수정 페이지로 리디렉션
 	if(request.getParameter("lastPw") == null
 		|| request.getParameter("customerNewPw") == null
@@ -113,7 +104,7 @@
 	// 고객정보가 수정된 경우
 	if(modifyCustomerOne == 1) {
 		System.out.println("회원정보 수정 성공");
-		// 수정된 비밀번호는 pwHistory(비밀번호내역)에 추가하기 
+		// 수정된 비밀번호는 pwHistory(비밀번호내역)에 추가하기, id별 비밀번호 4개 넘을시 가장 오래된 pw 자동삭제
 		int operatePwHistory = cDao.operatePwHistory(pwHistory);
 		if(operatePwHistory == 1) {
 			System.out.println("비밀번호 pwHistory에 추가완료");

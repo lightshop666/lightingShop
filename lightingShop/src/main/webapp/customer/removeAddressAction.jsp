@@ -19,7 +19,7 @@
 		return;
 	}
 	
-	// 변수값 받아오기
+	// 변수값 받아오기 & 배송지 삭제 메서드 호출
 	int addressNo = Integer.parseInt(request.getParameter("addressNo"));
 	CustomerDao cDao = new CustomerDao();
 	int removeAddress = cDao.removeAddress(addressNo);
