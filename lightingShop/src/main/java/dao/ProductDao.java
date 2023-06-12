@@ -111,21 +111,69 @@ public class ProductDao {
 		map.put("productImg", productImg);
 		return map;
 	}
-	
-	/* 구현중....
+
 	// (상품 상세페이지 리뷰 탭 클릭시) 해당 상품의 리뷰 리스트 + 리뷰 키워드 검색 기능
-	public HashMap<String, Object> selectProductReviewList(int productNo) throws Exception {
-		HashMap<String, Object> map = new HashMap<>();
-		Review review = null;
+	public ArrayList<HashMap<String, Object>> selectProductReviewList(int beginRow, int rowPerPage, String searchWord, int productNo) throws Exception {
+		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 		
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
+		/*
+			SELECT
+				r.review_title reviewTitle,
+				r.review_content reviewContent,
+				r.review_ori_filename reviewOriFilename,
+				r.review_save_filename reviewSaveFilename,
+				r.createdate reviewCreatedate,
+				r.updatedate reviewUpdatedate,
+				r.review_path reviewPath,
+				op.product_no productNo,
+				o.id id
+			FROM review r
+				INNER JOIN order_product op
+				ON r.order_product_no = op.order_product_no
+					INNER JOIN orders o
+					ON op.order_no = o.order_no
+			WHERE op.product_no = ?
+			AND CONCAT(r.review_title,' ',r.review_content) LIKE ?
+			ORDER BY r.createdate DESC LIMIT ?, ?
+		*/
+		String sql = "";
+		PreparedStatement stmt = null;
 		
-		
-		
-		return map;
+		// 1) 키워드 검색X
+		if(searchWord.equals("")) {
+			sql = "SELECT r.review_title reviewTitle, r.review_content reviewContent, r.review_ori_filename reviewOriFilename, r.review_save_filename reviewSaveFilename, r.createdate reviewCreatedate, r.updatedate reviewUpdatedate, r.review_path reviewPath, op.product_no productNo, o.id id FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no WHERE op.product_no = ? ORDER BY r.createdate DESC LIMIT ?, ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, productNo);
+			stmt.setInt(2, beginRow);
+			stmt.setInt(3, rowPerPage);
+		// 2) 키워드 검색O
+		} else if(!searchWord.equals("")) {
+			sql = "SELECT r.review_title reviewTitle, r.review_content reviewContent, r.review_ori_filename reviewOriFilename, r.review_save_filename reviewSaveFilename, r.createdate reviewCreatedate, r.updatedate reviewUpdatedate, r.review_path reviewPath, op.product_no productNo, o.id id FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no WHERE op.product_no = ? AND CONCAT(r.review_title,' ',r.review_content) LIKE ? ORDER BY r.createdate DESC LIMIT ?, ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, productNo);
+			stmt.setString(2, searchWord);
+			stmt.setInt(3, beginRow);
+			stmt.setInt(4, rowPerPage);
+		}
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			HashMap<String, Object> m = new HashMap<>();
+			m.put("reviewTitle", rs.getString("reviewTitle"));
+			m.put("reviewContent", rs.getString("reviewContent"));
+			m.put("reviewOriFilename",rs.getString("reviewOriFilename"));
+			m.put("reivewSaveFilename", rs.getString("reivewSaveFilename"));
+			m.put("reviewCreatedate", rs.getString("reviewCreatedate"));
+			m.put("reviewUpdatedate", rs.getString("reviewUpdatedate"));
+			m.put("reviewPath", rs.getString("reviewPath"));
+			m.put("productNo", rs.getString("productNo"));
+			m.put("id", rs.getString("id"));
+			list.add(m);
+		}
+
+		return list;
 	}
-	*/
 	
 	// (상품 상세페이지 문의 탭 클릭시) 해당 상품의 문의 리스트 + 페이징
 	public ArrayList<Question> selectProductQuestionListByPage(int beginRow, int rowPerPage, int productNo) throws Exception {
