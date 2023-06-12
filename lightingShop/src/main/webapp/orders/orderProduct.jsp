@@ -12,8 +12,15 @@
 	}
 	
 	//상품번호,수량 검사
-	String[] productNo = request.getParameterValues("productNo");
-	String[] productCnt = request.getParameterValues("productCnt");
+	String[] productNo = {10,12};
+	if(session.getAttribute("productNo") != null) {
+		productNo = request.getParameterValues("productNo");
+	}
+	
+	String[] productCnt = {2,10};
+	if(session.getAttribute("productCnt") != null) {
+		productCnt = request.getParameterValues("productCnt");
+	}
 	
 	if (productNo == null || productNo.length == 0 || productCnt == null || productCnt.length == 0) {
 	    // 선택된 상품이 없거나 수량이 입력되지 않은 경우 처리
@@ -101,6 +108,16 @@
 	HashMap<String, Object> customerInfo = customerDao.selectCustomerOne(customer);
 	
 	int totalPoint = customerDao.selectPointCustomer(customer.getDao());
+	
+	//포인트 차등 적립을 위한 고객 정보
+	double pointRate = 0;
+	if(customer.getCstmRank().equals("금")){
+		pointRate = 0.05;										//랭크 금이면 5퍼
+	}else if(customer.getCstmRank().equals("은")){
+		pointRate = 0.03;										//랭크 은이면 3퍼
+	}else{
+		pointRate = 0.01;										//그 외 1퍼
+	}
 	
 %>
 <!DOCTYPE html>
@@ -193,12 +210,13 @@
 	        Product product = selectedProducts.get(i);
 	        ProductImg productImg = selectedProductImgs.get(i);
 	        int discountedPrice = discountedPrices.get(i);
-	        totalPrice += discountedPrice;
+	        totalPrice += discountedPrice *  Integer.parseInt(productCnt[i]);
 	%>
 	        <p><img class="thumbnail" src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image"></p>
-	        <p>상품명 : <%= product.getProductName() %></p>
-	        <p>상품 가격 : <%= product.getProductPrice() * product. %></p>
-	        <p>할인된 가격 : <%= discountedPrice %></p>
+	        <p>상품명 : <%= product.getProductName() %></p><!-- 상품명 -->
+	        <p><%=productCnt[i] %>개</p><!-- 상품갯수 -->
+	        <p>상품 가격 : <%= product.getProductPrice() * Integer.parseInt(productCnt[i])  %></p><!-- 상품 원래 가격 * 상품 개수 -->
+	        <p>할인된 가격 : <%= discountedPrice * Integer.parseInt(productCnt[i]) %></p><!-- 할인된 가격 * 상품 개수 -->
 			<p>배송비 :
 			<%
 				int deliPrice = 0;
@@ -214,7 +232,6 @@
 			}
 			%>
 			</p>
-			<p><%=totalPrice + deliPrice %>원</p>
 
 	</div>
 	
@@ -229,7 +246,6 @@
 	o 3-7) 결제 방법 --> 무통장입금 방식 
  -->
 	<div>
-		<p>상품 총액 : <%=totalPrice %></p>
 		<p>사용 가능 :  P</p>
 		<p>
 			<input type="number" min=0 max=<%=totalPoint %> name="usePoint" id="point">
@@ -240,13 +256,33 @@
 <!---------------- 최종 결제 금액 -->
 	<div>
 		<h4>결제 금액</h4>
-		상품 금액 : 
-		최종 결제 금액 : <p id="finalPrice"></p>		
+		<p>상품 금액 : <%= totalPrice %> 원</p>
+		<p>배송비 : <%=deliPrice %> 원</p>
+		<p>최종 결제 금액 : <span id="finalPrice"> </span></p>
 	</div>
 	
 <!---------------- 적립예정 포인트 -->
-	<div>		
+	<div>	
+		<p>
+			<%= customer.getId() %>님 포인트 <span id="pointByOrder"></span>점 적립 예정입니다.
+		</p>
 	</div>
+
+<!-------- 결제 버튼  넘겨줄 것 : productNo배열, productCnt배열, 최종금액 -->
+	<form action="<%= request.getContextPath()%>/orders/orderProductAction.jsp" method="post" >
+	<%
+		for(int i=0; i<productNo.length; i+=1){
+	%>
+			<input type="hidden" name="productNo" value=<%=productNo[i] %>>
+			<input type="hidden" name=productCnt value=<%=productCnt[i] %>>
+	<%
+		}
+	%>
+			<input type="hidden" name="finalPrice" id="finalPriceInput">
+			<button type="submit" id="orderButton">
+				<span id="paymentAmount"></span>결제 
+			</button>
+	</form>
 
 </div>
 </body>
@@ -264,48 +300,73 @@
 	
 //포인트 적용시 최종 금액 변동
 	// input 요소와 최종 결제 금액을 표시하는 요소를 가져옵니다.
-	let input = document.getElementById('point');
-	let finalPriceElement = document.getElementById('finalPrice');
-	let pointBtn = document.getElementById('pointBtn');
+	let input = document.querySelector('#point');
+	let finalPriceElement = document.querySelector('#finalPrice');
+	let pointBtn = document.querySelector('#pointBtn');
 	let originalPoint = <%= totalPoint %>;
+	let deliPrice = <%= deliPrice %>; // 배송비
 	
 	// input 값이 변경될 때마다 계산 함수를 호출합니다.
 	input.addEventListener('change', calculateAmount);
 	
+//포인트 값 다르게 할 때마다 
 	function togglePoint() {
 		// 입력된 포인트 값을 가져옵니다.
 		let usedPoint = parseInt(input.value);
 		  
 		// 전액 사용 버튼을 클릭한 경우
-		if (pointBtn.innerText === '전액사용') {
+		if (pointBtn.innerHTML === '전액사용') {
 			input.value = originalPoint; // 입력 상자에 사용 가능한 포인트를 채웁니다.
 			input.setAttribute('readonly', 'readonly'); // 입력 상자를 읽기 전용으로 설정합니다.
-			pointBtn.innerText = '취소'; // 버튼 텍스트를 '취소'로 변경합니다.
+			pointBtn.innerHTML = '취소'; // 버튼 텍스트를 '취소'로 변경합니다.
 			calculateAmount(); // 포인트 사용에 따른 최종 결제 금액을 계산합니다.
 		// 취소 버튼을 클릭한 경우
 		} else {
 			input.value = ''; // 입력 상자를 비웁니다.
 			input.removeAttribute('readonly'); // 입력 상자의 읽기 전용 속성을 제거합니다.
-			pointBtn.innerText = '전액사용'; // 버튼 텍스트를 '전액 사용'으로 변경합니다.
-			finalPriceElement.innerText = ''; // 최종 결제 금액을 초기화합니다.
+			pointBtn.innerHTML = '전액사용'; // 버튼 텍스트를 '전액 사용'으로 변경합니다.
+			finalPriceElement.innerHTML = ''; // 최종 결제 금액을 초기화합니다.
 		}
 	}
 	
+//최종 금액 계산
 	function calculateAmount() {
 		// 입력된 포인트 값을 가져옵니다.
 		let usedPoint = parseInt(input.value);
-		    
+		
 		// 최종 결제 금액을 계산합니다.
-		let totalPrice = <%= totalPrice %>; // 상품 총액
-		let remainingPoint = <%= totalPoint %>; // 사용 가능한 포인트
+		let totalPrice = <%= totalPrice %> ; // 상품 총액
+		let remainingPoint = <%= totalPoint %> ; // 사용 가능한 포인트
 		let calculatedPrice = totalPrice - usedPoint;
-		    
+		
+		// 배송비를 최종 결제 금액에 추가합니다.
+		let finalPrice = calculatedPrice + deliPrice;
+		
 		// 음수 금액은 0으로 제한합니다.
-		let finalPrice = Math.max(calculatedPrice, 0);
-		    
+		finalPrice = Math.max(finalPrice, 0);
+		
 		// 최종 결제 금액을 화면에 표시합니다.
-		finalPriceElement.innerText = finalPrice;
+		finalPriceElement.innerHTML = finalPrice;
+		// 최종 결제 금액을 숨겨진 input 태그에 설정합니다.
+		document.getElementById('finalPriceInput').value = finalPrice;
+		// 결제 버튼의 텍스트에 최종 결제 금액을 추가합니다.
+		document.getElementById('paymentAmount').innerHTML = finalPrice.toLocaleString() + '원';
+
 	}
+	
+//주문에 따른 포인트
+	function calculatePointByOrder() {
+		let finalPriceElement = document.querySelector('#finalPrice');
+		let pointByOrderElement = document.querySelector('#pointByOrder');
+		
+		let finalPrice = parseFloat(finalPriceElement.innerHTML);
+		let pointByOrder = Math.floor(pointRate * finalPrice);
+		
+		pointByOrderElement.innerHTML = pointByOrder;
+	}
+	// 최종 결제 금액이 변경될 때마다 적립 예정 포인트를 계산
+	finalPriceElement.addEventListener('change', calculatePointByOrder);
+
 
 </script>
 </html>

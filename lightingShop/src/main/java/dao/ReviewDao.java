@@ -264,7 +264,7 @@ public class ReviewDao {
 		return review;
 	}
 	
-	
+//나중에 order_product_no체크 
 //3-2)리뷰 텍스트 출력
 	public Review reviewText(int orderProductNo) throws Exception {
 		Review review = null;
