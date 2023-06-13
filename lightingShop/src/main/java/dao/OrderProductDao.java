@@ -138,8 +138,28 @@ public class OrderProductDao {
 	}
 	
 	
-	
-	
+//4) 각각의 상품 추가
+	public int addProductDao(int orderNo, int productNo, int productCnt) throws Exception {
+		int row = 0;
+		DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
+
+	    String sql = "INSERT INTO order_product (order_no, product_no, product_cnt, delivery_status) "
+	    		+ "VALUES (?, ?, ?, '주문확인중')";
+	    PreparedStatement stmt = conn.prepareStatement(sql);
+	    stmt.setInt(1, orderNo);
+	    stmt.setInt(2, productNo);
+	    stmt.setInt(3, productCnt);
+	    row = stmt.executeUpdate();
+	    
+	    if (row !=0) {
+	        System.out.println(row +"행 리뷰 추가 성공<--addProductDao");
+         }else{
+        	 row=0;
+            System.out.println(row +"행 리뷰 추가 실패<--addProductDao");
+         }
+	    return row;		
+	}
 	
 	
 	

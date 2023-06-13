@@ -3,6 +3,7 @@
 <%@ page import="vo.*" %>
 <%@ page import="java.util.*"%>
 <%
+	request.setCharacterEncoding("utf-8");	
 //유효성 검사
 	//세션 유효성 검사 --> 비회원은 주문할 수 없다 게스트 걸러내기
 	Customer customer = new Customer();
@@ -209,9 +210,28 @@
 	총 할인된 가격 / ~~~원 결제 (최종금액)
 	 -->
 	<!-- 넘겨줄 것 : productNo배열, productCnt배열, 최종금액 -->
-<!----------------------- 주문인 정보 -->
+<!----------------------- 주문인 정보
+	이름	연락처			변경(누르면 배송지 변경 --배송지 리스트 출력)
+	주소
+	배송시 요청사항을 선택해주세요(셀렉트
+ -->
 	<div>
-	<a href="<%= request.getContextPath()%>/customer/addressList.jsp"></a>
+		<p>이름 : <%=customerInfo.get("c.cstm_name") %></p>
+		<p>연락처 : <%=customerInfo.get("c.cstm_phone") %></p>
+		<p>
+			주소 : <%=customerInfo.get("c.cstm_address") %>			
+			<a href="<%= request.getContextPath()%>/customer/addressList.jsp">변경</a>
+		</p>
+		<p>
+			배송시 요청사항
+			<select name="deliOption" id="deliOption" onchange="showHideInput()">
+				<option value="">선택하세요</option>
+				<option value="직접 배송해주세요">직접 배송해주세요</option>
+				<option value="문 앞에 놓아주세요">문 앞에 놓아주세요</option>
+				<option value="기타">기타</option>
+			</select>
+			<input type="text" name="otherdeliOption"" id="otherdeliOption"" style="display: none;">
+		</p>
 	</div>
 
 <!------------------------ 주문상품 -->
@@ -263,7 +283,7 @@
 	<div>
 		<p>사용 가능 : <%=totalPoint %> P</p>
 		<p>
-			<input type="number" min=0 max=<%=totalPoint %> name="usePoint" id="point">
+			<input type="number" min=0 max=<%=totalPoint %> step="100" name="usePoint" id="point">
 			<button type="button" id="pointBtn" onclick="togglePoint()">전액사용</button>
 		</p>
 	</div>
@@ -284,20 +304,27 @@
 	</div>
 
 <!-------- 결제 버튼  넘겨줄 것 : productNo배열, productCnt배열, 최종금액 -->
-	<form action="<%= request.getContextPath()%>/orders/orderProductAction.jsp" method="post" >
-	<%
-		for(int i=0; i<productNo.length; i+=1){
+	<form action="<%= request.getContextPath()%>/orders/orderProductAction.jsp" method="post">
+	<% 
+		for(int i=0; i<productNo.length; i+=1) { 
 	%>
-			<input type="hidden" name="productNo" value=<%=productNo[i] %>>
-			<input type="hidden" name=productCnt value=<%=productCnt[i] %>>
+			<input type="hidden" name="productNo" value="<%= productNo[i] %>">
+			<input type="hidden" name="productCnt" value="<%= productCnt[i] %>">
 	<%
 		}
 	%>
-			<input type="hidden" name="finalPrice" id="finalPriceInput">
-			<button type="submit" id="orderButton">
-				<span id="paymentAmount"></span>결제 
-			</button>
+		<input type="hidden" name="finalPrice" id="finalPriceInput">		
+		<input type="hidden" name="customerName" value="<%= customerInfo.get("c.cstm_name") %>">
+		<input type="hidden" name="customerPhone" value="<%= customerInfo.get("c.cstm_phone") %>">
+		<input type="hidden" name="customerAddress" value="<%= customerInfo.get("c.cstm_address") %>">
+		<input type="hidden" name="deliOption" id="deliOptionInput">
+		<input type="hidden" name="otherDeliOption" id="otherDeliOptionInput">
+		
+		<button type="submit" id="orderButton">
+			<span id="paymentAmount"><%=totalPrice %>원</span>결제
+		</button>
 	</form>
+
 
 </div>
 </body>
@@ -313,17 +340,54 @@
 		document.body.appendChild(img);
 	});
 	
+	
+//셀렉트 박스 기타 선택시 인풋박스 등장
+	function showHideInput() {
+		let selectBox = document.querySelector('#deliOption');
+		let inputBox = document.querySelector('#otherdeliOption');
+		let inputBoxInput = document.querySelector('#otherDeliOptionInput');
+		
+		if (selectBox.value === "기타") {
+			inputBox.style.display = "inline-block";
+			inputBoxInput.value = inputBox.value;
+		} else {
+			inputBox.style.display = "none";
+			inputBoxInput.value = "";
+		}
+	}
+
+		
+	
+	
+	
 //포인트 적용시 최종 금액 변동
-	// input , 최종금액 가져오기
-	let input = document.querySelector('#point');
-	let finalPriceElement = document.querySelector('#finalPrice');
-	let pointBtn = document.querySelector('#pointBtn');
-	let originalPoint = <%= totalPoint %>;
-	let deliPrice = <%= deliPrice %>; // 배송비
+	let input = document.querySelector('#point');							//포인트 인풋박스
+	let finalPriceElement = document.querySelector('#finalPrice');	//최종 가격 받아오기
+	let pointBtn = document.querySelector('#pointBtn');					//포인트 버튼
+	let orderButton = document.querySelector('#orderButton');		//결제 버튼
+	let maxPoint = <%= totalPoint %>;					//포인트
+	let deliPrice = <%= deliPrice %>;						// 배송비
+	let totalPrice = <%= totalPrice %> ; 					// 상품 총액
+
+	document.getElementById('finalPriceInput').value = totalPrice;	//기본값으로 상품 총액 세팅
 	
 	// input 값이 변경될 때마다 계산 함수를 호출
 	input.addEventListener('change', calculateAmount);
 	
+	// input 범위 제한 유효성
+	input.addEventListener('blur', function() {
+	  let value = parseInt(input.value) || 0;
+	  
+	  // 입력이 허용 범위를 벗어나면 값을 조정
+	  if (value < 0) {
+	    input.value = 0;
+	  } else if (value > maxPoint) {
+	    input.value = maxPoint;
+	    alert('최대 사용 가능 포인트는 ' + maxpoint + '입니다.');
+	  }
+	});
+
+		
 //포인트 값 다르게 할 때마다 
 	function togglePoint() {
 		// 입력된 포인트 값을 가져옵니다.
@@ -331,44 +395,56 @@
 		  
 		// 전액 사용 버튼을 클릭한 경우
 		if (pointBtn.innerHTML === '전액사용') {
-			input.value = originalPoint; // 입력 상자에 사용 가능한 포인트를 채웁니다.
-			input.setAttribute('readonly', 'readonly'); // 입력 상자를 읽기 전용으로 설정합니다.
-			pointBtn.innerHTML = '취소'; // 버튼 텍스트를 '취소'로 변경합니다.
-			calculateAmount(); // 포인트 사용에 따른 최종 결제 금액을 계산합니다.
+			
+			input.value = maxPoint; // 입력 상자에 사용 가능한 포인트를 채웁니다.
+			input.setAttribute('readonly', 'readonly'); // 입력 상자를 읽기 전용으로 설정
+			pointBtn.innerHTML = '취소'; // 버튼 텍스트를 '취소'로 변경
+			calculateAmount(); // 포인트 사용에 따른 최종 결제 금액을 계산			
 		// 취소 버튼을 클릭한 경우
 		} else {
 			input.value = ''; // 입력 상자를 비웁니다.
-			input.removeAttribute('readonly'); // 입력 상자의 읽기 전용 속성을 제거합니다.
-			pointBtn.innerHTML = '전액사용'; // 버튼 텍스트를 '전액 사용'으로 변경합니다.
+			input.removeAttribute('readonly'); // 입력 상자의 읽기 전용 속성을 제거
+			pointBtn.innerHTML = '전액사용'; // 버튼 텍스트를 '전액 사용'으로 변경
 			finalPriceElement.innerHTML = ''; // 최종 결제 금액을 초기화합니다.
+			document.getElementById('paymentAmount').innerHTML = ''; // 결제 도 초기화합니다.
 		}
 	}
 	
-//최종 금액 계산
+	// 최종 금액 계산
 	function calculateAmount() {
-		// 입력된 포인트 값을 가져오기
-		let usedPoint = parseInt(input.value);
-		
-		// 최종 결제 금액을 계산
-		let totalPrice = <%= totalPrice %> ; // 상품 총액
-		let remainingPoint = <%= totalPoint %> ; // 사용 가능한 포인트
-		let calculatedPrice = totalPrice - usedPoint;
-		
-		// 배송비를 최종 결제 금액에 추가
-		let finalPrice = calculatedPrice + deliPrice;
-		
-		// 음수 금액은 0으로 제한합니다.
-		finalPrice = Math.max(finalPrice, 0);
-		
-		// 최종 결제 금액을 화면에 표시
-		finalPriceElement.innerHTML = finalPrice;
-		// 최종 결제 금액을 숨겨진 input 태그에 설정
-		document.getElementById('finalPriceInput').value = finalPrice;
-		// 결제 버튼의 텍스트에 최종 결제 금액을 추가
-		document.getElementById('paymentAmount').innerHTML = finalPrice.toLocaleString() + '원';
+	  // 입력된 포인트 값을 가져오기
+	  let usedPoint = parseInt(input.value);
 
+	  // 입력이 허용 범위를 벗어나면 값을 조정
+	  if (usedPoint < 0) {
+	    usedPoint = 0;
+	    input.value = 0;
+	    alert('잘못 된 입력입니다.');
+	  } else if (usedPoint > maxPoint) {
+	    usedPoint = maxPoint;
+	    input.value = maxPoint;
+	    alert('최대 사용 가능 포인트는 ' + maxPoint + '입니다.');
+	  }
+
+	  // 최종 결제 금액을 계산
+	  let calculatedPrice = totalPrice - usedPoint;
+
+	  // 배송비를 최종 결제 금액에 추가
+	  let finalPrice = calculatedPrice + deliPrice;
+
+	  // 음수 금액은 0으로 제한
+	  finalPrice = Math.max(finalPrice, 0);
+
+	  // 최종 결제 금액을 화면에 표시
+	  finalPriceElement.innerHTML = finalPrice;
+	  // 최종 결제 금액을 숨겨진 input 태그에 설정
+	  document.getElementById('finalPriceInput').value = finalPrice;
+
+	  // 결제 버튼의 텍스트에 최종 결제 금액을 추가
+	  document.getElementById('paymentAmount').innerHTML = finalPrice.toLocaleString() +'원';
 	}
-	
+
+
 //주문에 따른 포인트
 	function calculatePointByOrder() {
 		let finalPriceElement = document.querySelector('#finalPrice');
@@ -380,7 +456,7 @@
 		pointByOrderElement.innerHTML = pointByOrder;
 	}
 	// 최종 결제 금액이 변경될 때마다 적립 예정 포인트를 계산
-	finalPriceElement.addEventListener('change', calculatePointByOrder);
+	input.addEventListener('change', calculatePointByOrder);
 
 
 </script>

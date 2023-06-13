@@ -102,5 +102,27 @@ public class OrderDao {
 		    
 		    return row;
 		}
+		
+	//주문하기
+		public int addOrder(Orders orders ) throws Exception {
+			int result = 0;
+			DBUtil dbUtil = new DBUtil();
+		    Connection conn = dbUtil.getConnection();
+
+		    String sql = "INSERT INTO orders (id, order_address, order_price, createdate, updatedate) "
+		    		+ "VALUES(?, ?, ?, NOW(), NOW())";
+		    PreparedStatement stmt = conn.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS);
+		    stmt.setString(1, orders.getId());
+		    stmt.setString(2, orders.getOrderAddress());
+		    stmt.setDouble(3, orders.getOrderPrice());
+		    stmt.executeUpdate();
+		    
+		    ResultSet keyRs = stmt.getGeneratedKeys(); // 저장된 키값을 반환
+			if(keyRs.next()) {
+				result = keyRs.getInt(1);
+	            System.out.println(result +"<--pk-- addOrderDao");
+			}
+		    return result;		
+		}
 
 }
