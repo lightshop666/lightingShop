@@ -39,26 +39,21 @@
 	}
 	// finalPrice 출력
 	System.out.println(finalPrice + " <-- finalPrice orderProductAction.jsp");
-	
 	// customerName 출력
 	System.out.println(customerName + " <-- customerName orderProductAction.jsp");
-	
 	// customerPhone 출력
-	System.out.println(customerPhone + " <-- customerPhone orderProductAction.jsp");
-	
+	System.out.println(customerPhone + " <-- customerPhone orderProductAction.jsp");	
 	// customerAddress 출력
-	System.out.println(customerAddress + " <-- customerAddress orderProductAction.jsp");
-	
+	System.out.println(customerAddress + " <-- customerAddress orderProductAction.jsp");	
 	// deliOption 출력
-	System.out.println(deliOption + " <-- deliOption orderProductAction.jsp");
-	
+	System.out.println(deliOption + " <-- deliOption orderProductAction.jsp");	
 	// otherDeliOption 출력
 	System.out.println(otherDeliOption + " <-- otherDeliOption orderProductAction.jsp");
 	
 	//함수에 넣기 위한 vo 호출
 	Orders orders = new Orders();
 	orders.setId(customer.getId());
-	orders.setOrderAddress(customerAddress);
+	orders.setOrderAddress(customerAddress+deliOption+otherDeliOption);
 	orders.setOrderPrice(Double.parseDouble(finalPrice));
 	
 	//dao 호출
@@ -73,5 +68,6 @@
 		orderProductDao.addProductDao(orderPk, Integer.parseInt(productNos[i]), Integer.parseInt(productCnts[i]) );
 	}
 	
+	response.sendRedirect(request.getContextPath() + "/order/orderProductOne.jsp?orderNo="+orderPk);
+	return;
 
-%>

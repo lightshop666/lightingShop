@@ -153,14 +153,15 @@ public class OrderProductDao {
 	    row = stmt.executeUpdate();
 	    
 	    if (row !=0) {
-	        System.out.println(row +"행 리뷰 추가 성공<--addProductDao");
+	        System.out.println(row +"행 주문-상품 추가 성공<--addProductDao");
          }else{
         	 row=0;
-            System.out.println(row +"행 리뷰 추가 실패<--addProductDao");
+            System.out.println(row +"행 주문-상품 추가 실패<--addProductDao");
          }
 	    return row;		
 	}
 	
+//orderProduct 넘버로 받아오는 orderProduct 테이블
 	
 	
 	
