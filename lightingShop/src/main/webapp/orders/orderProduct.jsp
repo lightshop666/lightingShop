@@ -5,19 +5,19 @@
 <%
 //유효성 검사
 	//세션 유효성 검사 --> 비회원은 주문할 수 없다 게스트 걸러내기
-	Customer customer = null;
+	Customer customer = new Customer();
 	customer.setId("test2");	//-------------------------임시 테스트용-------------------------------------//
 	if(session.getAttribute("loginMemberId") != null) {
 		customer.setId((String)session.getAttribute("loginMemberId"));
 	}
 	
 	//상품번호,수량 검사
-	String[] productNo = {10,12};
+	String[] productNo = {"2","7"};
 	if(session.getAttribute("productNo") != null) {
 		productNo = request.getParameterValues("productNo");
 	}
 	
-	String[] productCnt = {2,10};
+	String[] productCnt = {"2","5"};
 	if(session.getAttribute("productCnt") != null) {
 		productCnt = request.getParameterValues("productCnt");
 	}
@@ -26,6 +26,8 @@
 	    // 선택된 상품이 없거나 수량이 입력되지 않은 경우 처리
 	    System.out.println("상품번호 또는 수량이 유효하지 않습니다. <--orderProduct.jsp");
 	    //-----------------------------------------------------------------------어디로 보낼지 고민--//
+		//response.sendRedirect(request.getContextPath() + "/product/productOne.jsp?productNo=" + request.getParameterValues("productNo[0]"));
+
    		if (productNo.length > 1) {
 			// 카트에서 넘어온 경우
 			response.sendRedirect(request.getContextPath() + "/cart/cart.jsp");
@@ -107,17 +109,28 @@
 	CustomerDao customerDao = new CustomerDao();
 	HashMap<String, Object> customerInfo = customerDao.selectCustomerOne(customer);
 	
-	int totalPoint = customerDao.selectPointCustomer(customer.getDao());
+	int totalPoint = customerDao.selectPointCustomer(customer.getId());
 	
-	//포인트 차등 적립을 위한 고객 정보
+	// 포인트 차등 적립을 위한 고객 정보
 	double pointRate = 0;
-	if(customer.getCstmRank().equals("금")){
-		pointRate = 0.05;										//랭크 금이면 5퍼
-	}else if(customer.getCstmRank().equals("은")){
-		pointRate = 0.03;										//랭크 은이면 3퍼
-	}else{
-		pointRate = 0.01;										//그 외 1퍼
+	if (customerInfo.containsKey("c.cstm_rank")) {
+		String rank = (String) customerInfo.get("c.cstm_rank");
+		if (rank.equals("금")) {
+			System.out.println("고객 랭크 : 금 <--orderProduct.jsp");
+		    pointRate = 0.05; // 랭크 금이면 5퍼
+		} else if (rank.equals("은")) {
+			System.out.println("고객 랭크 : 은 <--orderProduct.jsp");
+		    pointRate = 0.03; // 랭크 은이면 3퍼
+		} else {
+			System.out.println("고객 랭크 : 그 외<--orderProduct.jsp");
+		    pointRate = 0.01; // 그 외 1퍼
+		}
+	} else {
+	    System.out.println("고객 랭크가 없습니다 <--orderProduct.jsp");
+	    //-----------------------------------------------------------------------어디로 보낼지 고민--//
+		//response.sendRedirect(request.getContextPath() + "/product/productOne.jsp?productNo=" + request.getParameterValues("productNo[0]"));
 	}
+
 	
 %>
 <!DOCTYPE html>
@@ -206,6 +219,7 @@
 		<h4>주문상품</h4>
 	<%
 	    int totalPrice = 0;
+		int deliPrice = 0;
 	    for (int i = 0; i < productNo.length; i++) {
 	        Product product = selectedProducts.get(i);
 	        ProductImg productImg = selectedProductImgs.get(i);
@@ -219,7 +233,6 @@
 	        <p>할인된 가격 : <%= discountedPrice * Integer.parseInt(productCnt[i]) %></p><!-- 할인된 가격 * 상품 개수 -->
 			<p>배송비 :
 			<%
-				int deliPrice = 0;
 				if(totalPrice >= 25000){
 			%>
 					무료
@@ -232,6 +245,9 @@
 			}
 			%>
 			</p>
+	<%
+	    }
+	%>
 
 	</div>
 	
@@ -243,10 +259,9 @@
 	o 3-4)결제금액- : 상품금액 / 
 	o 3-5)배송비(상품금액 일정 이상이면 배송비 0원으로) / 
 	o 3-6)총 결제 금액 / 
-	o 3-7) 결제 방법 --> 무통장입금 방식 
- -->
+	o 3-7) 결제 방법 무통장입금 방식 --> 
 	<div>
-		<p>사용 가능 :  P</p>
+		<p>사용 가능 : <%=totalPoint %> P</p>
 		<p>
 			<input type="number" min=0 max=<%=totalPoint %> name="usePoint" id="point">
 			<button type="button" id="pointBtn" onclick="togglePoint()">전액사용</button>
@@ -299,14 +314,14 @@
 	});
 	
 //포인트 적용시 최종 금액 변동
-	// input 요소와 최종 결제 금액을 표시하는 요소를 가져옵니다.
+	// input , 최종금액 가져오기
 	let input = document.querySelector('#point');
 	let finalPriceElement = document.querySelector('#finalPrice');
 	let pointBtn = document.querySelector('#pointBtn');
 	let originalPoint = <%= totalPoint %>;
 	let deliPrice = <%= deliPrice %>; // 배송비
 	
-	// input 값이 변경될 때마다 계산 함수를 호출합니다.
+	// input 값이 변경될 때마다 계산 함수를 호출
 	input.addEventListener('change', calculateAmount);
 	
 //포인트 값 다르게 할 때마다 
@@ -331,25 +346,25 @@
 	
 //최종 금액 계산
 	function calculateAmount() {
-		// 입력된 포인트 값을 가져옵니다.
+		// 입력된 포인트 값을 가져오기
 		let usedPoint = parseInt(input.value);
 		
-		// 최종 결제 금액을 계산합니다.
+		// 최종 결제 금액을 계산
 		let totalPrice = <%= totalPrice %> ; // 상품 총액
 		let remainingPoint = <%= totalPoint %> ; // 사용 가능한 포인트
 		let calculatedPrice = totalPrice - usedPoint;
 		
-		// 배송비를 최종 결제 금액에 추가합니다.
+		// 배송비를 최종 결제 금액에 추가
 		let finalPrice = calculatedPrice + deliPrice;
 		
 		// 음수 금액은 0으로 제한합니다.
 		finalPrice = Math.max(finalPrice, 0);
 		
-		// 최종 결제 금액을 화면에 표시합니다.
+		// 최종 결제 금액을 화면에 표시
 		finalPriceElement.innerHTML = finalPrice;
-		// 최종 결제 금액을 숨겨진 input 태그에 설정합니다.
+		// 최종 결제 금액을 숨겨진 input 태그에 설정
 		document.getElementById('finalPriceInput').value = finalPrice;
-		// 결제 버튼의 텍스트에 최종 결제 금액을 추가합니다.
+		// 결제 버튼의 텍스트에 최종 결제 금액을 추가
 		document.getElementById('paymentAmount').innerHTML = finalPrice.toLocaleString() + '원';
 
 	}
