@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="dao.EmpDao" %>
 <%@ page import="java.util.*" %>
-<%@ page import="vo.Product" %>
+<%@ page import="vo.*" %>
 <%
-    EmpDao empDao = new EmpDao();
+	EmpDao empDao = new EmpDao();
     // 요청값 분석
     // 페이지 정보 가져오기
     int currentPage = 1;
@@ -34,12 +34,19 @@
     if (searchWord == null) {
         searchWord = "";
     }
+    
+    // 포인트 인포 정보 가져오기
+    String pointInfo = request.getParameter("pointInfo");
+    if (pointInfo == null) {
+    	pointInfo = "";
+    }
 
     // 변환값 디버깅하기
     System.out.println("col: " + col);
     System.out.println("ascDesc: " + ascDesc);
     System.out.println("searchCol: " + searchCol);
     System.out.println("searchWord: " + searchWord);
+    System.out.println("pointInfo: " + pointInfo);
 
     // 페이지당 행 수
     int rowPerPage = 10;
@@ -47,11 +54,11 @@
     // 시작 행 계산
     int beginRow = (currentPage - 1) * rowPerPage;
 
-    // 회원 리스트 조회
-    ArrayList<HashMap<String, Object>> customerList = empDao.selectCustomerListByPage(col, ascDesc, beginRow, rowPerPage, searchCol, searchWord);
+    // 포인트 리스트 조회
+    ArrayList<HashMap<String, Object>> pointList = empDao.selectPointListByPage(col, ascDesc, beginRow, rowPerPage, searchCol, searchWord, pointInfo);
 
     // 전체 행 수
-    int totalRow = empDao.selectCustomerCnt(searchCol, searchWord);
+    int totalRow = empDao.selectPointCnt(searchCol, searchWord, pointInfo);
     int lastPage = totalRow / rowPerPage;
     if (totalRow % rowPerPage != 0) {
         lastPage++;
@@ -68,12 +75,12 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Customer List</title>
+    <title>Point List</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
        <style>
         body {
         margin: 20px;
-        background-color: #f9f9f9; /* Set the background color to gray */
+        background-color: #f9f9f9; 
     	}
         /* 테이블 스타일 */
         .table {
@@ -151,14 +158,33 @@
     </style>
 </head>
 <body>
-<h1>Customer List</h1>
+<h1>Point List</h1>
 <!-- 검색 영역 -->
-<form action="<%= request.getContextPath() %>/admin/adminCustomerList.jsp?col=<%= col %>&ascDesc=<%= ascDesc %>"
+<form action="<%= request.getContextPath() %>/admin/adminPointList.jsp?col=<%= col %>&ascDesc=<%= ascDesc %>"
       method="get">
+<!--      
+<script>
+    function validateForm() {
+        var checkboxes = document.querySelectorAll('input[type="checkbox"][name^="selectedPoint_"]');
+        var checkedCount = 0;
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                checkedCount++;
+            }
+            if (checkedCount > 1) {
+                alert("하나의 체크박스만 선택할 수 있습니다.");
+                return false;
+            }
+        }
+        return true;
+    }
+</script>
+*/   -->    
     <div class="search-area" >
         <label class="search-label">검색</label>
         <select name="searchCol" class="search-input">
-            <option value="cstm_name" <% if (searchCol.equals("cstm_name")) out.print("selected"); %>>Customer Name</option>
+            <option value="point_no" <% if (searchCol.equals("point_no")) out.print("selected"); %>>Point No</option>
+            <option value="order_no" <% if (searchCol.equals("order_no")) out.print("selected"); %>>Order No</option>
             <option value="id" <% if (searchCol.equals("id")) out.print("selected"); %>>ID</option>
         </select>
         <input type="text" name="searchWord" value="<%= searchWord %>" class="search-input">
@@ -168,8 +194,7 @@
     <div class="sort-area">
         <label class="sort-label">정렬</label>
         <select name="col" class="sort-select">
-            <option value="id" <% if (col.equals("id")) out.print("selected"); %>>ID</option>
-            <option value="cstm_last_login" <% if (col.equals("cstm_last_login")) out.print("selected"); %>>Last Login</option>
+            <option value="point_no" <% if (col.equals("point_no")) out.print("selected"); %>>Point No</option>
             <option value="createdate" <% if (col.equals("createdate")) out.print("selected"); %>>Create Date</option>
         </select>
         <select name="ascDesc" class="sort-select">
@@ -180,33 +205,36 @@
     </div>
 </form>
 <!-- 리스트 영역 -->
-<form method="post" action="<%= request.getContextPath() %>/admin/activeAction.jsp">
-    <button type="submit" name="action" value="activate" class="btn btn-success">활성화</button>
-    <button type="submit" name="action" value="deactivate" class="btn btn-danger">비활성화</button>
-    <table class="table">
+<form method="post" action="<%= request.getContextPath() %>/admin/adminModifyPoint.jsp">
+     <table class="table">
         <thead>
         <tr>
-            <th>선택</th>
-            <th>id</th>
-            <th>Name</th>
-            <th>Last Login</th>
-            <th>Active</th>
+            <th>Point No</th>
+            <th>Order No</th>
+            <th>ID</th>
+            <th>PointInfo</th>
+            <th>PointPm</th>
+            <th>Point</th>
             <th>Created Date</th>
             <th>관리</th>
         </tr>
         </thead>
         <tbody>
         <%
-            for (HashMap<String, Object> c : customerList) {
+            for (HashMap<String, Object> p : pointList) {
         %>
         <tr>
-            <td><input type="checkbox" name="selectedProducts" value="<%=(String) c.get("id")%>"></td>
-            <td><%=(String) c.get("id")%></td>
-            <td><%=(String) c.get("cstmName")%></td>
-            <td><%=(String) c.get("cstmLastLogin")%></td>
-            <td><%=(String) c.get("active")%></td>
-            <td><%=(String) c.get("createdate")%></td>
-            <td><a href="<%= request.getContextPath() %>/admin/adminCustomerOne.jsp?id=<%=(String) c.get("id")%>">관리</a></td>
+            <td><%=(Integer) p.get("pointNo")%></td>
+            <td><%=(Integer) p.get("orderNo")%></td>
+            <td><%=(String) p.get("id")%></td>
+            <td><%=(String) p.get("pointInfo")%></td>
+            <td><%=(String) p.get("pointPm")%></td>
+            <td><%=(Integer) p.get("point")%></td>
+            <td><%=(String) p.get("createdate")%></td>
+            <td>
+                <a href="<%= request.getContextPath() %>/admin/adminModifyPoint.jsp?action=P&pointNo=<%=(Integer) p.get("pointNo")%>" class="btn btn-success">지급</a>
+                <a href="<%= request.getContextPath() %>/admin/adminModifyPoint.jsp?action=M&pointNo=<%=(Integer) p.get("pointNo")%>" class="btn btn-danger">차감</a>
+            </td>
         </tr>
         <%
             }
@@ -218,7 +246,7 @@
         <%
             if (minPage > 1) {
         %>
-        <a href="<%=request.getContextPath()%>/admin/adminCustomerList.jsp?currentPage=<%=minPage-pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>" class="page-link">이전</a>
+        <a href="<%=request.getContextPath()%>/admin/adminPointList.jsp?currentPage=<%=minPage-pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&pointInfo=<%=pointInfo%>" class="page-link">이전</a>
         <%
             }
 
@@ -229,14 +257,14 @@
         <%
                 } else {
         %>
-        <a href="<%=request.getContextPath()%>/admin/adminCustomerList.jsp?currentPage=<%=i%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>" class="page-link"><%=i%></a>
+        <a href="<%=request.getContextPath()%>/admin/adminPointList.jsp?currentPage=<%=i%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&pointInfo=<%=pointInfo%>" class="page-link"><%=i%></a>
         <%
                 }
             }
 
             if (maxPage < lastPage) {
         %>
-        <a href="<%=request.getContextPath()%>/admin/adminCustomerList.jsp?currentPage=<%=minPage+pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>" class="page-link">다음</a>
+        <a href="<%=request.getContextPath()%>/admin/adminPointList.jsp?currentPage=<%=minPage+pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&pointInfo=<%=pointInfo%>" class="page-link">다음</a>
         <%
             }
         %>

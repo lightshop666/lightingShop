@@ -3,6 +3,13 @@
 <%@ page import="java.util.*" %>
 <%@ page import="vo.*" %>
 <%
+/*세션검사
+if (!session.getAttribute("loginIdListEmpLevel").equals("3")) { // 직원레벨 5가 아니면
+	String msg = "접근권환이 없습니다.";
+	response.sendRedirect(request.getContextPath() + "/admin/home.jsp?msg="+msg);
+	return;
+}
+*/	
     EmpDao empdao = new EmpDao();
 	
     // 요청값 분석
@@ -27,15 +34,67 @@
     String productStatus = (String) product.get("productStatus");
     String productStock = (String) product.get("productStock");
     String productInfo = (String) product.get("productInfo");
-    String originFilename = (String) product.get("originFilename");
+    String saveFilename = (String) product.get("saveFilename");
+    String path = (String) product.get("productPath");
 %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <title>상품 상세보기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        table {
+            width: 50%;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+            font-weight: bold;
+        }
+
+        select, input[type="text"] {
+            padding: 5px;
+            width: 100px;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .table-info {
+            background-color: #f2f2f2;
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <h1>상품 상세보기</h1>
@@ -45,27 +104,31 @@
         <h3>상품 이미지</h3> 
         <table>   
         <%   
-        	if( product.get("originFilename")==null){
+        	if( product.get("saveFilename")==null){
         %>
         		<tr>
 	                <th class="table-info">새로운 이미지</th>
-	                <td><input type="file" name="productFile"></td>
-	                <td><input type="hidden" name="newFile"></td>
+	                <td><input type="file" name="newProductFile"></td>
 	            </tr>	
         <%
         	}else{        
         %>	
 	        	<tr>
 	                <th class="table-info">기존 이미지</th>
-	                <td><%=originFilename%></td>
+	                <td> <!-- a태그 다운로드 속성을 이용하면 참조주소를 다운로드 한다 -->
+						<a href="<%=request.getContextPath()%>/<%=path%>/<%=saveFilename%>" download="<%=saveFilename%>">
+							<%=saveFilename%>
+						</a>
+					</td>
 	            </tr>	
 	            <tr>
-	                <th class="table-info">새로운 이미지</th>
+	                <th class="table-info">변경 이미지</th>
 	                <td><input type="file" name="productFile"></td>
 	            </tr>	
         <%
         	}    
         %> 
+  
         </table>  
         
         <h3>상품 정보</h3> 

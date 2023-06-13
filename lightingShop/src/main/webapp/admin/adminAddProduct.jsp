@@ -10,61 +10,130 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <title>상품 등록</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            width: 500px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th {
+            background-color: #f8f8f8;
+            color: #333;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        select,
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+        
+        textarea {
+            height: 120px;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-  <form action="<%=request.getContextPath()%>/admin/addProductAction.jsp?" method="post">
-    <h1>상품 등록</h1>     	
-	    <table class="table table-hover">			      
-            <tr>
-                <th class="table-info">카테고리</th>
-                <td>
-                    <select name="categoryName">
-                    
-                        <% 
-                        	for (String category : categoryNames) { 
-            
-                        %>
-                            <option value="<%=category%>"> <%=category%></option>
-                        <% 
-   
-                        	} 
-                       	
-                        %>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th class="table-info">상품명</th>
-                <td><input type="text" name="productName"></td>
-            </tr>
-            <tr>
-                <th class="table-info">가격</th>
-                <td><input type="text" name="productPrice"></td>
-            </tr>
-            <tr>
-                <th class="table-info">상태</th>
-                <td>
-                    <select name="productStatus">
-                        <option value="판매중">판매중</option>
-                        <option value="예약판매">예약판매</option>
-                        <option value="품절">품절</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th class="table-info">재고</th>
-                <td><input type="text" name="productStock"></td>
-            </tr>
-            <tr>
-                <th class="table-info">상세정보</th>
-                <td><textarea name="productInfo"></textarea></td>
-            </tr>
-        </table>
+    <div class="container">
+        <h1>상품 등록</h1>
         
-         <button type="submit" class="btn btn-dark">수정하기</button>
-    </form>
+        <form action="<%=request.getContextPath()%>/admin/adminAddProductAction.jsp" method="post">
+            <table>
+                <tr>
+                    <th>카테고리</th>
+                    <td>
+                        <select name="categoryName">
+                            <% 
+                            	for (String category : categoryNames) { 
+                            %>
+                                <option value="<%=category%>"> <%=category%></option>
+                            <% 
+                            	} 
+                            %>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>상품명</th>
+                    <td><input type="text" name="productName"></td>
+                </tr>
+                <tr>
+                    <th>가격</th>
+                    <td><input type="text" name="productPrice"></td>
+                </tr>
+                <tr>
+                    <th>상태</th>
+                    <td>
+                        <select name="productStatus">
+                            <option value="판매중">판매중</option>
+                            <option value="예약판매">예약판매</option>
+                            <option value="품절">품절</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>재고</th>
+                    <td><input type="text" name="productStock"></td>
+                </tr>
+                <tr>
+                    <th>상세정보</th>
+                    <td><textarea name="productInfo"></textarea></td>
+                </tr>
+            </table>
+            
+            <button type="submit">상품 등록</button>
+        </form>
+    </div>
 </body>
 </html>

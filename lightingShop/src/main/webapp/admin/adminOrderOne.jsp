@@ -29,9 +29,60 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <title>주문 상세보기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        table {
+            width: 50%;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+            font-weight: bold;
+        }
+
+        select, input[type="text"] {
+            padding: 5px;
+            width: 100px;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .table-info {
+            background-color: #f2f2f2;
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <h1>주문 상세보기</h1>
@@ -45,8 +96,7 @@
         <input type="hidden" name="productNo" value="<%=productNo%>">
         <input type="hidden" name="productCnt" value="<%=productCnt%>">
         
-        
-        <table class="table table-hover">
+        <table>
             <tr>
                 <th class="table-info">주문 날짜</th>
                 <td><%=createdate%></td>

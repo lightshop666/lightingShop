@@ -4,13 +4,15 @@
 <%@ page import="java.io.*" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="dao.EmpDao" %>
+<%@ page import="vo.*" %>
 <%@ page import="com.oreilly.servlet.*"%>
 <%@ page import="com.oreilly.servlet.multipart.*"%>
 
 <%
-	
+	EmpDao empDao = new EmpDao();
+
 	//enctype 에 대해 request하기위해
-	String dir = request.getServletContext().getRealPath("/productImg"); 
+	String dir = request.getSession().getServletContext().getRealPath("/productImg");
 	System.out.println(dir+"<--dir"); // commit 되기전 값이 저장되지만 war 파일로 만들면 위치가 고정된다.
 	int maxFileSize = 1024*1024*10;
 	DefaultFileRenamePolicy fp = new DefaultFileRenamePolicy(); //rename cos API
@@ -48,7 +50,36 @@
     System.out.println("productInfo: " + productInfo);
     System.out.println("productFile: " + productFile);
 	
-    int productNo = Integer.parseInt(mRequest.getParameter("productNo"));    
+	int productNo = Integer.parseInt(mRequest.getParameter("productNo")); 
+	  
+	//기존 이미지 파일이 없으면 새로운 이미지파일 정보 가져오기
+	if(mRequest.getFilesystemName("newProductFile")!=null){
+		originalFileName = mRequest.getOriginalFileName("newProductFile");
+		contentType = mRequest.getContentType("newProductFile"); 
+		saveFilename = mRequest.getFilesystemName("newProductFile");
+	
+		ProductImg productImg = new ProductImg();
+		productImg.setProductNo(productNo);
+		productImg.setProductOriFilename(originalFileName);
+		productImg.setProductSaveFilename(saveFilename);
+		productImg.setProductFiletype(contentType);
+		
+		//기존 이미지 파일이 없는 경우엔 새로운 이미지 파일 추가 매소드 실행
+		int updateProductImgRow = empDao.insertProductImg(productImg,dir);
+
+		if (updateProductImgRow == 1) {
+			System.out.println("이미지 등록성공");
+		    response.sendRedirect(request.getContextPath() + "/admin/adminProductOne.jsp?productNo=" + productNo);
+		    
+		    return;
+		} else {
+			System.out.println("이미지 등록실패");
+		    response.sendRedirect(request.getContextPath() + "/admin/adminProductOne.jsp?productNo=" + productNo);
+		    
+		    return;
+		}
+	}
+	
     
 	HashMap<String, Object> product = new HashMap<>();
 	product.put("categoryName", categoryName);
@@ -64,8 +95,7 @@
 	product.put("saveFilename", saveFilename);
 	product.put("dir", dir);
 	
-	EmpDao empDao = new EmpDao();
-	
+	//기존파일이 있고 update 할 새로운 파일이 있는 경우엔 update실행
 	int updateProductRow = empDao.updateProduct(product);
 	
 	if (updateProductRow == 1) {

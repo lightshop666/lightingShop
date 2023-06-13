@@ -6,6 +6,13 @@
     EmpDao empDao = new EmpDao();
     
     // 요청값 분석
+    if(request.getParameter("empCk")!=null&request.getParameter("id")==null){ 
+    	response.sendRedirect(request.getContextPath() + "/admin/adminEmpList.jsp");	
+    	return;
+    }else if(request.getParameter("id")==null){ 
+    	response.sendRedirect(request.getContextPath() + "/admin/adminCustomerList.jsp");	
+    	return;
+    }
     
     //가져온 값들 확인하기
      System.out.println(request.getParameter("action"));
