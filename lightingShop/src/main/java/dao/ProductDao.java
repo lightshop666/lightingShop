@@ -41,7 +41,7 @@ public class ProductDao {
 			1) 신상품순
 			ORDER BY createdate DESC LIMIT ?,?
 			2) 낮은 가격순
-			ORDER BY discountRate ASC LIMIT ?, ?
+			ORDER BY discountRate ASC LIMIT ?,?
 			3) 높은 가격순
 			ORDER BY discountRate DESC LIMIT ?,?
 		*/
@@ -401,21 +401,150 @@ public class ProductDao {
 	}
 	
 	// 상품 검색
-	public ArrayList<HashMap<String, Object>> searchResultListByPage(String searchWord, String categoryName, int searchPrice1, int searchPrice2, int beginRow, int rowPerPage) throws Exception {
+	public ArrayList<HashMap<String, Object>> searchResultListByPage(String searchWord, String categoryName, int searchPrice1, int searchPrice2, String orderBy, int beginRow, int rowPerPage) throws Exception {
 		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 		
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		/*
-			1) 모두 null
-			2) searchWord
-			3) categoryName
-			4) searchPrice
-			5) searchWord, categoryName
-			6) searchWord, searchPrice
-			7) categoryName, searchPrice
-			8) searchWord, categoryName, searchPrice
+			기본쿼리 : selectProductListByPage()와 같은 쿼리 사용
+			
+			1) searchWord
+			AND p.product_name LIKE ?
+			2) categoryName
+			AND p.category_name LIKE ?
+			3) searchPrice
+			AND p.product_price BETWEEN ? AND ?
+			4) orderBy
+			ORDER BY createdate DESC LIMIT ?,? 
+			ORDER BY discountRate ASC LIMIT ?,?
+			ORDER BY discountRate DESC LIMIT ?,?
 		*/
+		// 기본쿼리
+		String sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE 1=1";
+		// 1)
+		if(!searchWord.equals("")) {
+			sql = sql + " AND p.product_name LIKE ?";
+		}
+		// 2)
+		if(!categoryName.equals("")) {
+			sql = sql + " AND p.category_name LIKE ?";
+		}
+		// 3)
+		if(searchPrice1 != 0 && searchPrice2 == 0) {
+			sql = sql + " AND p.product_price > ?";
+		} else if(searchPrice1 == 0 && searchPrice2 != 0) {
+			sql = sql + " AND p.product_price < ?";
+		} else if(searchPrice1 != 0 && searchPrice2 != 0) {
+			sql = sql + " AND p.product_price BETWEEN ? AND ?";
+		}
+		// 4)
+		switch(orderBy) {
+			case "newItem":
+				sql = sql + " ORDER BY createdate DESC LIMIT ?,?";
+				break;
+			case "lowPrice":
+				sql = sql + " ORDER BY discountRate ASC LIMIT ?,?";
+				break;
+			case "highPrice":
+				sql = sql + " ORDER BY discountRate DESC LIMIT ?,?";
+				break;
+			default:
+				// 기본적으로 신상품순으로 정렬
+				sql = sql + " ORDER BY createdate DESC LIMIT ?,?";
+				break;
+		}
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		int parameterIndex = 1; // 물음표 인덱스
+		// 1)
+		if(!searchWord.equals("")) {
+			stmt.setString(parameterIndex++, "%"+searchWord+"%");
+		}
+		// 2)
+		if(!categoryName.equals("")) {
+			stmt.setString(parameterIndex++, categoryName);
+		}
+		// 3)
+		if(searchPrice1 != 0 && searchPrice2 == 0) {
+			stmt.setInt(parameterIndex++, searchPrice1);
+		} else if(searchPrice1 == 0 && searchPrice2 != 0) {
+			stmt.setInt(parameterIndex++, searchPrice2);
+		} else if(searchPrice1 != 0 && searchPrice2 != 0) {
+			stmt.setInt(parameterIndex++, searchPrice1);
+			stmt.setInt(parameterIndex++, searchPrice2);
+		}
+		// 4)
+		stmt.setInt(parameterIndex++, beginRow);
+		stmt.setInt(parameterIndex++, rowPerPage);
+		
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			HashMap<String, Object> m = new HashMap<>();
+			m.put("productNo", rs.getInt("productNo"));
+			m.put("categoryName", rs.getString("categoryName"));
+			m.put("productName", rs.getString("productName"));
+			m.put("productPrice", rs.getInt("productPrice"));
+			m.put("productStatus", rs.getString("productStatus"));
+			m.put("createdate", rs.getString("createdate"));
+			m.put("updatedate", rs.getString("updatedate"));
+			m.put("productImgSaveFilename", rs.getString("productImgSaveFilename"));
+			m.put("productImgPath", rs.getString("productImgPath"));
+			m.put("discountRate", rs.getDouble("discountRate"));
+			m.put("discountedPrice", rs.getInt("discountedPrice"));
+			list.add(m);
+		}
+		
 		return list;
+	}
+	
+	// 상품 검색 결과에 따른 totalRow
+	public int searchResultCnt(String searchWord, String categoryName, int searchPrice1, int searchPrice2) throws Exception {
+		int totalRow = 0;
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		
+		String sql = "SELECT COUNT(*) FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE 1=1";
+		// 1)
+		if(!searchWord.equals("")) {
+			sql = sql + " AND p.product_name LIKE ?";
+		}
+		// 2)
+		if(!categoryName.equals("")) {
+			sql = sql + " AND p.category_name LIKE ?";
+		}
+		// 3)
+		if(searchPrice1 != 0 && searchPrice2 == 0) {
+			sql = sql + " AND p.product_price > ?";
+		} else if(searchPrice1 == 0 && searchPrice2 != 0) {
+			sql = sql + " AND p.product_price < ?";
+		} else if(searchPrice1 != 0 && searchPrice2 != 0) {
+			sql = sql + " AND p.product_price BETWEEN ? AND ?";
+		}
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		int parameterIndex = 1; // 물음표 인덱스
+		// 1)
+		if(!searchWord.equals("")) {
+			stmt.setString(parameterIndex++, "%"+searchWord+"%");
+		}
+		// 2)
+		if(!categoryName.equals("")) {
+			stmt.setString(parameterIndex++, categoryName);
+		}
+		// 3)
+		if(searchPrice1 != 0 && searchPrice2 == 0) {
+			stmt.setInt(parameterIndex++, searchPrice1);
+		} else if(searchPrice1 == 0 && searchPrice2 != 0) {
+			stmt.setInt(parameterIndex++, searchPrice2);
+		} else if(searchPrice1 != 0 && searchPrice2 != 0) {
+			stmt.setInt(parameterIndex++, searchPrice1);
+			stmt.setInt(parameterIndex++, searchPrice2);
+		}
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) {
+			totalRow = rs.getInt(1);
+		}
+		return totalRow;
 	}
 }
