@@ -242,51 +242,54 @@ public class ReviewDao {
 	}
 	
 
-//3-1)리뷰 이미지 출력
-	public Review reviewImg(int orderProductNo) throws Exception {
-		Review review = null;
+//3) 유저별 리뷰 출력
+	/*
+	SELECT
+	    r.review_no reviewNo,
+	    r.order_product_no productNo,
+	    r.review_title revieTitle,
+	    r.review_content reviewContent,
+	    r.review_written reviewWritten,
+	    r.review_ori_filename reviewOriFilename,
+	    r.review_save_filename reviewSaveFilename,
+	    r.review_filetype reviewFiletype,
+	    r.review_path reviewPath,
+	    r.createdate createdate,
+	    r.updatedate updatedate
+	FROM review r
+	    INNER JOIN order_product op ON r.order_product_no = op.order_product_no
+	    	INNER JOIN orders o ON op.order_no = o.order_no
+	WHERE o.id = ?
+	 */
+	public HashMap<String, Object> customerReview (String id) throws Exception {
+		HashMap<String, Object> map = null;
 		
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT review_ori_fileName reviewOrifileName, review_save_filename reviewSaveFilename, review_filetype reviewFiletype, review_path reviewPath FROM review WHERE order_product_no=?"; 
+		String sql = "SELECT r.review_no reviewNo, r.order_product_no productNo, r.review_title revieTitle, r.review_content reviewContent,   r.review_written reviewWritten, r.review_ori_filename reviewOriFilename,  r.review_save_filename reviewSaveFilename,  r.review_filetype reviewFiletype,   r.review_path reviewPath,   r.createdate createdate,  r.updatedate updatedate FROM review r   INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no WHERE o.id = 'test2';";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setInt(1, orderProductNo);
+		stmt.setString(1, id);
 		ResultSet rs = stmt.executeQuery();
 		if (rs.next()){
-			review = new Review();
-			review.setReviewOriFilename(rs.getString("reviewOriFileName"));
-			review.setReviewSaveFilename(rs.getString("reviewSaveFilename"));
-			review.setReviewFiletype(rs.getString("reviewFiletype"));
-			review.setReviewPath(rs.getString("reviewPath"));
+			map = new HashMap<>();
+			map.put("reviewNo", rs.getInt("reviewNo"));
+			map.put("productNo", rs.getInt("productNo"));
+			map.put("reviewTitle", rs.getString("revieTitle"));
+			map.put("reviewContent", rs.getString("reviewContent"));
+			map.put("reviewWritten", rs.getString("reviewWritten"));
+			map.put("reviewOriFilename", rs.getString("reviewOriFilename"));
+			map.put("reviewSaveFilename", rs.getString("reviewSaveFilename"));
+			map.put("reviewFiletype", rs.getString("reviewFiletype"));
+			map.put("reviewPath", rs.getString("reviewPath"));
+			map.put("createdate", rs.getString("createdate"));
+			map.put("updatedate", rs.getString("updatedate"));
 		}
 		
-		return review;
+		return map;
 	}
-	
-//나중에 order_product_no체크 
-//3-2)리뷰 텍스트 출력
-	public Review reviewText(int orderProductNo) throws Exception {
-		Review review = null;
-		
-		DBUtil dbUtil = new DBUtil();
-		Connection conn = dbUtil.getConnection();
-		
-		String sql = "SELECT order_product_no orderProductNo, review_title reviewTitle, review_content reviewContent, createdate, updatedate FROM review WHERE order_product_no=?"; 
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setInt(1, orderProductNo);
-		ResultSet rs = stmt.executeQuery();
-		if (rs.next()){
-			review = new Review();
-			review.setReviewTitle(rs.getString("reviewTitle"));
-			review.setReviewContent(rs.getString("reviewContent"));
-			review.setCreatedate(rs.getString("createdate"));
-			review.setUpdatedate(rs.getString("updatedate"));
-		
-		}
-		
-		return review;
-	}	
+
+
 
 //4-1)리뷰 insert
 	/*

@@ -6,14 +6,7 @@ import util.DBUtil;
 import java.time.LocalDate;
 
 public class OrderDao {
-	
-	//주문일부터 한 달 지나면 리뷰를 못쓰게 하기 위한 오늘 날짜
-	public class DateDao {
-	    public LocalDate getCurrentDate() {
-	        return LocalDate.now();
-	    }
-	}
-	
+
 //1)특정 주문 조회One
 	/*
 	SELECT 
@@ -81,10 +74,63 @@ public class OrderDao {
 	    return map;
 	}
 
+//2) 그냥 orders만 + 페이징
+	/*
+SELECT
+	order_no AS orderNo,
+	order_address AS orderAddress,
+	order_price AS orderPrice,
+	createdate,
+	updatedate
+FROM orders
+WHERE id = 'test2'
+ORDER BY orderNo DESC
+LIMIT 1, 5
+	*/
+	
+	public ArrayList<Orders> justOrders(int beginRow, int rowPerPage, String loginMemberId) throws Exception {
+		ArrayList<Orders> orderList = new ArrayList<Orders>();
+		
+	    // DB 연결을 위한 DBUtil 객체와 Connection 객체 생성
+	    DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
+	    
+	    // 주문 및 주문 상품 정보를 조회하는 SQL문
+	    String sql = "SELECT "
+	    		+ "	order_no AS orderNo, "
+	    		+ "	order_address AS orderAddress, "
+	    		+ "	order_price AS orderPrice, "
+	    		+ "	createdate, "
+	    		+ "	updatedate "
+	    		+ "FROM orders "
+	    		+ "WHERE id = ? "
+	    		+ "ORDER BY orderNo DESC "
+	    		+ "LIMIT ?, ?";
+	    // SQL문 실행을 위한 PreparedStatement 객체 생성
+	    PreparedStatement mainStmt = conn.prepareStatement(sql);
+		mainStmt.setString(1, loginMemberId);
+		//페이징 처리를 위한 SQL 쿼리문에서의 인덱스는 0부터 시작하므로 beginRow를 1을 빼서 0부터 시작하도록 설정
+		mainStmt.setInt(2, beginRow - 1);
+		mainStmt.setInt(3, rowPerPage);
+	    ResultSet rs = mainStmt.executeQuery();
+	    
+	    // 결과셋 받아오기
+	    while (rs.next()) {
+	    	Orders orders = new Orders();
+	    	orders.setOrderNo(rs.getInt("orderNo"));
+	    	orders.setOrderAddress(rs.getString("orderAddress"));
+	    	orders.setOrderPrice(rs.getDouble("orderPrice"));
+		    orders.setUpdatedate(rs.getString("updatedate"));
+		    orders.setCreatedate(rs.getString("createdate"));
+		    orderList.add(orders);
+	    }
+		return orderList;
+	}
+
 
 	
 	
-	//2)orderNo 주문취소, 취소 철회
+//3)orderNo 주문취소, 취소 철회
 		/*
 		-- 배송 상태에 따른 버튼 (주문확인 중 주문 취소 버튼을 눌렀다)
 		UPDATE orders o
@@ -122,7 +168,7 @@ public class OrderDao {
 		    return row;
 		}
 		
-	//주문하기
+//4)주문하기
 		public int addOrder(Orders orders ) throws Exception {
 			int result = 0;
 			DBUtil dbUtil = new DBUtil();
