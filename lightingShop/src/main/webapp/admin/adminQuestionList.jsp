@@ -8,14 +8,12 @@
 	//인코딩
 	request.setCharacterEncoding("utf-8");
 
-	/* // 관리자인 경우에만 접근 허용
+	// 세션 확인 - 관리자면 전부 가능
 	if(session.getAttribute("loginIdListId") == null
-		|| session.getAttribute("loginIdListEmpLevel").equals("1") 
-		|| session.getAttribute("loginIdListEmpLevel").equals("3")
-		|| session.getAttribute("loginIdListEmpLevel").equals("5")) {
-		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		|| session.getAttribute("loginIdListEmpLevel") == null) {
+		response.sendRedirect(request.getContextPath()+"/admin/home.jsp");
 		return;
-	}  */
+	} 
 	
 	// 현재 페이지
 	int currentPage=1;
@@ -75,7 +73,6 @@
 	if(maxPage > lastPage) {
 		maxPage = lastPage;
 	}
-	
 	
 %>   
 <!DOCTYPE html>
