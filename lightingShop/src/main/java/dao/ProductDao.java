@@ -50,28 +50,25 @@ public class ProductDao {
 		
 		// 1) 신상품순
 		if(orderBy.equals("") || orderBy.equals("newItem")) {
-			sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ? ORDER BY ? LIMIT ?, ?";
+			sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ? ORDER BY createdate DESC LIMIT ?, ?";
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, categoryName);
-			stmt.setString(2, "createdate DESC");
-			stmt.setInt(3, beginRow);
-			stmt.setInt(4, rowPerPage);
+			stmt.setInt(2, beginRow);
+			stmt.setInt(3, rowPerPage);
 		// 2) 낮은 가격순
 		} else if(orderBy.equals("lowPrice")) {
-			sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ? ORDER BY ? LIMIT ?, ?";
+			sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ? ORDER BY discountRate ASC LIMIT ?, ?";
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, categoryName);
-			stmt.setString(2, "discountRate ASC");
-			stmt.setInt(3, beginRow);
-			stmt.setInt(4, rowPerPage);
+			stmt.setInt(2, beginRow);
+			stmt.setInt(3, rowPerPage);
 		// 3) 높은 가격순
 		} else if(orderBy.equals("highPrice")) {
-			sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ? ORDER BY ? LIMIT ?, ?";
+			sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ? ORDER BY discountRate DESC LIMIT ?, ?";
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, categoryName);
-			stmt.setString(2, "discountRate DESC");
-			stmt.setInt(3, beginRow);
-			stmt.setInt(4, rowPerPage);
+			stmt.setInt(2, beginRow);
+			stmt.setInt(3, rowPerPage);
 		}
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
@@ -99,7 +96,7 @@ public class ProductDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT * FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ?";
+		String sql = "SELECT COUNT(*) FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, categoryName);
 		ResultSet rs = stmt.executeQuery();
@@ -401,5 +398,24 @@ public class ProductDao {
 			totalRow = rs.getInt(1);
 		}
 		return totalRow;
+	}
+	
+	// 상품 검색
+	public ArrayList<HashMap<String, Object>> searchResultListByPage(String searchWord, String categoryName, int searchPrice1, int searchPrice2, int beginRow, int rowPerPage) throws Exception {
+		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		/*
+			1) 모두 null
+			2) searchWord
+			3) categoryName
+			4) searchPrice
+			5) searchWord, categoryName
+			6) searchWord, searchPrice
+			7) categoryName, searchPrice
+			8) searchWord, categoryName, searchPrice
+		*/
+		return list;
 	}
 }

@@ -91,7 +91,7 @@
 <script> 
 	// 단일구매 경로
 	function submit2(frm) { 
-	   frm.action='request.getContextPath() + "/orders/orderProduct.jsp'; 
+	   frm.action='<%=request.getContextPath()%>/orders/orderProduct.jsp'; 
 	   frm.submit(); 
 	   return true; 
 	 } 
