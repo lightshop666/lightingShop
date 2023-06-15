@@ -14,6 +14,8 @@
 	if(request.getParameter("productNo") != null) {
 		productNo = Integer.parseInt(request.getParameter("productNo"));
 	}
+	System.out.println(productNo);
+	
 	// 상품 이름 + 이미지 조회 메서드 호출
 	ProductDao dao = new ProductDao();
 	HashMap<String, Object> map = dao.selectProductAndImg(productNo);

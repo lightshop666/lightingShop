@@ -234,10 +234,10 @@ public class ProductDao {
 				i.product_path productPath -- 상품 이미지 저장폴더
 			FROM
 				product p
-				INNER JOIN product_img i ON p.product_no = i.product_no
+				LEFT JOIN product_img i ON p.product_no = i.product_no
 			WHERE p.product_no = ?
 		*/
-		String sql = "SELECT p.product_no productNo, p.product_name productName, p.product_price productPrice, i.product_save_filename productSaveFilename, i.product_path productPath FROM product p INNER JOIN product_img i ON p.product_no = i.product_no WHERE p.product_no = ?";
+		String sql = "SELECT p.product_no productNo, p.product_name productName, p.product_price productPrice, i.product_save_filename productSaveFilename, i.product_path productPath FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no WHERE p.product_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, productNo);
 		ResultSet rs = stmt.executeQuery();
@@ -257,7 +257,7 @@ public class ProductDao {
 	}
 
 	// (상품 상세페이지 리뷰 탭 클릭시) 해당 상품의 리뷰 리스트 + 페이징, 리뷰 키워드 검색(제목+내용)
-	public ArrayList<HashMap<String, Object>> selectProductReviewList(int beginRow, int rowPerPage, String searchWord, int productNo) throws Exception {
+	public ArrayList<HashMap<String, Object>> selectProductReviewList(int reviewBeginRow, int reviewRowPerPage, String searchWord, int productNo) throws Exception {
 		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 		
 		DBUtil dbUtil = new DBUtil();
@@ -301,8 +301,8 @@ public class ProductDao {
 			stmt.setString(parameterIndex++, "%"+searchWord+"%");
 		}
 		// 2)
-		stmt.setInt(parameterIndex++, beginRow);
-		stmt.setInt(parameterIndex++, rowPerPage);
+		stmt.setInt(parameterIndex++, reviewBeginRow);
+		stmt.setInt(parameterIndex++, reviewRowPerPage);
 		
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
@@ -322,7 +322,7 @@ public class ProductDao {
 	}
 	
 	// (상품 상세페이지 리뷰 탭 클릭시) 해당 상품의 리뷰 수 (totalRow)
-	public int selectProductReviewCnt(int beginRow, int rowPerPage, String searchWord, int productNo) throws Exception {
+	public int selectProductReviewCnt(String searchWord, int productNo) throws Exception {
 		int totalRow = 0;
 		
 		DBUtil dbUtil = new DBUtil();
@@ -358,7 +358,7 @@ public class ProductDao {
 	}
 	
 	// (상품 상세페이지 문의 탭 클릭시) 해당 상품의 문의 리스트 + 페이징
-	public ArrayList<Question> selectProductQuestionListByPage(int beginRow, int rowPerPage, int productNo) throws Exception {
+	public ArrayList<Question> selectProductQuestionListByPage(int questionBeginRow, int questionRowPerPage, int productNo) throws Exception {
 		ArrayList<Question> list = new ArrayList<>();
 		
 		DBUtil dbUtil = new DBUtil();
@@ -367,8 +367,8 @@ public class ProductDao {
 		String sql = "SELECT q_no qNo, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate FROM question WHERE product_no = ? ORDER BY createdate DESC LIMIT ?, ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, productNo);
-		stmt.setInt(2, beginRow);
-		stmt.setInt(3, rowPerPage);
+		stmt.setInt(2, questionBeginRow);
+		stmt.setInt(3, questionRowPerPage);
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			Question q = new Question();
