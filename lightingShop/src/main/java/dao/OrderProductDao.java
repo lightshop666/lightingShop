@@ -148,6 +148,43 @@ public class OrderProductDao {
 		return result;
 	}
 	
+//3-1)주문 시점의 할인기간 적용하여 할인 된 가격 받아오기
+	/*
+	SELECT 
+	       CASE WHEN d.discount_start <= ? AND d.discount_end >= NOW() 
+	            THEN p.product_price - (p.product_price * d.discount_rate) 
+	            ELSE p.product_price 
+	       END AS discountedPrice
+	FROM product p 
+		LEFT JOIN discount d ON p.product_no = d.product_no 
+	WHERE p.product_no = ?
+	*/
+	public int discountedByOrders(int productNo, String createdate) throws Exception {
+		int result = 0;
+		
+	    DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
+	
+	    String sql = "	SELECT  "
+	    		+ "	       CASE WHEN d.discount_start <= ? AND d.discount_end >= NOW()  "
+	    		+ "	            THEN p.product_price - (p.product_price * d.discount_rate)  "
+	    		+ "	            ELSE p.product_price  "
+	    		+ "	       END AS discountedPrice "
+	    		+ "	FROM product p  "
+	    		+ "		LEFT JOIN discount d ON p.product_no = d.product_no  "
+	    		+ "	WHERE p.product_no = ?";
+	    PreparedStatement mainStmt = conn.prepareStatement(sql);
+	    mainStmt.setString(1, createdate);
+	    mainStmt.setInt(2, productNo);
+		ResultSet rs = mainStmt.executeQuery();
+		
+		//결과셋 받아오기
+		if(rs.next()) {
+			result = rs.getInt("discountedPrice");
+		}
+		return result;
+	}
+	
 	
 //4) 각각의 상품 추가
 	public int addProductDao(int orderNo, int productNo, int productCnt) throws Exception {

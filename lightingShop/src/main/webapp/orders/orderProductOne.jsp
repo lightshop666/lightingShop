@@ -133,9 +133,6 @@
 			System.out.println(deleveryStatus+"<--deleveryStatus orderProductOne.jsp");
 			System.out.println(createDate+"<--createDate orderProductOne.jsp");
 			System.out.println(todayDate+"<--todayDate orderProductOne.jsp");
-			System.out.println(isReviewAllowed+"<--isReviewAllowed orderProductOne.jsp");
-				
-			//리뷰가 이미 작성된 경우 조건문을 위한 호출
 			HashMap<String, Object> review = reviewDao.customerReview(orders.getId());
 			String reviewWritten = (String)review.get("reviewWritten");
 			
@@ -159,27 +156,21 @@
 					//반품신청은 한달 이내만 받는다 
 					if (isReviewAllowed==true && 
 					(deleveryStatus.equals("배송중")
-					||deleveryStatus.equals("배송완료")
-					||deleveryStatus.equals("교환 중"))) { 
+					||deleveryStatus.equals("배송완료"))) { 
 				%>   
-					<p>
-						<a href="<%= request.getContextPath() %>/orders/returnProduct.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>">
-							반품신청
-						</a>			
-					</p>
+						<p><!-- 반품신청 -->
+							<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelAction.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>'">반품신청</button>
+						</p>
 				<%
 					}
-				//반품신청은 한달 이내만 받는다 
-				if (isReviewAllowed==true && 
-				(deleveryStatus.equals("배송중")
-				||deleveryStatus.equals("배송완료")
-				||deleveryStatus.equals("교환 중"))) { 
-				%>   
-					<p>
-						<a href="<%= request.getContextPath() %>/orders/switchProduct.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>">
-							교환신청
-						</a>			
-					</p>
+					//교환신청은 한달 이내만 받는다 
+					if (isReviewAllowed==true && 
+					(deleveryStatus.equals("배송중")
+					||deleveryStatus.equals("배송완료"))) { 
+					%>   
+						<p><!-- 교환신청 -->
+							<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelAction.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>'">교환신청</button>	
+						</p>
 				<%
 					}
 				%>
@@ -191,13 +182,17 @@
 				<p>
 				<%
 					//배송상태에 따라 버튼 분기
-					if(deleveryStatus.equals("배송중")
+					if(deleveryStatus.equals("주문확인중")){
+				%><!-- 주문취소 -->
+						<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancel.jsp?orderNo=<%= orderNo %>'">주문취소</button>
+				<%
+					}
+					else if(deleveryStatus.equals("배송중")
 					||deleveryStatus.equals("배송완료")
 					||deleveryStatus.equals("교환 중")){				
-				%>
-						<a href="<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>">
-							수취확인
-						</a>					
+				%><!-- 수취확인 -->
+						<button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>'">수취확인</button>
+				
 				<%
 					//배송 상태가 구매확정이고 리뷰 상태가 아직 쓰여지지 않은 경우
 					}else if(deleveryStatus.equals("구매확정")
@@ -205,20 +200,17 @@
 					&& isReviewAllowed==true
 					//작성여부가 N인지
 					&& reviewWritten.equals("N")){
-				%>
-						<a href="<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>">
-							리뷰작성
-						</a>				
+				%><!-- 리뷰작성 -->
+						<button onclick="location.href='<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>'">수취확인</button>
 				<%
 					}else if(deleveryStatus.equals("구매확정")
 							//주문한지 한 달 이내인지
 							&& isReviewAllowed==true
 							//작성여부가 Y인지
 							&& reviewWritten.equals("Y")){
-				%>
-						<a href="<%= request.getContextPath() %>/review/modifyReview.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>">
-							리뷰수정
-						</a>		
+				%><!-- 리뷰수정 -->
+						<button onclick="location.href='/review/modifyReview.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %> '">리뷰수정</button>
+
 				<%
 					}
 				%>

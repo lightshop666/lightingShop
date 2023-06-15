@@ -25,29 +25,29 @@ public class OrderDao {
 
  */
 	public HashMap<String, Object> selectOrdersOne(int orderNo) throws Exception {
-	    // 반환할 결과를 담을 HashMap
+	    // 결과를 저장할 HashMap
 	    HashMap<String, Object> map = new HashMap<>();
-	    
-	    // 주문 정보를 담을 Orders 객체와 주문 상품 목록을 담을 리스트
+	    // 주문 정보를 저장할 Orders 객체와 주문 상품 세부 정보를 저장할 리스트
 	    Orders orders = null;
 	    List<OrderProduct> orderProducts = new ArrayList<>();
-	    
-	    // DB 연결을 위한 DBUtil 객체와 Connection 객체 생성
+
+	    // DBUtil 객체를 생성하고 데이터베이스 연결 수립
 	    DBUtil dbUtil = new DBUtil();
 	    Connection conn = dbUtil.getConnection();
-	    
-	    // 주문 및 주문 상품 정보를 조회하는 SQL문
+
+	    // 주문 정보와 주문 상품 세부 정보를 검색하기 위한 SQL 쿼리
 	    String sql = "SELECT o.order_no orderNo, o.id id, o.order_address orderAddress, o.order_price orderPrice, o.createdate orderDay, op.order_product_no orderProductNo, op.product_no productNo, op.product_cnt productCnt, op.delivery_status deliveryStatus FROM orders o INNER JOIN order_product op ON o.order_no = op.order_no WHERE o.order_no = ?";
-	    
-	    // SQL문 실행을 위한 PreparedStatement 객체 생성
+
+	    // SQL 쿼리를 실행하기 위한 PreparedStatement 객체 생성
 	    PreparedStatement mainStmt = conn.prepareStatement(sql);
 	    mainStmt.setInt(1, orderNo);
 	    ResultSet rs = mainStmt.executeQuery();
-	    
-	    // 결과셋 받아오기
+        System.out.println(rs + "<--rs--selectOrdersOne");
+
+	    // 결과셋 가져오기
 	    while (rs.next()) {
-	        // orders에 한 번만 담기 위해 첫 번째 행인 경우에만 Orders 객체 초기화 및 설정
-	        if (orders == null) {
+	        // 첫 번째 행인 경우에만 Orders 객체를 초기화하고 속성을 설정합니다.
+	        if (map.get("orders") == null) {
 	            orders = new Orders();
 	            orders.setOrderNo(rs.getInt("orderNo"));
 	            orders.setId(rs.getString("id"));
@@ -55,24 +55,29 @@ public class OrderDao {
 	            orders.setOrderPrice(rs.getInt("orderPrice"));
 	            orders.setCreatedate(rs.getString("orderDay"));
 	        }
-	        
-	        // 주문 상품 정보를 담을 OrderProduct 객체 생성 및 설정
+
+	        // OrderProduct 객체를 생성하고 속성을 설정합니다.
 	        OrderProduct orderProduct = new OrderProduct();
 	        orderProduct.setOrderProductNo(rs.getInt("orderProductNo"));
 	        orderProduct.setProductNo(rs.getInt("productNo"));
 	        orderProduct.setProductCnt(rs.getInt("productCnt"));
 	        orderProduct.setDeliveryStatus(rs.getString("deliveryStatus"));
-	        
-	        // 주문 상품 목록에 추가
+
+	        // 주문 상품 세부 정보를 리스트에 추가합니다.
 	        orderProducts.add(orderProduct);
 	    }
-	    
-	    // HashMap에 주문 정보와 주문 상품 목록을 저장
+
+	    // HashMap에 주문 정보와 주문 상품 세부 정보를 저장합니다.
 	    map.put("orders", orders);
 	    map.put("orderProducts", orderProducts);
+        System.out.println(map.get("orders") +"<--get orders--selectOrdersOne");
+        System.out.println(map.get("orderProducts") +"<--get orderProducts--selectOrdersOne");
+
 	    
+
 	    return map;
 	}
+
 
 //2) 그냥 orders만 + 페이징
 	/*

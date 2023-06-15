@@ -122,6 +122,9 @@
 				int productNo = (int) m.get("productNo");
 				String deliveryStatus = (String) m.get("deliveryStatus");
 				String reviewWritten = (String) m.get("reviewWritten");
+				System.out.println(m.get("orderProductNo")+"<--orderProductNo-- orderProductList.jsp");
+				System.out.println(m.get("orderNo")+"<--orderNo-- orderProductList.jsp");
+
 				
 				// 상품 정보 및 이미지를 가져옵니다.
 				HashMap<String, Object> productMap = productDao.selectProductAndImgOne(productNo);
@@ -132,7 +135,18 @@
 				<p>배송 상태: <%= deliveryStatus %></p>
 				<p>상품 이미지
 					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= productNo%>">
-						<img class="thumbnail" src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image">
+			<%
+						// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+						if(productImg.getProductSaveFilename() == null) {
+			%>
+							<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+			<%
+						}else {
+			%>
+							<img class="thumbnail" src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image">
+			<%
+						}
+			%>			
 					</a>
 				</p>
 				<p>상품 이름
@@ -145,7 +159,7 @@
 				if (deliveryStatus.equals("주문확인중")) {
 	   			 // 주문 취소 버튼 클릭 시 동작
 	%>
-					<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelAction.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">주문취소</button>
+					<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancel.jsp?orderNo=<%= m.get("orderNo") %>'">주문취소</button>
 	<%
 				} else if (deliveryStatus.equals("배송중") || deliveryStatus.equals("배송시작") || deliveryStatus.equals("교환중")) {
 		    	// 수취 확인 버튼 클릭 시 동작

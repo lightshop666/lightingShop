@@ -57,6 +57,107 @@ public class PointHistoryDao {
 	    return result;	
 		
 	}
+//1-2) 주문시 포인트 삽입
+	/*
+	INSERT INTO
+	point_history (order_no, id, point_pm, point_info, point, createdate)
+	SELECT 
+		o.order_no,
+		o.id,
+		'P',
+		'상품', 
+		CASE c.cstm_rank
+			WHEN '동' THEN unselectedTotalPrice * 0.01
+			WHEN '은' THEN unselectedTotalPrice * 0.03
+			WHEN '금' THEN unselectedTotalPrice * 0.05
+		END,
+		o.createdate
+	FROM orders o
+	JOIN customer c ON o.id = c.id
+	WHERE o.order_no = ?
+	*/
+	
+	public int pointCancelP (int orderNo, int unselectedTotalPrice) throws Exception {
+		int result = 0;
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "INSERT INTO point_history (order_no, id, point_pm, point_info, point, createdate) " +
+							"SELECT ?, o.id, 'P', '상품', " +
+							"CASE c.cstm_rank " +
+							"    WHEN '동' THEN ? * 0.01 " +
+							"    WHEN '은' THEN ? * 0.03 " +
+							"    WHEN '금' THEN ? * 0.05 " +
+							"END, " +
+							"o.createdate " +
+							"FROM orders o " +
+							"JOIN customer c ON o.id = c.id " +
+							"WHERE o.order_no = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS);
+		stmt.setInt(1, unselectedTotalPrice);
+		stmt.setInt(2, orderNo);
+		result = stmt.executeUpdate();
+		
+	    ResultSet keyRs = stmt.getGeneratedKeys(); // 저장된 키값을 반환
+		if(keyRs.next()) {
+			result = keyRs.getInt(1);
+            System.out.println(result +"<--pk-- pointByOrder");
+		}
+	    return result;	
+		
+	}
+	
+	
+	
+//1-3) 주문취소로 인한 포인트 환불(point P)
+	/*
+	INSERT INTO
+		point_history (order_no, id, point_pm, point_info, point, createdate)
+		SELECT 
+			o.order_no,
+			o.id,
+			'P',
+			'상품', 
+			?,
+			NOW()
+	FROM orders o
+	JOIN customer c ON o.id = c.id
+	WHERE o.order_no = ?
+ 
+	 */
+	
+	public int pointByCancel(int orderNo, int refundpoint) throws Exception {
+		int result = 0;
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "	INSERT INTO "
+				+ "		point_history (order_no, id, point_pm, point_info, point, createdate) "
+				+ "		SELECT  "
+				+ "			o.order_no, "
+				+ "			o.id, "
+				+ "			'P', "
+				+ "			'상품',  "
+				+ "			?, "
+				+ "			NOW() "
+				+ "	FROM orders o "
+				+ "	JOIN customer c ON o.id = c.id "
+				+ "	WHERE o.order_no = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS);
+		stmt.setInt(1, refundpoint);
+		stmt.setInt(2, orderNo);
+		result = stmt.executeUpdate();
+		
+	    ResultSet keyRs = stmt.getGeneratedKeys(); // 저장된 키값을 반환
+		if(keyRs.next()) {
+			result = keyRs.getInt(1);
+            System.out.println(result +"<--pk-- pointByOrder");
+		}
+	    return result;	
+		
+	}
 	
 	
 	
@@ -67,7 +168,7 @@ public class PointHistoryDao {
 	SELECT 
 		o.order_no,
 		o.id,
-		'P',
+		'M',
 		'상품', 
 		?,
 		o.createdate
@@ -186,7 +287,7 @@ public class PointHistoryDao {
 		return pointHistory;
 	}
 	
-//orderNo별 포인트 내역
+//6)orderNo별 포인트 내역
 	public ArrayList<PointHistory> pointListByOrder(int orderNo) throws Exception {
 		ArrayList<PointHistory> pointHistoryList = new ArrayList<PointHistory>();
 

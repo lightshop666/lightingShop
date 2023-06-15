@@ -256,7 +256,20 @@
 	        int discountedPrice = discountedPrices.get(i);
 	        totalPrice += discountedPrice *  Integer.parseInt(productCnt[i]);
 	%>
-	        <p><img class="thumbnail" src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image"></p>
+	        <p>
+	<%
+				// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+				if(productImg.getProductSaveFilename() == null) {
+	%>
+					<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+	<%
+				}else {
+	%>
+					<img class="thumbnail" src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image">
+	<%
+				}
+	%>
+	        </p>
 	        <p><!-- 상품명 -->
 	        	<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo="<%=product.getProductNo() %>>
 	        		상품명 : <%= product.getProductName() %>
@@ -379,7 +392,7 @@
 	let deliPrice = <%= deliPrice %>;						// 배송비
 	let totalPrice = <%= totalPrice %> ; 					// 상품 총액
 
-	document.getElementById('finalPriceInput').value = totalPrice;	//기본값으로 상품 총액 세팅
+	document.querySelector('#finalPriceInput').value = totalPrice;	//기본값으로 상품 총액 세팅
 	
 	// input 값이 변경될 때마다 계산 함수를 호출
 	input.addEventListener('blur', calculateAmount);
@@ -407,9 +420,9 @@
 		// 전액 사용 버튼을 클릭한 경우
 		if (pointBtn.innerHTML === '전액사용') {
 			if (totalPrice < maxPoint) {
-			input.value = totalPrice;
+				input.value = totalPrice;
 			} else {
-			input.value = maxPoint;
+				input.value = maxPoint;
 			}
 			input.setAttribute('readonly', 'readonly'); // 입력 상자를 읽기 전용으로 설정
 			pointBtn.innerHTML = '취소'; // 버튼 텍스트를 '취소'로 변경
@@ -420,7 +433,7 @@
 			input.removeAttribute('readonly'); // 입력 상자의 읽기 전용 속성을 제거
 			pointBtn.innerHTML = '전액사용'; // 버튼 텍스트를 '전액 사용'으로 변경
 			finalPriceElement.innerHTML = totalPrice +'원'; // 최종 결제 금액을 초기화합니다.
-			document.getElementById('paymentAmount').innerHTML = totalPrice + deliPrice  + '원 '; // 결제 도 초기화합니다.
+			document.querySelector('#paymentAmount').innerHTML = totalPrice + deliPrice  + '원 '; // 결제 도 초기화합니다.
 		}
 	}
 	
@@ -459,10 +472,10 @@
 	  // 최종 결제 금액을 화면에 표시
 	  finalPriceElement.innerHTML = finalPrice;
 	  // 최종 결제 금액을 숨겨진 input 태그에 설정
-	  document.getElementById('finalPriceInput').value = finalPrice;
+	  document.querySelector('#finalPriceInput').value = finalPrice;
 
 	  // 결제 버튼의 텍스트에 최종 결제 금액을 추가
-	  document.getElementById('paymentAmount').innerHTML = finalPrice.toLocaleString() +'원';
+	  document.querySelector('#paymentAmount').innerHTML = finalPrice.toLocaleString() +'원';
 	}
 
 
