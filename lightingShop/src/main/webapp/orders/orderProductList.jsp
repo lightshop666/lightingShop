@@ -27,7 +27,7 @@
 	int beginRow = (currentPage-1) * rowPerPage + 1;
 	
 	//총 행을 구하기 위한 메소드
-	int totalRow = orderProductDao.CustomerOrderListCnt(loginMemberId);
+	int totalRow = orderProductDao.customerOrderListCnt(loginMemberId);
 	
 	//마지막 페이지
 	int lastPage = totalRow / rowPerPage;

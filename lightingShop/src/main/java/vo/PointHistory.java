@@ -2,11 +2,6 @@ package vo;
 
 public class PointHistory {
 	private int pointNo;
-	private int orderNo;
-	private String pointPm;
-	private int point;
-	private String createdate;
-	
 	public int getPointNo() {
 		return pointNo;
 	}
@@ -19,11 +14,23 @@ public class PointHistory {
 	public void setOrderNo(int orderNo) {
 		this.orderNo = orderNo;
 	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
 	public String getPointPm() {
 		return pointPm;
 	}
 	public void setPointPm(String pointPm) {
 		this.pointPm = pointPm;
+	}
+	public String getPointInfo() {
+		return pointInfo;
+	}
+	public void setPointInfo(String pointInfo) {
+		this.pointInfo = pointInfo;
 	}
 	public int getPoint() {
 		return point;
@@ -37,4 +44,12 @@ public class PointHistory {
 	public void setCreatedate(String createdate) {
 		this.createdate = createdate;
 	}
+	private int orderNo;
+	private String id;
+	private String pointPm;
+	private String pointInfo;
+	private int point;
+	private String createdate;
+	
+
 }
