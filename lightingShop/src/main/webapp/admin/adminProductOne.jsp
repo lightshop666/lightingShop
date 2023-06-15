@@ -97,6 +97,10 @@ if (!session.getAttribute("loginIdListEmpLevel").equals("3")) { // 직원레벨 
     </style>
 </head>
 <body>
+	<!--관리자 메인메뉴 -->
+	<jsp:include page ="/admin/adminMenu.jsp"></jsp:include>
+	<br>
+	<!-- 본문 -->
     <h1>상품 상세보기</h1>
     
     <form action="<%=request.getContextPath()%>/admin/adminModifyProductAction.jsp" method="post"  enctype="multipart/form-data">

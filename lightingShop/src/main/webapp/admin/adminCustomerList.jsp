@@ -3,6 +3,13 @@
 <%@ page import="java.util.*" %>
 <%@ page import="vo.Product" %>
 <%
+	/*세션검사
+	if (!session.getAttribute("loginIdListEmpLevel").equals("3")) { // 직원레벨 5가 아니면
+		String msg = "접근권환이 없습니다.";
+		response.sendRedirect(request.getContextPath() + "/admin/home.jsp?msg="+msg);
+		return;
+	}
+	*/	
     EmpDao empDao = new EmpDao();
     // 요청값 분석
     // 페이지 정보 가져오기
@@ -63,6 +70,12 @@
     if (maxPage > lastPage) {
         maxPage = lastPage;
     }
+    
+	String msg = null;
+	if (request.getParameter("msg") != null) {
+	 	msg = request.getParameter("msg");
+	}
+
 %>
 <!DOCTYPE html>
 <html>
@@ -73,7 +86,7 @@
        <style>
         body {
         margin: 20px;
-        background-color: #f9f9f9; /* Set the background color to gray */
+        background-color: #f9f9f9; 
     	}
         /* 테이블 스타일 */
         .table {
@@ -100,25 +113,7 @@
             background-color: #e9e9e9;
         }
 
-        /* 버튼 스타일 */
-        .btn {
-            display: inline-block;
-            padding: 8px 12px;
-            margin: 5px;
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            color: #fff;
-            background-color: #4caf50;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
 
-        .btn-danger {
-            background-color: #f44336;
-        }
 
         /* 페이지네이션 스타일 */
         .pagination {
@@ -149,12 +144,23 @@
             border-radius: 4px;
         }
     </style>
+     <script>
+
+		<% 
+			if (msg != null) { 
+		%>
+		    	alert('<%= msg %>');
+		<% 
+			}         
+		%>
+    </script>
 </head>
 <body>
+<jsp:include page ="/admin/adminMenu.jsp"></jsp:include>
+<br>
 <h1>Customer List</h1>
 <!-- 검색 영역 -->
-<form action="<%= request.getContextPath() %>/admin/adminCustomerList.jsp?col=<%= col %>&ascDesc=<%= ascDesc %>"
-      method="get">
+<form action="<%= request.getContextPath() %>/admin/adminCustomerList.jsp?col=<%= col %>&ascDesc=<%= ascDesc %>" method="get">
     <div class="search-area" >
         <label class="search-label">검색</label>
         <select name="searchCol" class="search-input">
@@ -178,13 +184,16 @@
         </select>
         <button type="submit" class="sort-button">정렬</button>
     </div>
+    <br>
 </form>
 <!-- 리스트 영역 -->
 <form method="post" action="<%= request.getContextPath() %>/admin/activeAction.jsp">
-    <button type="submit" name="action" value="activate" class="btn btn-success">활성화</button>
-    <button type="submit" name="action" value="deactivate" class="btn btn-danger">비활성화</button>
+    <div>
+	    <button type="submit" name="action" value="activate" class="btn btn-success">활성화</button>
+	    <button type="submit" name="action" value="deactivate" class="btn btn-danger">비활성화</button>
+	    </div>
     <table class="table">
-        <thead>
+        <thead class="table-active">
         <tr>
             <th>선택</th>
             <th>id</th>
@@ -200,7 +209,7 @@
             for (HashMap<String, Object> c : customerList) {
         %>
         <tr>
-            <td><input type="checkbox" name="selectedProducts" value="<%=(String) c.get("id")%>"></td>
+            <td><input type="checkbox" name="selectedRow" value="<%=(String) c.get("id")%>"></td>
             <td><%=(String) c.get("id")%></td>
             <td><%=(String) c.get("cstmName")%></td>
             <td><%=(String) c.get("cstmLastLogin")%></td>
@@ -214,33 +223,43 @@
         </tbody>
     </table>
 
-    <div class="pagination">
-        <%
-            if (minPage > 1) {
-        %>
-        <a href="<%=request.getContextPath()%>/admin/adminCustomerList.jsp?currentPage=<%=minPage-pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>" class="page-link">이전</a>
-        <%
-            }
-
-            for (int i = minPage; i <= maxPage; i++) {
-                if (i == currentPage) {
-        %>
-        <span class="current-page"><%=i%></span>
-        <%
-                } else {
-        %>
-        <a href="<%=request.getContextPath()%>/admin/adminCustomerList.jsp?currentPage=<%=i%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>" class="page-link"><%=i%></a>
-        <%
-                }
-            }
-
-            if (maxPage < lastPage) {
-        %>
-        <a href="<%=request.getContextPath()%>/admin/adminCustomerList.jsp?currentPage=<%=minPage+pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>" class="page-link">다음</a>
-        <%
-            }
-        %>
-    </div>
+    <nav class="pagination justify-content-center">
+	        <ul class="pagination">
+	        <%
+	            if (minPage > 1) {
+	        %>
+		        <li class="page-item">
+		        	<a class="page-link" href="<%=request.getContextPath()%>/admin/adminCustomerList.jsp?currentPage=<%=minPage-pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>" class="page-link">이전</a>
+		        </li>
+	        <%
+	            }
+	
+	            for (int i = minPage; i <= maxPage; i++) {
+	                if (i == currentPage) {
+	        %>
+	        	<li class="page-item active">
+	                <a class="page-link" href="#"><%=i%></a>
+	            </li>
+	        <%
+	                } else {
+	        %>
+	        	<li class="page-item">
+	        			<a class="page-link" href="<%=request.getContextPath()%>/admin/adminCustomerList.jsp?currentPage=<%=i%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>" class="page-link"><%=i%></a>
+	       		</li>
+	        <%
+	                }
+	            }
+	
+	            if (maxPage < lastPage) {
+	        %>
+	        	<li class="page-item">
+	        		<a  class="page-link" href="<%=request.getContextPath()%>/admin/adminCustomerList.jsp?currentPage=<%=minPage+pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>" class="page-link">다음</a>
+	        	</li>
+	        <%
+	            }
+	        %>	
+	        </ul>
+      </nav>
 </form>
 </body>
 </html>

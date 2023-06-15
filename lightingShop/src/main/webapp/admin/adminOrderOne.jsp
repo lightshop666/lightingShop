@@ -85,6 +85,10 @@
     </style>
 </head>
 <body>
+	<!--관리자 메인메뉴 -->
+	<jsp:include page ="/admin/adminMenu.jsp"></jsp:include>
+	<br>
+	<!-- 본문 -->
     <h1>주문 상세보기</h1>
     
     <form action="<%=request.getContextPath()%>/admin/adminModifyOrderAction.jsp" method="post">

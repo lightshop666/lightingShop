@@ -79,7 +79,7 @@ if (!session.getAttribute("loginIdListEmpLevel").equals("3")) { // 직원레벨 
        <style>
         body {
         margin: 20px;
-        background-color: #f9f9f9; /* Set the background color to gray */
+        background-color: #f9f9f9; 
     	}
         /* 테이블 스타일 */
         .table {
@@ -157,7 +157,10 @@ if (!session.getAttribute("loginIdListEmpLevel").equals("3")) { // 직원레벨 
     </style>
 </head>
 <body>
-
+<!--관리자 메인메뉴 -->
+<jsp:include page ="/admin/adminMenu.jsp"></jsp:include>
+<br>
+<!-- 본문 -->
 <h1>Emp List</h1>
 
 <!-- 검색조건영역 -->
@@ -211,7 +214,7 @@ if (!session.getAttribute("loginIdListEmpLevel").equals("3")) { // 직원레벨 
         <tbody>
         <% for (HashMap<String, Object> e : empList) { %>
         <tr>
-            <td><input type="checkbox" name="selectedProducts" value="<%=(String)e.get("id")%>"></td>
+            <td><input type="checkbox" name="selectedRow" value="<%=(String)e.get("id")%>"></td>
             <td><%=(String)e.get("id")%></td>
             <td><%=(String)e.get("empName")%></td>
             <td><%=(String)e.get("lastPw")%></td>

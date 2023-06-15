@@ -6,10 +6,10 @@
     EmpDao empDao = new EmpDao();
     
     // 요청값 분석
-    if(request.getParameter("empCk")!=null&request.getParameter("id")==null){ 
+    if(request.getParameter("empCk")!=null&request.getParameterValues("selectedRow")==null){ 
     	response.sendRedirect(request.getContextPath() + "/admin/adminEmpList.jsp");	
     	return;
-    }else if(request.getParameter("id")==null){ 
+    }else if(request.getParameterValues("selectedRow")==null){ 
     	response.sendRedirect(request.getContextPath() + "/admin/adminCustomerList.jsp");	
     	return;
     }
@@ -32,11 +32,11 @@
     
     //체크한 행의 id값들 다 가져오기
     //체크박스의 값을 배열로 받아오기 때문에 getParameterValues()를 사용
-    String[] selectedProducts = request.getParameterValues("selectedProducts"); 
+    String[] selectedRow = request.getParameterValues("selectedRow"); 
 
-    System.out.println(selectedProducts);
+    System.out.println(selectedRow);
     // 선택된 회원들을 비활성화 처리
-    for (String id : selectedProducts) {
+    for (String id : selectedRow) {
         
         empDao.activeCustomer(active,id);
     }

@@ -3,6 +3,13 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="vo.Product" %>
 <%
+	/*세션검사
+	if (!session.getAttribute("loginIdListEmpLevel").equals("3")) { // 직원레벨 5가 아니면
+		String msg = "접근권환이 없습니다.";
+		response.sendRedirect(request.getContextPath() + "/admin/home.jsp?msg="+msg);
+		return;
+	}
+	*/	
     EmpDao empDao = new EmpDao();
     
     // 요청값 분석
@@ -131,9 +138,13 @@
     </style>
 </head>
 <body>
-    <h1>Product List</h1>
-    <!-- 검색 조건 영역 -->
-    <form method="get" action="<%= request.getContextPath() %>/admin/adminProductList.jsp">
+<!--관리자 메인메뉴 -->
+<jsp:include page ="/admin/adminMenu.jsp"></jsp:include>
+<br>
+<!-- 본문 -->
+<h1>Product List</h1>
+<!-- 검색 조건 영역 -->
+<form method="get" action="<%= request.getContextPath() %>/admin/adminProductList.jsp">
         <div class="search-area">
         
         <label class="search-label">검색</label>
@@ -191,8 +202,8 @@
 	                <th>Category</th>
 	                <th>Product Name</th>
 	                <th>Status</th>
-	                <th>Created Date</th>
-	                <th>Updated Date</th>
+	                <th>Createdate</th>
+	                <th>Updatedate</th>
 	                <th>관리</th>
 	            </tr>
             </thead>

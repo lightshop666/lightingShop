@@ -10,7 +10,14 @@
 	   	
 	   	return;
 	}	
+	
+	String msg = null;
+	if (request.getParameter("msg") != null) {
+	 	msg = request.getParameter("msg");
+	}
+	
 	String id = request.getParameter("id");
+	
 %>
 <!DOCTYPE html>
 <html>
@@ -73,8 +80,21 @@
             background-color: #23272b;
         }
     </style>
+       <script>
+        <% 
+        	if (msg != null) { 
+        %>
+            	alert('<%= msg %>');
+        <% 
+        	}         
+        %>
+    </script>
 </head>
 <body>
+	<!--관리자 메인메뉴 -->
+	<jsp:include page ="/admin/adminMenu.jsp"></jsp:include>
+	<br>
+	<!-- 본문 -->
     <h1>직원정보 등록</h1>
     
     <form action="<%=request.getContextPath()%>/admin/addEmpInfoAction.jsp" method="post">
@@ -101,11 +121,39 @@
 	        <tr>
 	            <th>번호</th>
 	            <td><input type="text" name="empPhone"></td>
+	            
 	        </tr> 
 	    </table>
 	     <div style="text-align:center">
-	        <button type="submit">저장하기</button>
+	     	   <button id="backBtn" type="button">뒤로가기</button>
+	           <button type="submit">추가하기</button>
 	    </div>
+	    <script>
+	 		// 돔객체.addEventListener('이벤트이름', 실행코드함수)
+		    document.querySelector('#backBtn').addEventListener('click',function(){
+				// BOM window.history객체
+				history.back();
+			});
+	 		
+		    document.querySelector('form').addEventListener('submit', function(event) {
+	
+	            let empInput = document.querySelector('input[name="empName"]');
+	            let phoneInput = document.querySelector('input[name="empPhone"]');
+
+	            if (empInput.value.trim() === '') { //trim 앞뒤 공백 제거
+	                event.preventDefault();
+	                alert('이름를 입력해주세요.');
+	                return;
+	            }
+
+	            if (phoneInput.value.trim() === '') { //trim 앞뒤 공백 제거
+	                event.preventDefault();
+	                alert('번호를 입력해주세요.');
+	                return;
+	            }
+		    });
+		    
+		</script>  
     </form>
 </body>
 </html>

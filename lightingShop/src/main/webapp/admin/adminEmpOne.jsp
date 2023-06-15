@@ -80,9 +80,13 @@
     </style>
 </head>
 <body>
-<h1>직원 상세보기</h1>
+	<!--관리자 메인메뉴 -->
+	<jsp:include page ="/admin/adminMenu.jsp"></jsp:include>
+	<br>
+	<!-- 본문 -->
+	<h1>직원 상세보기</h1>
 
-<form action="<%=request.getContextPath()%>/admin/adminModifyEmpAction.jsp?" method="post">
+	<form action="<%=request.getContextPath()%>/admin/adminModifyEmpAction.jsp?" method="post">
 
     <!-- 수정하지 않는 컬럼에 경우 기존값으로 전달하기 위해 hidden으로 -->
     <input type="hidden" name="id" value="<%=employee.getId()%>">

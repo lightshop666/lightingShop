@@ -3,6 +3,12 @@
 <%@ page import="java.util.*" %>
 <%@ page import="vo.*" %>
 <%
+/*세션검사
+if (!session.getAttribute("loginIdListEmpLevel").equals("3")) { // 직원레벨 3가 아니면
+	response.sendRedirect(request.getContextPath() + "/admin/home.jsp");
+	return;
+}
+*/
     EmpDao empDao = new EmpDao();
     
     // 요청값 분석
@@ -38,7 +44,9 @@
     
     // 배송 상태 정보 가져오기
     String deliveryStatus = request.getParameter("deliveryStatus");
-    if (deliveryStatus == null) {
+    if (deliveryStatus == null
+    		|| deliveryStatus.equals("전체")) {
+  
         deliveryStatus = "";
     }
 
@@ -69,29 +77,94 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <title>Order List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+       <style>
+        body {
+        margin: 20px;
+        background-color: #f9f9f9; /* Set the background color to gray */
+    	}
+        /* 테이블 스타일 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        /* 테이블 헤더 색상 */
+        .table thead th {
+            background-color: #f2f2f2;
+        }
+
+        /* 테이블 로우 색상 */
+        .table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .table tbody tr:hover {
+            background-color: #e9e9e9;
+        }
+
+
+
+        /* 페이지네이션 스타일 */
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 5px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #000;
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .pagination .current-page {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 5px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #4caf50;
+            border: 1px solid #4caf50;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
+	<!--관리자 메인메뉴 -->
+	<jsp:include page ="/admin/adminMenu.jsp"></jsp:include>
+	<br>
+	<!-- 본문 -->
     <h1>Order List</h1>
 
     <!-- 검색 조건 영역 -->
-<!-- 검색 조건 영역 -->
+
     <form action="<%= request.getContextPath() %>/admin/adminOrderList.jsp">
-        <div style="text-align: left; margin-top: 20px;">
-            <h5>검색</h5>
+       <div class="search-area">
+        
+        <label class="search-label">검색</label>
             <select name="searchCol">
                 <option value="order_product_no" <% if (searchCol.equals("order_product_no")) out.print("selected"); %>>주문번호(상품별)</option>
                 <option value="order_no" <% if (searchCol.equals("order_no")) out.print("selected"); %>>주문번호(주문서별)</option>
                 <option value="id" <% if (searchCol.equals("id")) out.print("selected"); %>>ID</option>
             </select>
             <input type="text" name="searchWord" value="<%= searchWord %>">
-            <button type="submit" class="btn btn-primary">검색</button>
+            <button type="submit" >검색</button>
         </div>
 
-        <div style="text-align: left; margin-top: 10px;">
-            <h5>정렬</h5>
+        <div class="sort-area">
+        <label class="sort-label">정렬</label>
             <select name="col">   
 		        <option value="order_product_no" <% if (col.equals("order_product_no")) out.print("selected"); %>>주문번호</option>
 		        <option value="id" <% if (col.equals("id")) out.print("selected"); %>>주문자</option>
@@ -101,34 +174,40 @@
                 <option value="ASC" <% if (ascDesc.equals("ASC")) out.print("selected"); %>>오름차순</option>
                 <option value="DESC" <% if (ascDesc.equals("DESC")) out.print("selected"); %>>내림차순</option>
             </select>
-            <button type="submit" class="btn btn-primary">정렬</button>
+            <button type="submit">정렬</button>
          </div>
-        <div>
-		 <button type="submit" name="deliveryStatus" value="" class="btn btn-secondary">전체</button>
-		 <button type="submit" name="deliveryStatus" value="주문확인중" class="btn btn-secondary">주문확인중</button>
-		 <button type="submit" name="deliveryStatus" value="배송중" class="btn btn-secondary">배송중</button>
-		 <button type="submit" name="deliveryStatus" value="배송시작" class="btn btn-secondary">배송시작</button>
-		 <button type="submit" name="deliveryStatus" value="배송완료" class="btn btn-secondary">배송완료</button>
-		 <button type="submit" name="deliveryStatus" value="취소중" class="btn btn-secondary">취소중</button>
-		 <button type="submit" name="deliveryStatus" value="취소완료" class="btn btn-secondary">취소완료</button>
-		 <button type="submit" name="deliveryStatus" value="교환중" class="btn btn-secondary">교환중</button>
-		 <button type="submit" name="deliveryStatus" value="구매확정" class="btn btn-secondary">구매확정</button>       
- 		</div>  
-    </form>
+      
+	    <div align="center">
+	        <% String[] deliveryArr = {"전체", "주문확인중", "배송중", "배송시작","배송완료","취소중","취소완료","교환중","구매확정"}; %>
+	        <% 
+	            for (String deliveryStatusCk : deliveryArr) { 
+	        %>
+	        	 <button type="submit" name="deliveryStatus" value="<%= deliveryStatusCk %>" class="btn btn-secondary" <% if (deliveryStatus.equals(deliveryStatusCk)) { %>style="background-color:yellow"<% } %>><%= deliveryStatusCk %></button>
+	            
+	        <% 
+	            }
+	        %>
+	    </div>
+	    <div>
+	    	<input type="hidden" name="deliveryStatus" value="<%= deliveryStatus %>">
+	    </div>
+     </form>  
 
-        <table class="table table-hover">
-            <tr class="table-info">
-                <th>orderProductNo</th>
-                <th>orderNo</th>
-                <th>id</th>
-                <th>deliveryStatus</th>
-                <th>orderDate</th>
-                <th>관리</th>
-            </tr>
+        <table class="table">
+        	<thead class="table-active">
+	            <tr >
+	                <th>orderProductNo</th>
+	                <th>orderNo</th>
+	                <th>id</th>
+	                <th>deliveryStatus</th>
+	                <th>orderDate</th>
+	                <th>관리</th>
+	            </tr>
+	        </thead>    
             <% 
                 for (HashMap<String, Object> order : orderList) { 
             %>
-                <tr class="table-active">
+                <tr>
                     <td><%= order.get("orderProductNo") %></td>
                     <td><%= order.get("orderNo") %></td>
                     <td><%= order.get("id") %></td>
@@ -140,32 +219,42 @@
                 } 
             %>
           </table> 
-           <div style="text-align:center;">
-		    <%
-		    if (minPage > 1) {
-		    %>
-		        <a class="btn btn-outline-dark" href="<%=request.getContextPath()%>/admin/adminOrderList.jsp?currentPage=<%=minPage-pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&deliveryStatus=<%=deliveryStatus%>">이전</a>&nbsp;
-		    <%
-		    }
-		
-		    for (int i = minPage; i <= maxPage; i++) {
-		        if (i == currentPage) {
-		    %>
-		            <span style="background-color:yellow"><%=i%></span>
-		    <%
-		        } else {
-		    %>
-		            <a href="<%=request.getContextPath()%>/admin/adminOrderList.jsp?currentPage=<%=i%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&deliveryStatus=<%=deliveryStatus%>"><%=i%></a>&nbsp;
-		    <%
-		        }
-		    }
-		
-		    if (maxPage < lastPage) {
-		    %>
-		        <a class="btn btn-outline-dark" href="<%=request.getContextPath()%>/admin/adminProductList.jsp?currentPage=<%=minPage+pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&deliveryStatus=<%=deliveryStatus%>">다음</a>&nbsp;
-		    <%
-		    }
-		    %>
-		</div>
+           <nav class="pagination justify-content-center">
+       		 <ul class="pagination">
+			    <%
+			    	if (minPage > 1) {
+			    %>
+				    <li class="page-item">
+				        <a class="btn btn-outline-dark" href="<%=request.getContextPath()%>/admin/adminOrderList.jsp?currentPage=<%=minPage-pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&deliveryStatus=<%=deliveryStatus%>">이전</a>&nbsp;
+			   		</li>
+			    <%
+			   		 }
+			
+				    for (int i = minPage; i <= maxPage; i++) {
+				        if (i == currentPage) {
+			    %>
+			        <li class="page-item active">
+		                <a class="page-link"><%=i%></a>
+		            </li>
+			    <%
+			        	} else {
+			    %>
+			    			<li class="page-item">
+			           		   <a class="page-link" href="<%=request.getContextPath()%>/admin/adminOrderList.jsp?currentPage=<%=i%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&deliveryStatus=<%=deliveryStatus%>"><%=i%></a>&nbsp;
+			    			</li>
+			    <%
+			        	}
+			    	}
+			
+			    	if (maxPage < lastPage) {
+			    %>
+				    	<li class="page-item">
+				        	<a class="page-link" href="<%=request.getContextPath()%>/admin/adminProductList.jsp?currentPage=<%=minPage+pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&deliveryStatus=<%=deliveryStatus%>">다음</a>&nbsp;
+			    		</li>
+			    <%
+			    	}
+			    %>
+	    </ul>
+    </nav>	
 </body>
 </html>

@@ -20,6 +20,11 @@
 
     Customer customer = empDao.selectCustomerOne(id);
     System.out.println(customer.getCstmRank());
+    
+    String msg = null;
+	if (request.getParameter("msg") != null) {
+	 	msg = request.getParameter("msg");
+	}
 %>
 <!DOCTYPE html>
 <html>
@@ -78,8 +83,21 @@
         cursor: pointer;
 </style>
     <title>회원 상세보기</title>
+      <script>
+        <% 
+        	if (msg != null) { 
+        %>
+            	alert('<%= msg %>');
+        <% 
+        	}         
+        %>
+    </script>
 </head>
 <body>
+<!--관리자 메인메뉴 -->
+<jsp:include page ="/admin/adminMenu.jsp"></jsp:include>
+<br>
+<!-- 본문 -->
 <h1>회원 상세보기</h1>
 
 <form action="<%=request.getContextPath()%>/admin/adminModifyCustomerAction.jsp?" method="post">

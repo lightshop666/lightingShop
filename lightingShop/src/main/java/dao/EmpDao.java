@@ -383,10 +383,10 @@ public class EmpDao {
 				// row값 가져오기				
 				activeRow = activeStmt.executeUpdate();
 				if(activeRow==1) {
-					System.out.println("비활성성공");
+					System.out.println("활성여부 수정성공");
 				}else{
 					activeRow=0;
-					System.out.println("비활성실패");
+					System.out.println("활성여부 수정실패");
 				}
 				
 				return activeRow;
@@ -640,8 +640,9 @@ public class EmpDao {
 				ResultSet ckEmpRs = empCkStmt.executeQuery();
 				if(ckEmpRs.next()) { 
 					insertIdRow = 2; //2일경우 addEmp페이지로 다시 보냄 
-				}	
-				insertIdRow =3; //3일경우(id리스트에는 있는데 emp테이블에는 없는경우 empInfo 페이지로 보냄
+				}else{
+					insertIdRow =3; //3일경우(id리스트에는 있는데 emp테이블에는 없는경우 empInfo 페이지로 보냄
+				}
 				return insertIdRow;
 			}
 			
@@ -1512,4 +1513,196 @@ public class EmpDao {
 			
 			    return totalRow;
 			}
-}
+			//----------g.할인관리--------------------------//
+			
+			// 1) 할인목록 조회 메소드 (기간 범위에 할인이 포함된 할인 목록)
+			public ArrayList<Discount> selectDiscountListByPage(String col, String ascDesc, int beginRow, int rowPerPage, String searchCol, String searchWord, String startDate, String endDate) throws Exception {
+			    DBUtil dbUtil = new DBUtil();
+			    Connection conn = dbUtil.getConnection();
+			    PreparedStatement dcStmt = null;
+
+			    String dcSql = "SELECT discount_no, product_no, discount_start, discount_end, discount_rate, createdate, updatedate FROM discount";
+
+			    // 검색 조건이 존재하는 경우 WHERE 절 추가
+			    if (!searchWord.equals("") && !searchCol.equals("")) {
+			        dcSql += " WHERE " + searchCol + " LIKE ?";
+			    }
+
+			    // startDate와 endDate가 존재하는 경우, 해당 기간에 할인이 포함된 할인 정보만 조회
+			    if (startDate != null && !startDate.equals("") && endDate != null && !endDate.equals("")) {
+			        if (!searchWord.equals("") && !searchCol.equals("")) {
+			            dcSql += " AND discount_end >= ? AND discount_end <= ?";
+			        } else {
+			            dcSql += " WHERE discount_end>= ? AND discount_end <= ?";
+			        }
+			    }
+
+			    // 정렬 조건이 존재하는 경우 ORDER BY 절 추가
+			    if (!col.equals("") && !ascDesc.equals("")) {
+			        dcSql += " ORDER BY " + col + " " + ascDesc;
+			    }
+
+			    dcSql += " LIMIT ?, ?";
+
+			    dcStmt = conn.prepareStatement(dcSql);
+			    int parameterIndex = 1; // 파라미터 인덱스 값 지정하기(분기문에 따라 +해서 대입 예정)
+
+			    if (!searchWord.equals("") && !searchCol.equals("")) {
+			        dcStmt.setString(parameterIndex, "%" + searchWord + "%"); // LIKE 연산자를 사용하기 위해 검색어 앞뒤에 % 추가
+			        parameterIndex++;
+			    }
+
+			    // startDate와 endDate가 존재하는 경우, 파라미터 설정
+			    if (startDate != null && !startDate.equals("") && endDate != null && !endDate.equals("")) {
+			        dcStmt.setString(parameterIndex, startDate);
+			        parameterIndex++;
+			        dcStmt.setString(parameterIndex, endDate);
+			        parameterIndex++;
+			    }
+
+			    dcStmt.setInt(parameterIndex, beginRow); // LIMIT의 첫 번째 매개변수
+			    dcStmt.setInt(parameterIndex + 1, rowPerPage); // LIMIT의 두 번째 매개변수
+
+			    // ResultSet
+			    ResultSet dcRs = dcStmt.executeQuery();
+
+			    ArrayList<Discount> discountList = new ArrayList<Discount>();
+			    while (dcRs.next()) {
+			        Discount discount = new Discount();
+			        discount.setDiscountNo(dcRs.getInt("discount_no"));
+			        discount.setProductNo(dcRs.getInt("product_no"));
+			        discount.setDiscountStart(dcRs.getString("discount_start"));
+			        discount.setDiscountEnd(dcRs.getString("discount_end"));
+			        discount.setDiscountRate(dcRs.getDouble("discount_rate"));
+			        discount.setCreatedate(dcRs.getString("createdate"));
+			        discount.setUpdatedate(dcRs.getString("updatedate"));
+			        discountList.add(discount);
+			    }
+
+			    return discountList;
+			}
+			
+				
+			// 2)할인 정보 상세보기 메소드
+			public Discount selectDiscountOne(int discountNo) throws Exception {
+			    DBUtil dbUtil = new DBUtil();
+			    Connection conn = dbUtil.getConnection();
+			    PreparedStatement selectDiscountStmt = null;
+			    ResultSet discountRs = null;
+
+			    String selectDiscountSql = "SELECT discount_no, product_no, discount_start, discount_end, discount_rate, createdate, updatedate FROM discount WHERE discount_no = ?";
+
+			    selectDiscountStmt = conn.prepareStatement(selectDiscountSql);
+			    selectDiscountStmt.setInt(1, discountNo);
+
+			    discountRs = selectDiscountStmt.executeQuery();
+
+			    Discount discount = null;
+			    if (discountRs.next()) {
+			        discount = new Discount();
+			        discount.setDiscountNo(discountRs.getInt("discount_no"));
+			        discount.setProductNo(discountRs.getInt("product_no"));
+			        discount.setDiscountStart(discountRs.getString("discount_start"));
+			        discount.setDiscountEnd(discountRs.getString("discount_end"));
+			        discount.setDiscountRate(discountRs.getDouble("discount_rate"));
+			        discount.setCreatedate(discountRs.getString("createdate"));
+			        discount.setUpdatedate(discountRs.getString("updatedate"));
+			    }
+
+			    return discount;
+			}
+			
+		    //3) 할인 정보 추가 메소드
+			public int insertDiscount(Discount discount) throws Exception {
+			    int insertDiscountRow = 0;
+			        
+			    if (discount != null) {
+			         DBUtil dbUtil = new DBUtil();
+			         Connection conn = dbUtil.getConnection();
+			            
+		            String insertDiscountSql = "INSERT INTO discount (product_no, discount_start, discount_end, discount_rate, createdate, updatedate) VALUES (?, ?, ?, ?, NOW(), NOW())";
+		            PreparedStatement insertDiscountStmt = conn.prepareStatement(insertDiscountSql);
+		            
+		            insertDiscountStmt.setInt(1, discount.getProductNo());
+		            insertDiscountStmt.setString(2, discount.getDiscountStart());
+		            insertDiscountStmt.setString(3, discount.getDiscountEnd());
+		            insertDiscountStmt.setDouble(4, discount.getDiscountRate());
+		            
+		            insertDiscountRow = insertDiscountStmt.executeUpdate();
+		        }
+			        
+			        return insertDiscountRow;
+		    }
+			    
+		    //4) 할인 정보 수정 메소드
+		    public int updateDiscount(Discount discount) throws Exception {
+		        int updateDiscountRow = 0;
+		        
+		        if (discount != null) {
+		            DBUtil dbUtil = new DBUtil();
+		            Connection conn = dbUtil.getConnection();
+		            
+		            String updateDiscountSql = "UPDATE discount SET product_no=?, discount_start=?, discount_end=?, discount_rate=?, updatedate=NOW() WHERE discount_no=?";
+		            PreparedStatement updateDiscountStmt = conn.prepareStatement(updateDiscountSql);
+		            
+		            updateDiscountStmt.setInt(1, discount.getProductNo());
+		            updateDiscountStmt.setString(2, discount.getDiscountStart());
+		            updateDiscountStmt.setString(3, discount.getDiscountEnd());
+		            updateDiscountStmt.setDouble(4, discount.getDiscountRate());
+		            updateDiscountStmt.setInt(5, discount.getDiscountNo());
+		            
+		            updateDiscountRow = updateDiscountStmt.executeUpdate();
+		        }
+		        
+		        return updateDiscountRow;
+		    }
+		    
+		    //5) 할인 정보 삭제 메소드
+		    public int deleteDiscount(int discountNo) throws Exception {
+		        int deleteDiscountRow = 0;
+		        
+		        DBUtil dbUtil = new DBUtil();
+		        Connection conn = dbUtil.getConnection();
+		        
+		        String deleteDiscountSql = "DELETE FROM discount WHERE discount_no=?";
+		        PreparedStatement deleteDiscountStmt = conn.prepareStatement(deleteDiscountSql);
+		        deleteDiscountStmt.setInt(1, discountNo);
+		        
+		        deleteDiscountRow = deleteDiscountStmt.executeUpdate();
+		        
+		        return deleteDiscountRow;
+		    }
+		    
+		 //6) 할인 정보 전체 행 수 조회 메소드
+		    public int selectDiscountCnt(String searchCol, String searchWord) throws Exception {
+		        int totalCount = 0;
+
+		        DBUtil dbUtil = new DBUtil();
+		        Connection conn = dbUtil.getConnection();
+		        PreparedStatement selectCountStmt = null;
+		        ResultSet countRs = null;
+
+		        String selectCountSql = "SELECT COUNT(*) FROM discount";
+
+		        // 검색 조건이 존재하는 경우 WHERE 절 추가
+		        if (searchCol != null && !searchCol.equals("") && searchWord != null && !searchWord.equals("")) {
+		            selectCountSql += " WHERE " + searchCol + " LIKE ?";
+		        }
+
+		        selectCountStmt = conn.prepareStatement(selectCountSql);
+
+		        // 검색 조건이 존재하는 경우 파라미터 설정
+		        if (searchCol != null && !searchCol.equals("") && searchWord != null && !searchWord.equals("")) {
+		            selectCountStmt.setString(1, "%" + searchWord + "%");
+		        }
+
+		        countRs = selectCountStmt.executeQuery();
+
+		        if (countRs.next()) {
+		            totalCount = countRs.getInt(1); //index 1 사용
+		        }
+
+		        return totalCount;
+		    }
+			
+} 

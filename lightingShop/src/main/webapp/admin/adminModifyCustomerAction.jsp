@@ -3,6 +3,7 @@
 <%@ page import = "dao.*" %>
 <%@ page import = "vo.*" %>
 <%@ page import = "java.util.*" %>    
+<%@ page import="java.net.URLEncoder" %>
 <%
 	request.setCharacterEncoding("UTF-8");
 	EmpDao empDao = new EmpDao();
@@ -43,14 +44,19 @@
 	
 	//updateCustomer 매소드를 통해 row값 반환받기
 	int row =  empDao.updateCustomer(customer);
+	String msg = null;
+	
+	
 	//row값에 따라 분기하여 redirect
 	if(row == 1){
 		System.out.println("수정성공");
+		msg = URLEncoder.encode("회원 수정에 성공하였습니다.", "UTF-8");
 	}else{
 		System.out.println("수정실패");
-		response.sendRedirect(request.getContextPath()+"/admin/adminCustomerOne.jsp?id="+id);
+		msg = URLEncoder.encode("회원 수정에 실패하였습니다.", "UTF-8");
+		response.sendRedirect(request.getContextPath()+"/admin/adminCustomerOne.jsp?id="+id+"&msg="+msg);
 		
 		return;
 	}
-	response.sendRedirect(request.getContextPath()+"/admin/adminCustomerOne.jsp?id="+id);
+	response.sendRedirect(request.getContextPath()+"/admin/adminCustomerOne.jsp?id="+id+"&msg="+msg);
 %>

@@ -8,6 +8,7 @@
 <%@ page import="com.oreilly.servlet.multipart.*"%>
 <%@ page import="dao.EmpDao" %>
 <%@ page import="vo.Product" %>
+<%@ page import="java.net.URLEncoder" %>
 <%
     request.setCharacterEncoding("UTF-8");
 	
@@ -34,14 +35,16 @@
     
     int insertProductRow = empDao.insertProduct(product);
     
+    String msg = null;
     if (insertProductRow == 1) {
+    	msg = URLEncoder.encode("상품 등록에 성공하였습니다.", "UTF-8");
         System.out.println("추가성공");
     } else {
         System.out.println("추가실패");
-        response.sendRedirect(request.getContextPath() + "/admin/adminAddProduct.jsp");
+        msg = URLEncoder.encode("상품 등록에 실패하였습니다.", "UTF-8");
+        response.sendRedirect(request.getContextPath() + "/admin/adminAddProduct.jsp?msg="+msg);      
         return;
     }
     
-    response.sendRedirect(request.getContextPath() + "/admin/adminProductList.jsp");
-%>
+    response.sendRedirect(request.getContextPath() + "/admin/adminProductList.jsp?msg="+msg);
 %>

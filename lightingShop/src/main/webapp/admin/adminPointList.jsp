@@ -3,6 +3,12 @@
 <%@ page import="java.util.*" %>
 <%@ page import="vo.*" %>
 <%
+/*세션검사
+if (!session.getAttribute("loginIdListEmpLevel").equals("3")) { // 직원레벨 3가 아니면
+	response.sendRedirect(request.getContextPath() + "/admin/home.jsp");
+	return;
+}
+*/
 	EmpDao empDao = new EmpDao();
     // 요청값 분석
     // 페이지 정보 가져오기
@@ -77,10 +83,10 @@
     <meta charset="UTF-8">
     <title>Point List</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-       <style>
+    <style>
         body {
         margin: 20px;
-        background-color: #f9f9f9; 
+        background-color: #f9f9f9;
     	}
         /* 테이블 스타일 */
         .table {
@@ -107,25 +113,7 @@
             background-color: #e9e9e9;
         }
 
-        /* 버튼 스타일 */
-        .btn {
-            display: inline-block;
-            padding: 8px 12px;
-            margin: 5px;
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            color: #fff;
-            background-color: #4caf50;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
 
-        .btn-danger {
-            background-color: #f44336;
-        }
 
         /* 페이지네이션 스타일 */
         .pagination {
@@ -158,6 +146,10 @@
     </style>
 </head>
 <body>
+<!--관리자 메인메뉴 -->
+<jsp:include page ="/admin/adminMenu.jsp"></jsp:include>
+<br>
+<!-- 본문 -->
 <h1>Point List</h1>
 <!-- 검색 영역 -->
 <form action="<%= request.getContextPath() %>/admin/adminPointList.jsp?col=<%= col %>&ascDesc=<%= ascDesc %>"
@@ -207,7 +199,7 @@
 <!-- 리스트 영역 -->
 <form method="post" action="<%= request.getContextPath() %>/admin/adminModifyPoint.jsp">
      <table class="table">
-        <thead>
+        <thead class="table-active">
         <tr>
             <th>Point No</th>
             <th>Order No</th>
@@ -242,33 +234,42 @@
         </tbody>
     </table>
 
-    <div class="pagination">
+    <nav class="pagination justify-content-center">
+       <ul class="pagination">
         <%
             if (minPage > 1) {
         %>
-        <a href="<%=request.getContextPath()%>/admin/adminPointList.jsp?currentPage=<%=minPage-pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&pointInfo=<%=pointInfo%>" class="page-link">이전</a>
-        <%
+		        <li class="page-item">
+		        	<a class="btn btn-outline-dark" href="<%=request.getContextPath()%>/admin/adminPointList.jsp?currentPage=<%=minPage-pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&pointInfo=<%=pointInfo%>" class="page-link">이전</a>
+		       </li> 
+       <% 
             }
-
             for (int i = minPage; i <= maxPage; i++) {
                 if (i == currentPage) {
-        %>
-        <span class="current-page"><%=i%></span>
+       %>
+			       <li class="page-item active">
+					    <a class="page-link"><%=i%></a>
+				   </li>
         <%
                 } else {
         %>
-        <a href="<%=request.getContextPath()%>/admin/adminPointList.jsp?currentPage=<%=i%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&pointInfo=<%=pointInfo%>" class="page-link"><%=i%></a>
+		        	<li class="page-item">
+		        		<a href="<%=request.getContextPath()%>/admin/adminPointList.jsp?currentPage=<%=i%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&pointInfo=<%=pointInfo%>" class="page-link"><%=i%></a>
+       				</li>
         <%
                 }
             }
 
             if (maxPage < lastPage) {
         %>
-        <a href="<%=request.getContextPath()%>/admin/adminPointList.jsp?currentPage=<%=minPage+pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&pointInfo=<%=pointInfo%>" class="page-link">다음</a>
+        		<li class="page-item">
+        			<a class="page-link" href="<%=request.getContextPath()%>/admin/adminPointList.jsp?currentPage=<%=minPage+pagePerPage%>&col=<%=col%>&ascDesc=<%=ascDesc%>&searchCol=<%=searchCol%>&searchWord=<%=searchWord%>&pointInfo=<%=pointInfo%>" class="page-link">다음</a>
+      			</li> 
         <%
             }
         %>
-    </div>
+   	  	</ul>
+    </nav>	
 </form>
 </body>
 </html>
