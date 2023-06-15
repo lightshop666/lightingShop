@@ -15,8 +15,10 @@
 	//유효성 검사 
 	if(request.getParameter("address") == null
 		|| request.getParameter("addressName") == null
+		|| request.getParameter("defaultAddress") == null
 		|| request.getParameter("address").equals("")
-		|| request.getParameter("addressName").equals("")) {
+		|| request.getParameter("addressName").equals("")
+		|| request.getParameter("defaultAddress").equals("")) {
 		response.sendRedirect(request.getContextPath()+"/customer/addAddress.jsp");
 		return;
 	}
@@ -25,23 +27,32 @@
 	String id = (String)session.getAttribute("loginIdListId");
 	String addressStr = request.getParameter("address");
 	String addressName = request.getParameter("addressName");
+	String defaultAddress = request.getParameter("defaultAddress");
 	
 	// address에 set
 	Address address = new Address();
 	address.setId(id);
+	
+	/* 
 	address.setAddressName(addressName);
 	address.setAddress(addressStr); 
+	address.setDefaultAddress(defaultAddress) ; 
+	*/
 	
-	// 주소추가 메서드 
+	// Dao 호출
 	CustomerDao cDao = new CustomerDao();
-	int addMyAddress = cDao.addMyAddress(address);
+	boolean checkAddress = cDao.selectDefalutAddress(address);
+	System.out.println("기본배송지 중복체크 true - 중복 --> :"+checkAddress);
 	
-	if(addMyAddress == 1) {
-		System.out.println("배송지 추가 성공");
-		response.sendRedirect(request.getContextPath()+"/customer/addressList.jsp");
+	if(checkAddress) { // 중복일 경우 주소추가로 리다이렉션
+		System.out.println("기본 배송지가 중복됩니다.");
+		response.sendRedirect(request.getContextPath()+"/customer/addAddress.jsp");
 		return;
-	} else {
-		System.out.println("배송지 추가 실패");
-		response.sendRedirect(request.getContextPath()+"/customer/addCustomer.jsp");
+	} else { // 중복이 아닐경우 배송지 추가 진행
+		System.out.println("배송지추가 성공");
+		// 배송지가 4개 이상일 경우 가장 오래된 내역 삭제후 배송지 추가 
+		int operateAddress = cDao.operateAddress(address);
+	
+		response.sendRedirect(request.getContextPath()+"/customer/addressList.jsp");
 	}
 %>   

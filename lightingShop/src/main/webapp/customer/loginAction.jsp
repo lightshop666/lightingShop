@@ -15,9 +15,6 @@
 	// 변수전달
 	String id = request.getParameter("id");
 	String lastPw = request.getParameter("lastPw");
-	String active = request.getParameter("active");
-	String empLevel = request.getParameter("empLevel");
-	
 	
 	if (id.equals(null) || lastPw.equals(null)) {	// 로그인 ID, PW를 입력하지 않은 경우
 		// 로그인 폼으로 리다이렉션

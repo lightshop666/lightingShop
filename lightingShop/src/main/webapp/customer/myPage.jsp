@@ -175,8 +175,25 @@
 					// 로그인했다면 마이페이지
 					if(session.getAttribute("loginIdListId") != null) {
 				%>
-
-             <!-- [시작] 주문내역 리스트 -->
+			 
+			 <!-- [시작] 회원등급 표시 -->
+			 <section class="section-padding-100-0">
+		        <div class="container">
+		            <div class="row align-items-center">
+		                <div class="col-12 col-lg-8">
+		                    <div class="mb-100">
+		                    	
+		                    	고객님은 <%=customerOne.get("c.cstm_rank") %> 등급입니다.
+		                    	<br>
+		                    
+		                    </div>
+	                	</div>
+					</div>
+				</div>
+			</section>	<!-- [끝] 회원등급 표시 -->
+		                    
+			 
+             <!-- [시작] 주문정보 리스트 -->
              <section class="section-padding-100-0">
 		        <div class="container">
 		            <div class="row align-items-center">
@@ -195,7 +212,6 @@
 										System.out.println(o.getOrderNo()+"<--getOrderNo-- orderProductList.jsp");
 								%>
 							
-										<h4>주문 번호 : <%= o.getOrderNo() %></h4>
 										<p>
 											<a href="<%=request.getContextPath()%>/orders/orderProductOne.jsp?orderNo=<%= o.getOrderNo() %>">
 											주문 상세
@@ -262,7 +278,6 @@
 											}
 								%>
 										</p>
-										<div>--------------------</div>
 								<%
 										}
 								%>
@@ -307,7 +322,7 @@
 	                	</div>
 					</div>
 				</div>
-			</section>	<!-- [끝] 주문내역 리스트 -->
+			</section>	<!-- [끝] 주문정보 리스트 -->
 								<%
 									} else { // 로그인 전이라면 로그인 폼
 								%>
@@ -323,14 +338,16 @@
 					            </div>
 					            <br>
 		                    	<div class="login-form">
-									<form action="<%=request.getContextPath()%>/customer/loginAction.jsp" method="post">
+									<form action="<%=request.getContextPath()%>/customer/loginAction.jsp" method="post" id="signinForm">
 										<!-- 세션에 저장할 active값과 emp_level 값 -->
 										<input type="hidden" name="active" value="<%=loginIdList.get("active")%>">
 										<input type="hidden" name="empLevel" value="<%=loginIdList.get("empLevel")%>">
 										<!-- Input Fields for ID and Password-->
 								        <input type ='text' class = 'form-control my-input-field' id ='id' name = 'id' required placeholder="아이디">
+								        <span id="idMsg" class="msg"></span>
 								        <input type ='password' class = 'form-control my-input-field' id ='lastPw' name = 'lastPw' required placeholder="비밀번호는 4자"><br>
-										<button type="submit" class="btn btn-warning btn-lg mt-6">로그인</button>
+								        <span id="lastPwMsg" class="msg"></span>
+										<button type="submit" class="btn btn-warning btn-lg mt-6" id="signBtn">로그인</button>
 									</form>
 									<a href="<%=request.getContextPath()%>/customer/addCustomer.jsp">회원가입</a>
 								</div>
@@ -340,8 +357,6 @@
 				</div>
 			</section> <!--[끝] 로그인 폼 출력 -->
 			
-			<!-- js 유효성 검사 - DOM API 사용 -->
-				
 								<%
 										}
 								%>
@@ -441,5 +456,77 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     <!-- Active js -->
     <script src="js/active.js"></script>
 
+	<!-- js 유효성 검사 - DOM API 사용 -> 현재 동작 안함 -->
+	<script>
+	
+    document.querySelector('form').addEventListener('submit', function(event) {
+      
+       let loginIdInput = document.querySelector('input[name="id"]');
+       let loginLastPwInput = document.querySelector('input[name="lastPw"]');
+
+       if (loginIdInput.value.trim() === '') {
+           event.preventDefault();
+           alert('아이디를 입력해주세요.');
+           return;
+       } 
+	
+       if (loginLastPwInput.value.trim() === '') {
+           event.preventDefault();
+           alert('비밀번호를 입력해주세요.');
+           return;
+       } else if (isNaN(loginLastPwInput.value.trim())) {
+           event.preventDefault();
+           alert('비밀번호는 숫자만 입력해주세요.');
+           return;
+       }
+       
+    });  
+      
+     /* 
+      
+      // HTML이 로드된 후에 동작
+	  window.onload = function() {
+	  // 시작시 id입력폼에 포커스
+	  document.getElementById('id').focus();
+	  
+	  let allCheck = false;
+		  
+		  // id 유효성 체크
+		  document.getElementById('id').addEventListener('blur', function() {
+		    if (this.value.length < 2) { 
+		      document.getElementById('idMsg').innerHTML="ID는 최소한 두 글자 이상이어야 합니다.";
+		      this.focus();
+		    } else {
+		      console.log(this.value);
+		      document.getElementById("lastPw").focus();
+		    }
+		   });
+		  
+		  // lastPw 유효성 체크
+	      document.getElementById('lastPw').addEventListener('blur', function() {
+		    if (this.value.length < 4) { 
+		      document.getElementById('lastPwMsg').innerHTML="비밀번호는 최소한 4자 이상이어야 합니다.";
+		      this.focus();
+		    } else {
+		      console.log(this.value);
+		      // 유효성 체크를 마치고 로그인버튼으로 포커스를 옮긴다.
+		      document.getElementById("signinBtn").focus();
+		      // 체크를 확인한다.
+		      allCheck = true;
+		    }
+		   });
+		  
+	   	  // signinBtn click
+	   	  document.getElementById('signBtn').addEventListener.('click', (function() {
+	   		// 바로 버튼 누름 방지
+	   		if(allCheck == false) { 
+	   			document.getElementById('id').focus();
+	   			return;
+	   		}
+	   		document.getElementById('signinForm').submit();
+	   	  }); 
+	  */
+	  
+	</script>	
 </body>
 </html>

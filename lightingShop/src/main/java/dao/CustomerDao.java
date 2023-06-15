@@ -332,7 +332,7 @@ public class CustomerDao {
 		return myAddress;
 	}
 		
-	// 2) 주소추가
+	// 2) 주소추가 - 회원가입시 자동생성
 	public int addMyAddress(Address address) throws Exception {
 		int addMyAddress = 0;
 		
@@ -352,25 +352,26 @@ public class CustomerDao {
 		return addMyAddress;
 	}
 	
-	// 3) 주소변경
+	// 3) 주소변경 - 배송지명, 주소, 기본배송지 여부, 변경일
 	public int modifyAddress(Address address) throws Exception {
 		int modifyAddress = 0;
 		
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
 		
-		String sql = "UPDATE address SET address_name = ?, address = ?, updatedate = NOW() WHERE address_no = ?";
+		String sql = "UPDATE address SET address_name = ?, address = ?, default_address = ?, updatedate = NOW() WHERE address_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, address.getAddressName() );
 		stmt.setString(2, address.getAddress());
-		stmt.setInt(3, address.getAddressNo() );
+		stmt.setString(3, address.getDefaultAddress() );
+		stmt.setInt(4, address.getAddressNo() );
 		
 		modifyAddress = stmt.executeUpdate();
 		
 		return modifyAddress;
 	}
 	
-	// 4) 주소삭제
+	// 4) 주소삭제 - 개별삭제
 	public int removeAddress(int addressNo) throws Exception {
 		int removeAddress = 0;
 		
@@ -386,7 +387,7 @@ public class CustomerDao {
 		return removeAddress;
 	}
 	
-	// 4-1) 주소삭제 (id의 주소 전부삭제 -> 메소드만 구현)
+	// 4-1) 주소삭제 (id의 주소 전부삭제(== 회원탈퇴시 Address 삭제) -> 메소드만 구현)
 	public void removeAllAddress(Address address) throws Exception {
 		
 		DBUtil dbutil = new DBUtil();
@@ -398,7 +399,27 @@ public class CustomerDao {
 		stmt.executeUpdate();
 	}
 	
-	// 5) 주소 총개수
+	// 4-2) 주소삭제 (배송지 추가시 4개 이상일 경우 id와 생성일 기준으로 1개 삭제)
+	public int removeOldAddress(Address address) throws Exception {
+		int removeOldAddress = 0;
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "DELETE FROM address WHERE id = ? AND createdate = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, address.getId());
+		stmt.setString(2, address.getCreatedate());
+		
+		System.out.println("address.getId() : "+address.getId());
+		System.out.println("address.getCreatedate() : "+address.getCreatedate());
+		
+		removeOldAddress = stmt.executeUpdate();
+				
+		return removeOldAddress;
+	}
+	
+	// 5) 주소 총개수 - (최대 4개로 제한 - operateAddress 메서드 이용)
 	public int ttlCntAddress(Address address) throws Exception {
 		int ttlAddress = 0;
 		
@@ -413,6 +434,98 @@ public class CustomerDao {
 			ttlAddress = rs.getInt("COUNT(*)");
 		}
 		return ttlAddress;
+	}
+	
+	// 6) 배송지 추가시 address에 배송지 추가 및 최대 4개 넘을 시, 가장 오래된 배송지 자동삭제
+	public int operateAddress(Address address) throws Exception {
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		// 배송지 이력 추가 유무를 확인하기 위한 변수 선언
+		int operateAddress = 0;
+		// 모델 생성
+		CustomerDao cDao = new CustomerDao();
+		// address 개수를 저장할 변수선언
+		int CntAddress = 0;
+		// 4개가 넘어갔을시 address를 삭제할 변수 선언
+		int removeOldAddress = 0;
+		// 가장 오래된 배송지를 불어올 객체 생성
+		Address selectOldestAddress = new Address();
+		System.out.println("[operateAddress]");
+		
+		if(CntAddress < 4) { // 3개 이하일 경우, 배송지추가 진행
+			System.out.println("배송지내역 4개 미만");
+			operateAddress = addMyAddress(address);
+		} else { // 4개 이상일 경우, 가장 오래된 주소지내역 삭제 후, 배송지추가 진행
+			System.out.println("배송지내역 4개 이상");
+			// 삭제할 가장오래된 배송지내역 하나 불러오기
+			selectOldestAddress = selectOldestAddress(address);
+			System.out.println("삭제할 배송지명 :" + selectOldestAddress.getAddressName());
+			
+			//가장 오래된 배송지 삭제
+			removeOldAddress = removeOldAddress(address);
+			
+			if(removeOldAddress == 1) { // old 배송지가 삭제된 경우 - 변경된 배송지 추가
+				System.out.println("old 배송지내역 삭제 성공");
+				// 수정된 배송지 추가
+				operateAddress = addMyAddress(address);
+			} else { // 삭제되지 않은경우
+				System.out.println("old 배송지내역 삭제 실패");
+			}
+		}
+		
+		// 배송지내역 총개수
+		CntAddress = cDao.ttlCntAddress(address);
+		System.out.println("배송지내역 총 개수:" + CntAddress);
+		
+		// 배송지 추가가 됬다면 1반환
+		return operateAddress;
+	}
+	
+	// 7) 가장 오래된 address 1개 조회(createdate ASC순) - id와 createdate를 넣기위해 객체반환타입을 갖는다.
+	public Address selectOldestAddress(Address address) throws Exception {
+		// 객체 초기화
+		Address selectOldestAddress = null;
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "SELECT id, address_name, createdate FROM address WHERE id = ? ORDER BY createdate LIMIT 0,1";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		stmt.setString(1, address.getId());
+		ResultSet rs = stmt.executeQuery();
+		// 조회된 결과가 있다면 객체에 DB값 저장
+		if(rs.next()) {
+			selectOldestAddress = new Address();
+			selectOldestAddress.setId(rs.getString("id"));
+			selectOldestAddress.setCreatedate(rs.getString("createdate"));
+		}
+		
+		return selectOldestAddress;
+		
+	}
+	
+	// 8) 배송지 추가 or 수정 시, 기본 배송지가 중복되지 않게 체크
+	public boolean selectDefalutAddress(Address address) throws Exception {
+		// 체크할 변수 선언
+		boolean checkAddress = false;
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		// id에 해당하는 기본배송지 정보 조회
+		String sql = "SELECT default_address FROM Address WHERE id = ? AND default_address= 'Y'";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, address.getId());
+		System.out.println("[Address중복체크dao]");
+		System.out.println("id :"+address.getId());
+		ResultSet rs = stmt.executeQuery();
+		
+		if(rs.next()) {
+			checkAddress = true;
+		}
+		// 중복된 값이 있다면 - true 반환
+		return checkAddress;
 	}
 	
 	// -------------------c.pwHistory 관련---------------------
