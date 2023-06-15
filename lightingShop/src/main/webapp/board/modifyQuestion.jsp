@@ -58,7 +58,18 @@
 						<tr>
 							<th>상품</th>
 							<td>
-								<img src="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>" >
+								<%
+									// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+									if(productImg.getProductSaveFilename() == null) {
+								%>
+										<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+								<%
+									} else {
+								%>
+										<img src="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>">
+								<%	
+									}
+								%>
 								<br><%=product.getProductName()%>
 							</td>
 						</tr>

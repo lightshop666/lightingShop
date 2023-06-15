@@ -36,7 +36,18 @@
 				<td>
 					<!-- 상품이미지 or 상품 이름 클릭 시 해당 상품 상세페이지로 이동 -->
 					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>">
-						<img src="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>" >
+						<%
+							// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+							if(productImg.getProductSaveFilename() == null) {
+						%>
+								<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+						<%
+							} else {
+						%>
+								<img src="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>">
+						<%	
+							}
+						%>
 						<br><%=product.getProductName()%>
 					</a>
 				</td>
