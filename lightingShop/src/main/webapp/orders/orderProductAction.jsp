@@ -3,6 +3,7 @@
 <%@ page import="vo.*" %>
 <%@ page import="java.util.*"%>
 <%
+
 	request.setCharacterEncoding("utf-8");	
 //유효성 검사
 	//세션 유효성 검사 --> 비회원은 주문할 수 없다 게스트 걸러내기
@@ -20,6 +21,13 @@
 	String customerAddress = request.getParameter("customerAddress");
 	String deliOption = request.getParameter("deliOption");
 	String otherDeliOption = request.getParameter("otherDeliOption");
+	String usePointParam = request.getParameter("usePoint");
+	int usedPoint = 0;
+	
+	if (usePointParam != null && !usePointParam.isEmpty()) {
+		usedPoint = Integer.parseInt(usePointParam);
+	}
+
 	
 	// 필수 필드 검사를 수행합니다.
 	if (productNos == null || productCnts == null || finalPrice == null) {
@@ -59,6 +67,7 @@
 	//dao 호출
 	OrderDao orderDao = new OrderDao();
 	OrderProductDao orderProductDao = new OrderProductDao();
+	PointHistoryDao pointHistoryDao = new PointHistoryDao();
 	
 	//orders 테이블에 삽입 후 pk키 반환
 	int orderPk = orderDao.addOrder(orders);
@@ -68,6 +77,15 @@
 		orderProductDao.addProductDao(orderPk, Integer.parseInt(productNos[i]), Integer.parseInt(productCnts[i]) );
 	}
 	
-	response.sendRedirect(request.getContextPath() + "/order/orderProductOne.jsp?orderNo="+orderPk);
+	//사용한 포인트 만큼 point 차감
+	int pointUsedPk =pointHistoryDao.usedPoint(orderPk, usedPoint);
+	//최종 결제 금액에 따른 point 삽입
+	int pointAddPk=pointHistoryDao.pointByOrder(orderPk);
+	//customer 테이블의 point 총합 업데이트
+	int pointResult1= pointHistoryDao.cstmPointUpdate(pointUsedPk);
+	int pointResult2 = pointHistoryDao.cstmPointUpdate(pointAddPk);
+
+	response.sendRedirect("orderProductOne.jsp?orderNo=" + orderPk);
 	return;
 
+%>

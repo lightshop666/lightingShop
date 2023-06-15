@@ -10,7 +10,7 @@
 	}
 	
 	//주문번호 유효성 검사
-	int orderNo=11;
+	int orderNo=15;
 	if(request.getParameter("orderNo")!=null){
 		orderNo = Integer.parseInt(request.getParameter("orderNo"));
 	}else{
@@ -26,6 +26,7 @@
 	ProductDao productDao = new ProductDao();
 	OrderProductDao orderProductDao =new OrderProductDao();
 	ReviewDao reviewDao = new ReviewDao();
+	PointHistoryDao pointHistoryDao = new PointHistoryDao();
 	
 	
 	
@@ -33,6 +34,8 @@
 	HashMap<String, Object> map = orderDao.selectOrdersOne(orderNo);
 	Orders orders = (Orders) map.get("orders");
 	List<OrderProduct> orderProducts = (List<OrderProduct>) map.get("orderProducts");
+	System.out.println("getOrderNo: " + orders.getOrderNo());
+	System.out.println("orderProducts size: " + orderProducts.size());
 
 	
 	// 상품 정보와 이미지 정보를 담을 리스트 생성
@@ -62,6 +65,16 @@
 	String customerName = (String)customerMap.get("c.cstm_name");
 	String customerPhone = (String)customerMap.get("c.cstm_phone");
 	
+	
+	//포인트 정보
+	ArrayList<PointHistory> pointHistorys= pointHistoryDao.pointListByOrder(orderNo);
+	//적립 포인트 정보만 받아온다
+	int pointByOrder = 0;
+	for(PointHistory p : pointHistorys){
+		if(p.getPointPm().equals("P")){
+			pointByOrder = p.getPoint();
+		}
+	}
 	
 
 	
@@ -96,6 +109,8 @@
 3-5) 수취확인 버튼 -> db 상태값 변경 
 -->
 	<%
+		//원가 계산을 위한 변수 선언
+		int oriPrice = 0;
 		for (int i = 0; i < productInfos.size(); i++) {
 			HashMap<String, Object> productInfo = productInfos.get(i);
 			// 주문 상품에 대한 정보
@@ -106,7 +121,6 @@
 			//상품 정보와 이미지 가져오기
 			Product product = (Product) productInfo.get("product");
 			ProductImg productImg = (ProductImg) productInfo.get("productImg");
-
 			
 			// 한 달 이후로는 리뷰를 쓸 수 없게 리뷰 버튼 없애기 위한 DB 조회
 			HashMap<String, Object> orderProductInfo = orderProductDao.selectOrderProduct(orderProduct.getOrderProductNo());
@@ -124,6 +138,9 @@
 			//리뷰가 이미 작성된 경우 조건문을 위한 호출
 			HashMap<String, Object> review = reviewDao.customerReview(orders.getId());
 			String reviewWritten = (String)review.get("reviewWritten");
+			
+			//원가 더하기
+			oriPrice += (int) productInfo.get("discountedPrice");
 		    
 	%>
 			<div>
@@ -166,6 +183,11 @@
 				<%
 					}
 				%>
+<!--
+4. 버튼  4-1)반품신청 버튼 -> 반품 페이지 / 
+4-2)교환신청 버튼->교환 페이지 /
+4-3) 수취확인 버튼 -> db 상태값 변경  ***** 수취확인시 상품평 버튼으로 변경**** ->리뷰 작성 페이지******* 리뷰 작성시 리뷰 수정 페이지
+ -->
 				<p>
 				<%
 					//배송상태에 따라 버튼 분기
@@ -207,19 +229,24 @@
 		}
 	%>
 
-<!--
-4. 버튼  4-1)반품신청 버튼 -> 반품 페이지 / 
-4-2)교환신청 버튼->교환 페이지 /
-4-3) 수취확인 버튼 -> db 상태값 변경  ***** 수취확인시 상품평 버튼으로 변경**** ->리뷰 작성 페이지******* 리뷰 작성시 리뷰 수정 페이지
+ <!--
+ 5-1)총 결제 금액 / 
+ 5-2)총 상품 금액 / 
+ 5-3)총 할인 금액 
+ -->
+ 	<div>
+ 		<p>총 결제 금액 : <%=(int)orders.getOrderPrice() %> 원</p>
+ 		<p>총 상품 금액 : <%=oriPrice%> 원</p>
+ 		<p>총 할인 금액 : <%=(int)orders.getOrderPrice() - oriPrice%> 원</p>
+ 	</div>
  
- 5-1)장바구니 번호  / 
- 5-2)주문일 / 
- 5-3)결제방식 / 
- 5-4)총 결제 금액 / 
- 5-5)총 상품 금액 / 
- 5-6)총 할인 금액 
  
+ <!--
  6. 적립 혜택 구매 적립 
  -->
+ 
+ 	<div>
+ 		<p>적립 혜택 : <%=pointByOrder%> P</p>
+ 	</div>
 </body>
 </html>

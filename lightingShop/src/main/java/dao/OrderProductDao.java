@@ -9,7 +9,7 @@ import java.io.File;
 
 public class OrderProductDao {
 	
-//1-1)orderNo에 따른
+//1-1)orderNo에 따른 상품
 	/*
 	SELECT 
 		o.order_no AS orderNo,
@@ -21,7 +21,7 @@ public class OrderProductDao {
 		COALESCE(r.review_written, 'N') AS reviewWritten
 	FROM orders o
 		JOIN order_product op ON o.order_no = op.order_no
-		LEFT JOIN review r ON op.order_product_no = r.order_product_no
+			LEFT JOIN review r ON op.order_product_no = r.order_product_no
 	WHERE o.order_no = ?
 	 */
 	public ArrayList<HashMap<String, Object>> selectOrderNoByOrderProductNo(int orderNo) throws Exception {
@@ -66,7 +66,7 @@ public class OrderProductDao {
 	
 	
 //1-2)모든 주문 리스트 페이징
-	public int CustomerOrderListCnt(String loginMemberId) throws Exception {
+	public int customerOrderListCnt(String loginMemberId) throws Exception {
 	    int row = 0;
 	    DBUtil dbUtil = new DBUtil();
 	    Connection conn = dbUtil.getConnection();
@@ -90,7 +90,7 @@ public class OrderProductDao {
 	SET	delivery_status=?
 	WHERE order_product_no=?
 	*/
-	public int OPNDeleiveryStatus(String deliStatus, int orderProductNo) throws Exception {
+	public int oPNDeleiveryStatus(String deliStatus, int orderProductNo) throws Exception {
 	    int row = 0;
 	    DBUtil dbUtil = new DBUtil();
 	    Connection conn = dbUtil.getConnection();

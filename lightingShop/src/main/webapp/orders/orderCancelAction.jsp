@@ -33,7 +33,7 @@
 	//기존 주문에서 포인트 얼마나 증가했는지 불러오는 모델 소환 (customer, point_history)
 	
 	//업데이트 쿼리 호출
-	orderDao.OPNDeleiveryStatus((String)orders.getDeliveryStatus(), (int)orderProduct.getOrderProductNo());
+	orderDao.oPNDeleiveryStatus((String)orders.getDeliveryStatus(), (int)orderProduct.getOrderProductNo());
 
 	
 	// 다시 리스트로 리다이렉트

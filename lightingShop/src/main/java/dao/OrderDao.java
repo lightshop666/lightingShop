@@ -147,7 +147,7 @@ LIMIT 1, 5
 		WHERE o.order_no = ?      -- 주문번호 
 
 		*/
-		public int OPNDeleiveryStatus(String deliStatus, int orderProductNo) throws Exception {
+		public int oPNDeleiveryStatus(String deliStatus, int orderProductNo) throws Exception {
 		    int row = 0;
 		    DBUtil dbUtil = new DBUtil();
 		    Connection conn = dbUtil.getConnection();

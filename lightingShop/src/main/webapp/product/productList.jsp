@@ -85,7 +85,18 @@
 				<!-- 상품 이미지 or 이름 클릭시 상품 상세로 이동 -->
 				<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("prodcutNo")%>">
 					<!-- 상품 이미지 -->
-					<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
+					<%
+						// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+						if(m.get("productImgSaveFilename") == null) {
+					%>
+							<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+					<%
+						} else {
+					%>
+							<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
+					<%	
+						}
+					%>
 					<!-- 상품 이름 --><br>
 					<%=m.get("productName")%>[<%=m.get("productStatus")%>]
 				</a>
@@ -139,7 +150,18 @@
 				<!-- 상품 이미지 or 이름 클릭시 상품 상세로 이동 -->
 				<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("prodcutNo")%>">
 					<!-- 상품 이미지 -->
-					<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
+					<%
+						// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+						if(m.get("productImgSaveFilename") == null) {
+					%>
+							<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+					<%
+						} else {
+					%>
+							<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
+					<%	
+						}
+					%>
 					<!-- 상품 이름 --><br>
 					<%=m.get("productName")%>[<%=m.get("productStatus")%>]
 				</a>

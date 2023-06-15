@@ -50,7 +50,7 @@
 	int pagePerPage = 5;
 	int beginPage = (((currentPage - 1) / pagePerPage) * pagePerPage) + 1;
 	int endPage = beginPage + (pagePerPage - 1);
-	// 카테고리별 상품 수 메서드 호출
+	// 검색 결과 상품 수 메서드 호출
 	int totalRow = dao.searchResultCnt(searchWord, categoryName, searchPrice1, searchPrice2);
 	int lastPage = totalRow / rowPerPage;
 	if(totalRow % rowPerPage != 0) {
@@ -104,11 +104,8 @@
 			</tr>
 		</table>
 		<button type="submit">검색</button>
-	</form>
 	총 <%=totalRow%>개의 상품
 	<!-- 정렬기능 : 신상품순, 낮은 가격순, 높은 가격순 -->
-	<!-- 정렬 바꾸면 검색 초기화 되는거 수정 해야됨 -->
-	<form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
 		<select name="orderBy" onchange="this.form.submit()">
 			<option value="newItem" <%if(orderBy.equals("newItem")) {%> selected <%}%>>신상품순</option>
 			<option value="lowPrice" <%if(orderBy.equals("lowPrice")) {%> selected <%}%>>낮은 가격순</option>

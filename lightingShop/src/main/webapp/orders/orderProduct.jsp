@@ -13,15 +13,23 @@
 	}
 	
 	//상품번호,수량 검사
-	String[] productNo = {"2","7"};
+	String[] productNo = {"10"};
 	if(request.getParameter("productNo") != null) {
 		productNo = request.getParameterValues("productNo");
 	}
 	
-	String[] productCnt = {"2","5"};
+	String[] productCnt = {"2"};
 	if(request.getParameter("productCnt") != null) {
 		productCnt = request.getParameterValues("productCnt");
 	}
+	
+	// 배열의 길이 확인
+	if (productNo.length != productCnt.length) {
+		 // 배열의 길이가 다른 경우 리스폰 처리
+		response.sendRedirect(request.getContextPath() + "/home.jsp");
+	}
+
+
 	
 	if (productNo == null || productNo.length == 0 || productCnt == null || productCnt.length == 0) {
 	    // 선택된 상품이 없거나 수량이 입력되지 않은 경우 처리
@@ -227,9 +235,9 @@
 			배송시 요청사항
 			<select name="deliOption" id="deliOption" onchange="showHideInput()">
 				<option value="">선택하세요</option>
-				<option value="직접 배송해주세요">직접 배송해주세요</option>
-				<option value="문 앞에 놓아주세요">문 앞에 놓아주세요</option>
-				<option value="기타">기타</option>
+				<option value=" 직접 배송해주세요">직접 배송해주세요</option>
+				<option value=" 문 앞에 놓아주세요">문 앞에 놓아주세요</option>
+				<option value=" 기타">기타</option>
 			</select>
 			<input type="text" name="otherDeliOption" id="otherDeliOption" style="display: none;">
 		</p>
@@ -249,7 +257,11 @@
 	        totalPrice += discountedPrice *  Integer.parseInt(productCnt[i]);
 	%>
 	        <p><img class="thumbnail" src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image"></p>
-	        <p>상품명 : <%= product.getProductName() %></p><!-- 상품명 -->
+	        <p><!-- 상품명 -->
+	        	<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo="<%=product.getProductNo() %>>
+	        		상품명 : <%= product.getProductName() %>
+	        	</a>
+	        </p>
 	        <p><%=productCnt[i] %>개</p><!-- 상품갯수 -->
 	        <p>상품 가격 : <%= product.getProductPrice() * Integer.parseInt(productCnt[i])  %></p><!-- 상품 원래 가격 * 상품 개수 -->
 	        <p>할인된 가격 : <%= discountedPrice * Integer.parseInt(productCnt[i]) %></p><!-- 할인된 가격 * 상품 개수 -->
@@ -265,7 +277,8 @@
 			<%
 				deliPrice += 3000;
 			}
-			%>
+			%>			
+			<hr>
 			</p>
 	<%
 	    }
@@ -310,7 +323,7 @@
 		for(int i=0; i<productNo.length; i+=1) { 
 	%>
 			<input type="hidden" name="productNo" value="<%= productNo[i] %>">
-			<input type="hidden" name="productCnt" value="<%= productCnt[i] %>">
+			<input type="hidden" name="productCnt" value="<%= productCnt[i] %>">			
 	<%
 		}
 	%>
@@ -345,7 +358,7 @@
 		let selectBox = document.querySelector('#deliOption');
 		let inputBox = document.querySelector('#otherDeliOption');
 		
-		if (selectBox.value === "기타") {
+		if (selectBox.value === " 기타") {
 			inputBox.style.display = "inline-block";	
 		} else {
 			inputBox.style.display = "none";
@@ -369,18 +382,19 @@
 	document.getElementById('finalPriceInput').value = totalPrice;	//기본값으로 상품 총액 세팅
 	
 	// input 값이 변경될 때마다 계산 함수를 호출
-	input.addEventListener('change', calculateAmount);
+	input.addEventListener('blur', calculateAmount);
 	
 	// input 범위 제한 유효성
 	input.addEventListener('blur', function() {
 	  let value = parseInt(input.value) || 0;
 	  
-	  // 입력이 허용 범위를 벗어나면 값을 조정
-	  if (value < 0) {
-		  input.value = 0;
-	  } else if (value > maxPoint) {
+		// 입력이 허용 범위를 벗어나면 값을 조정
+		if (value < 0) {
+			input.value = 0;
+		} else if (value > maxPoint) {
 			input.value = maxPoint;
-			alert('최대 사용 가능 포인트는 ' + maxpoint + '입니다.');
+		} else if (value > totalPrice){
+			input.value = totalPrice;
 		}
 	});
 
@@ -392,35 +406,46 @@
 		  
 		// 전액 사용 버튼을 클릭한 경우
 		if (pointBtn.innerHTML === '전액사용') {
-			input.value = maxPoint; // 입력 상자에 사용 가능한 포인트를 채웁니다.
+			if (totalPrice < maxPoint) {
+			input.value = totalPrice;
+			} else {
+			input.value = maxPoint;
+			}
 			input.setAttribute('readonly', 'readonly'); // 입력 상자를 읽기 전용으로 설정
 			pointBtn.innerHTML = '취소'; // 버튼 텍스트를 '취소'로 변경
-			calculateAmount(); // 포인트 사용에 따른 최종 결제 금액을 계산			
+			calculateAmount(); // 포인트 사용에 따른 최종 결제 금액을 계산
 		// 취소 버튼을 클릭한 경우
 		} else {
 			input.value = ''; // 입력 상자를 비웁니다.
 			input.removeAttribute('readonly'); // 입력 상자의 읽기 전용 속성을 제거
 			pointBtn.innerHTML = '전액사용'; // 버튼 텍스트를 '전액 사용'으로 변경
-			finalPriceElement.innerHTML = ''; // 최종 결제 금액을 초기화합니다.
-			document.getElementById('paymentAmount').innerHTML = ''; // 결제 도 초기화합니다.
+			finalPriceElement.innerHTML = totalPrice +'원'; // 최종 결제 금액을 초기화합니다.
+			document.getElementById('paymentAmount').innerHTML = totalPrice + deliPrice  + '원 '; // 결제 도 초기화합니다.
 		}
 	}
 	
-	// 최종 금액 계산
+		// 최종 금액 계산
 	function calculateAmount() {
-	  // 입력된 포인트 값을 가져오기
-	  let usedPoint = parseInt(input.value);
+	// 입력된 포인트 값을 가져오기
+	let usedPoint = parseInt(input.value);
+	
+	// 입력이 허용 범위를 벗어나면 값을 조정
+	if (usedPoint < 0) {
+		usedPoint = 0;
+		input.value = 0;
+		alert('잘못된 입력입니다.');
+	} else if (usedPoint > totalPrice || usedPoint > maxPoint) {
+			if (totalPrice < maxPoint) {
+				usedPoint = totalPrice;
+				input.value = totalPrice;
+				alert('최대 사용 가능 포인트는 ' + totalPrice + '입니다.');
+			} else {
+				usedPoint = maxPoint;
+				input.value = maxPoint;
+				alert('최대 사용 가능 포인트는 ' + maxPoint + '입니다.');
+			}
+	}
 
-	  // 입력이 허용 범위를 벗어나면 값을 조정
-	  if (usedPoint < 0) {
-	    usedPoint = 0;
-	    input.value = 0;
-	    alert('잘못 된 입력입니다.');
-	  } else if (usedPoint > maxPoint) {
-	    usedPoint = maxPoint;
-	    input.value = maxPoint;
-	    alert('최대 사용 가능 포인트는 ' + maxPoint + '입니다.');
-	  }
 
 	  // 최종 결제 금액을 계산
 	  let calculatedPrice = totalPrice - usedPoint;

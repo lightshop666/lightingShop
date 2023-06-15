@@ -5,14 +5,13 @@ import java.util.*;
 import java.sql.*;
 
 public class ProductDao {
-	// 카테고리별 상품 리스트 조회 (product, product_img, discount join)
+	// 카테고리별 상품 리스트 조회 (product, product_img, discount join) + 정렬 선택
 	public ArrayList<HashMap<String, Object>> selectProductListByPage(String categoryName, String orderBy, int beginRow, int rowPerPage) throws Exception {
 		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 		
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		/*
- 			정렬 : 신상품순, 낮은 가격순, 높은 가격순
  			SELECT
 				p.product_no productNo, -- 상품번호
 				p.category_name categoryName, -- 상품 카테고리명
@@ -34,42 +33,36 @@ public class ProductDao {
 				product p
 				LEFT JOIN product_img i ON p.product_no = i.product_no
 				LEFT JOIN discount d ON p.product_no = d.product_no
-			WHERE
-				p.category_name = ?
-			ORDER BY ? LIMIT ?, ?
+			WHERE p.category_name = ?
 			
 			1) 신상품순
-			ORDER BY createdate DESC LIMIT ?,?
+				ORDER BY createdate DESC LIMIT ?,?
 			2) 낮은 가격순
-			ORDER BY discountRate ASC LIMIT ?,?
+				ORDER BY discountRate ASC LIMIT ?,?
 			3) 높은 가격순
-			ORDER BY discountRate DESC LIMIT ?,?
+				ORDER BY discountRate DESC LIMIT ?,?
 		*/
-		String sql = "";
-		PreparedStatement stmt = null;
-		
-		// 1) 신상품순
-		if(orderBy.equals("") || orderBy.equals("newItem")) {
-			sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ? ORDER BY createdate DESC LIMIT ?, ?";
-			stmt = conn.prepareStatement(sql);
-			stmt.setString(1, categoryName);
-			stmt.setInt(2, beginRow);
-			stmt.setInt(3, rowPerPage);
-		// 2) 낮은 가격순
-		} else if(orderBy.equals("lowPrice")) {
-			sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ? ORDER BY discountRate ASC LIMIT ?, ?";
-			stmt = conn.prepareStatement(sql);
-			stmt.setString(1, categoryName);
-			stmt.setInt(2, beginRow);
-			stmt.setInt(3, rowPerPage);
-		// 3) 높은 가격순
-		} else if(orderBy.equals("highPrice")) {
-			sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ? ORDER BY discountRate DESC LIMIT ?, ?";
-			stmt = conn.prepareStatement(sql);
-			stmt.setString(1, categoryName);
-			stmt.setInt(2, beginRow);
-			stmt.setInt(3, rowPerPage);
+		String sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ?";
+		switch(orderBy) {
+			case "newItem": // 1) 신상품순
+				sql += " ORDER BY createdate DESC LIMIT ?,?";
+				break;
+			case "lowPrice": // 2) 낮은 가격순
+				sql += " ORDER BY discountRate ASC LIMIT ?,?";
+				break;
+			case "highPrice": // 3) 높은 가격순
+				sql += " ORDER BY discountRate DESC LIMIT ?,?";
+				break;
+			default:
+				// 기본적으로 신상품순으로 정렬
+				sql += " ORDER BY createdate DESC LIMIT ?,?";
+				break;
 		}
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, categoryName);
+		stmt.setInt(2, beginRow);
+		stmt.setInt(3, rowPerPage);
+		
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			HashMap<String, Object> m = new HashMap<>();
@@ -114,33 +107,31 @@ public class ProductDao {
 		Connection conn = dbUtil.getConnection();
 		/*
  			SELECT
-			    p.product_no productNo,
-			    p.product_name productName,
-			    p.product_price productPrice,
-			    p.product_status productStatus,
-			    i.product_save_filename productImgSaveFilename,
-			    i.product_path productImgPath,
-			    COALESCE(d.discount_rate, 0) discountRate,
+			    p.product_no productNo, -- 상품번호
+			    p.product_name productName, -- 상품이름
+			    p.product_price productPrice, -- 상품가격(원가)
+			    p.product_status productStatus, -- 상품상태 (예약판매/판매중/품절)
+			    i.product_save_filename productImgSaveFilename, -- 상품 이미지파일 저장 이름
+			    i.product_path productImgPath, -- 상품 이미지파일 저장 폴더 이름
+			    COALESCE(d.discount_rate, 0) discountRate, -- 상품 할인율
 			    (SELECT
 			            CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW()
 			                THEN p.product_price - (p.product_price * d.discount_rate)
 			                ELSE p.product_price
 			            END
-			    ) discountedPrice
+			    ) discountedPrice -- 할인율이 적용된 최종 가격
 			FROM
 			    product p
 			    LEFT JOIN product_img i ON p.product_no = i.product_no
 			    LEFT JOIN discount d ON p.product_no = d.product_no
-			WHERE
-			    p.category_name = ?
-			ORDER BY
-			    discountRate DESC
-			LIMIT ?
+			WHERE p.category_name = ?
+			ORDER BY discountRate DESC LIMIT ?
 		*/
 		String sql = "SELECT p.product_no productNo, p.product_name productName, p.product_price productPrice, p.product_status productStatus, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, COALESCE(d.discount_rate, 0) discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ? ORDER BY discountRate DESC LIMIT ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, categoryName);
 		stmt.setInt(2, n);
+		
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			HashMap<String, Object> m = new HashMap<>();
@@ -154,7 +145,6 @@ public class ProductDao {
 			m.put("discountedPrice", rs.getInt("discountedPrice"));
 			list.add(m);
 		}
-		
 		return list;
 	}
 	
@@ -187,11 +177,10 @@ public class ProductDao {
 				d.discount_start discountStart, -- 상품 할인 시작일
 				d.discount_end discountEnd, -- 상품 할인 마지막일
 				d.discount_rate discountRate -- 상품 할인율
-			FROM product p
-			LEFT JOIN product_img i
-			ON p.product_no = i.product_no
-				LEFT JOIN discount d
-				ON p.product_no = d.product_no
+			FROM
+				product p
+				LEFT JOIN product_img i ON p.product_no = i.product_no
+				LEFT JOIN discount d ON p.product_no = d.product_no
 			WHERE p.product_no = ?
 		*/
 		String sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.product_stock productStock, p.product_info productInfo, p.createdate productCreatedate, p.updatedate productUpdatedate, i.product_ori_filename productImgOriFilename, i.product_save_filename productImgSaveFilename, i.product_filetype productImgFiletype, i.product_path productImgPath, i.createdate productImgCreatedate, i.updatedate productImgUpdatedate, d.discount_start discountStart, d.discount_end discountEnd, d.discount_rate discountRate FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.product_no = ?";
@@ -228,7 +217,7 @@ public class ProductDao {
 		return map;
 	}
 	
-	// 상품 이름 + 이미지 조회 (product, product_img join)
+	// 상품 이름, 가격, 이미지 조회 (product, product_img join)
 	public HashMap<String, Object> selectProductAndImg(int productNo) throws Exception {
 		HashMap<String, Object> map = new HashMap<>();
 		Product product = null;
@@ -240,14 +229,15 @@ public class ProductDao {
 			SELECT 
 				p.product_no productNo, -- 상품번호
 				p.product_name productName, -- 상품이름
+				p.product_price productPrice, -- 상품가격 (원가)
 				i.product_save_filename productSaveFilename, -- 상품이미지 저장이름
 				i.product_path productPath -- 상품 이미지 저장폴더
-			FROM product p
-			INNER JOIN product_img i
-			ON p.product_no = i.product_no
+			FROM
+				product p
+				INNER JOIN product_img i ON p.product_no = i.product_no
 			WHERE p.product_no = ?
 		*/
-		String sql = "SELECT p.product_no productNo, p.product_name productName, i.product_save_filename productSaveFilename, i.product_path productPath FROM product p INNER JOIN product_img i ON p.product_no = i.product_no WHERE p.product_no = ?";
+		String sql = "SELECT p.product_no productNo, p.product_name productName, p.product_price productPrice, i.product_save_filename productSaveFilename, i.product_path productPath FROM product p INNER JOIN product_img i ON p.product_no = i.product_no WHERE p.product_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, productNo);
 		ResultSet rs = stmt.executeQuery();
@@ -257,6 +247,7 @@ public class ProductDao {
 			productImg = new ProductImg();
 			product.setProductNo(rs.getInt("productNo"));
 			product.setProductName(rs.getString("productName"));
+			product.setProductPrice(rs.getDouble("productPrice"));
 			productImg.setProductSaveFilename(rs.getString("productSaveFilename"));
 			productImg.setProductPath(rs.getString("productPath"));
 		}
@@ -265,7 +256,7 @@ public class ProductDao {
 		return map;
 	}
 
-	// (상품 상세페이지 리뷰 탭 클릭시) 해당 상품의 리뷰 리스트 + 리뷰 키워드 검색 기능
+	// (상품 상세페이지 리뷰 탭 클릭시) 해당 상품의 리뷰 리스트 + 페이징, 리뷰 키워드 검색(제목+내용)
 	public ArrayList<HashMap<String, Object>> selectProductReviewList(int beginRow, int rowPerPage, String searchWord, int productNo) throws Exception {
 		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 		
@@ -273,43 +264,46 @@ public class ProductDao {
 		Connection conn = dbUtil.getConnection();
 		/*
 			SELECT
-				r.review_title reviewTitle,
-				r.review_content reviewContent,
-				r.review_ori_filename reviewOriFilename,
-				r.review_save_filename reviewSaveFilename,
-				r.createdate reviewCreatedate,
-				r.updatedate reviewUpdatedate,
-				r.review_path reviewPath,
-				op.product_no productNo,
-				o.id id
-			FROM review r
-				INNER JOIN order_product op
-				ON r.order_product_no = op.order_product_no
-					INNER JOIN orders o
-					ON op.order_no = o.order_no
+				r.review_title reviewTitle, -- 리뷰 제목
+				r.review_content reviewContent, -- 리뷰 내용
+				r.review_ori_filename reviewOriFilename, -- 리뷰 이미지파일 이름
+				r.review_save_filename reviewSaveFilename, -- 리뷰 이미지파일 저장이름
+				r.createdate reviewCreatedate, -- 리뷰 작성일자
+				r.updatedate reviewUpdatedate, -- 리뷰 수정일자
+				r.review_path reviewPath, -- 리뷰 이미지파일 저장 폴더 이름
+				op.product_no productNo, -- 작성한 리뷰의 상품 번호
+				o.id id -- 작성자 아이디
+			FROM
+				review r
+				INNER JOIN order_product op ON r.order_product_no = op.order_product_no
+				INNER JOIN orders o ON op.order_no = o.order_no
 			WHERE op.product_no = ?
-			AND CONCAT(r.review_title,' ',r.review_content) LIKE ?
-			ORDER BY r.createdate DESC LIMIT ?, ?
+			
+			1) searchWord 값이 있으면 (키워드 검색)
+				AND CONCAT(r.review_title,' ',r.review_content) LIKE ?
+			2) 정렬(리뷰 작성일자), 페이징
+				ORDER BY r.createdate DESC LIMIT ?, ?
 		*/
-		String sql = "";
-		PreparedStatement stmt = null;
-		
-		// 1) 키워드 검색X
-		if(searchWord.equals("")) {
-			sql = "SELECT r.review_title reviewTitle, r.review_content reviewContent, r.review_ori_filename reviewOriFilename, r.review_save_filename reviewSaveFilename, r.createdate reviewCreatedate, r.updatedate reviewUpdatedate, r.review_path reviewPath, op.product_no productNo, o.id id FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no WHERE op.product_no = ? ORDER BY r.createdate DESC LIMIT ?, ?";
-			stmt = conn.prepareStatement(sql);
-			stmt.setInt(1, productNo);
-			stmt.setInt(2, beginRow);
-			stmt.setInt(3, rowPerPage);
-		// 2) 키워드 검색O
-		} else if(!searchWord.equals("")) {
-			sql = "SELECT r.review_title reviewTitle, r.review_content reviewContent, r.review_ori_filename reviewOriFilename, r.review_save_filename reviewSaveFilename, r.createdate reviewCreatedate, r.updatedate reviewUpdatedate, r.review_path reviewPath, op.product_no productNo, o.id id FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no WHERE op.product_no = ? AND CONCAT(r.review_title,' ',r.review_content) LIKE ? ORDER BY r.createdate DESC LIMIT ?, ?";
-			stmt = conn.prepareStatement(sql);
-			stmt.setInt(1, productNo);
-			stmt.setString(2, "%"+searchWord+"%");
-			stmt.setInt(3, beginRow);
-			stmt.setInt(4, rowPerPage);
+		String sql = "SELECT r.review_title reviewTitle, r.review_content reviewContent, r.review_ori_filename reviewOriFilename, r.review_save_filename reviewSaveFilename, r.createdate reviewCreatedate, r.updatedate reviewUpdatedate, r.review_path reviewPath, op.product_no productNo, o.id id FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no WHERE op.product_no = ?";
+		// 1) searchWord 값이 있으면 (키워드 검색)
+		if(!searchWord.equals("")) {
+			sql += " AND CONCAT(r.review_title,' ',r.review_content) LIKE ?";
 		}
+		// 2) 정렬(리뷰 작성일자), 페이징
+		sql += " ORDER BY r.createdate DESC LIMIT ?, ?";
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, productNo);
+		
+		int parameterIndex = 2; // 물음표 인덱스
+		// 1)
+		if(!searchWord.equals("")) {
+			stmt.setString(parameterIndex++, "%"+searchWord+"%");
+		}
+		// 2)
+		stmt.setInt(parameterIndex++, beginRow);
+		stmt.setInt(parameterIndex++, rowPerPage);
+		
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			HashMap<String, Object> m = new HashMap<>();
@@ -320,7 +314,7 @@ public class ProductDao {
 			m.put("reviewCreatedate", rs.getString("reviewCreatedate"));
 			m.put("reviewUpdatedate", rs.getString("reviewUpdatedate"));
 			m.put("reviewPath", rs.getString("reviewPath"));
-			m.put("productNo", rs.getString("productNo"));
+			m.put("productNo", rs.getInt("productNo"));
 			m.put("id", rs.getString("id"));
 			list.add(m);
 		}
@@ -333,22 +327,29 @@ public class ProductDao {
 		
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
+		/*
+			SELECT COUNT(*)
+			FROM
+				review r
+				INNER JOIN order_product op ON r.order_product_no = op.order_product_no
+				INNER JOIN orders o ON op.order_no = o.order_no
+			WHERE op.product_no = ?
+			
+			searchWord 값이 있으면 (키워드 검색)
+				AND CONCAT(r.review_title,' ',r.review_content) LIKE ?
+		*/
+		String sql = "SELECT COUNT(*) FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no WHERE op.product_no = ?";
+		// searchWord 값이 있으면
+		if(!searchWord.equals("")) {
+			sql += " AND CONCAT(r.review_title,' ',r.review_content) LIKE ?";
+		}
 		
-		String sql = "";
-		PreparedStatement stmt = null;
-		
-		// 1) 키워드 검색X
-		if(searchWord.equals("")) {
-			sql = "SELECT COUNT(*) FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no WHERE op.product_no = ?";
-			stmt = conn.prepareStatement(sql);
-			stmt.setInt(1, productNo);
-		// 2) 키워드 검색O
-		} else if(!searchWord.equals("")) {
-			sql = "SELECT COUNT(*) FROM review r INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no WHERE op.product_no = ? AND CONCAT(r.review_title,' ',r.review_content) LIKE ?";
-			stmt = conn.prepareStatement(sql);
-			stmt.setInt(1, productNo);
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, productNo);
+		if(!searchWord.equals("")) {
 			stmt.setString(2, "%"+searchWord+"%");
 		}
+		
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
 			totalRow = rs.getInt(1);
@@ -400,60 +401,83 @@ public class ProductDao {
 		return totalRow;
 	}
 	
-	// 상품 검색
+	// 상품 검색 결과 리스트 + 페이징, 검색단어(상품이름), 상품 카테고리 선택, 가격 범위 검색, 정렬 선택
 	public ArrayList<HashMap<String, Object>> searchResultListByPage(String searchWord, String categoryName, int searchPrice1, int searchPrice2, String orderBy, int beginRow, int rowPerPage) throws Exception {
 		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 		
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		/*
-			기본쿼리 : selectProductListByPage()와 같은 쿼리 사용
+			SELECT
+				p.product_no productNo, -- 상품번호
+				p.category_name categoryName, -- 상품 카테고리
+				p.product_name productName, -- 상품이름
+				p.product_price productPrice, -- 상품가격 (원가)
+				p.product_status productStatus, -- 상품상태 (예약판매/판매중/품절)
+				p.createdate createdate, -- 상품 등록일자
+				p.updatedate updatedate, -- 상품 수정일자
+				i.product_save_filename productImgSaveFilename, -- 상품 이미지파일 저장이름
+				i.product_path productImgPath, -- 상품 이미지파일 저장 폴더이름
+				COALESCE(d.discount_rate, 0) discountRate, -- 상품 할인율 (null이면 0 출력)
+				(SELECT 
+					CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() 
+						THEN p.product_price - (p.product_price * d.discount_rate) 
+						ELSE p.product_price 
+					END
+				) discountedPrice -- 할인율이 적용된 최종 가격
+			FROM
+				product p
+				LEFT JOIN product_img i ON p.product_no = i.product_no
+				LEFT JOIN discount d ON p.product_no = d.product_no
+			WHERE 1=1
 			
-			1) searchWord
-			AND p.product_name LIKE ?
-			2) categoryName
-			AND p.category_name LIKE ?
-			3) searchPrice
-			AND p.product_price BETWEEN ? AND ?
-			4) orderBy
-			ORDER BY createdate DESC LIMIT ?,? 
-			ORDER BY discountRate ASC LIMIT ?,?
-			ORDER BY discountRate DESC LIMIT ?,?
+			1) searchWord 값이 있을 때
+				AND p.product_name LIKE ?
+			2) categoryName 값이 있을 때
+				AND p.category_name LIKE ?
+			3) searchPrice1 또는 searchPrice2 값이 있을 때 (가격범위 조회)
+				AND p.product_price > ?
+				AND p.product_price < ?
+				AND p.product_price BETWEEN ? AND ?
+			4) orderBy 를 변경했을 때
+				ORDER BY createdate DESC LIMIT ?,? 
+				ORDER BY discountRate ASC LIMIT ?,?
+				ORDER BY discountRate DESC LIMIT ?,?
 		*/
-		// 기본쿼리
 		String sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE 1=1";
-		// 1)
+		// 1) searchWord 값이 있을 때
 		if(!searchWord.equals("")) {
-			sql = sql + " AND p.product_name LIKE ?";
+			sql += " AND p.product_name LIKE ?";
 		}
-		// 2)
+		// 2) categoryName 값이 있을 때
 		if(!categoryName.equals("")) {
-			sql = sql + " AND p.category_name LIKE ?";
+			sql += " AND p.category_name LIKE ?";
 		}
-		// 3)
-		if(searchPrice1 != 0 && searchPrice2 == 0) {
-			sql = sql + " AND p.product_price > ?";
-		} else if(searchPrice1 == 0 && searchPrice2 != 0) {
-			sql = sql + " AND p.product_price < ?";
-		} else if(searchPrice1 != 0 && searchPrice2 != 0) {
-			sql = sql + " AND p.product_price BETWEEN ? AND ?";
+		// 3) searchPrice1 또는 searchPrice2 값이 있을 때 (가격범위 조회)
+		if(searchPrice1 != 0 && searchPrice2 == 0) { // 최소가격만 입력
+			sql += " AND p.product_price > ?";
+		} else if(searchPrice1 == 0 && searchPrice2 != 0) { // 최대가격만 입력
+			sql += " AND p.product_price < ?";
+		} else if(searchPrice1 != 0 && searchPrice2 != 0) { // 둘다 입력
+			sql += " AND p.product_price BETWEEN ? AND ?";
 		}
-		// 4)
+		// 4) orderBy 를 변경했을 때
 		switch(orderBy) {
-			case "newItem":
-				sql = sql + " ORDER BY createdate DESC LIMIT ?,?";
+			case "newItem": // 신상품순
+				sql += " ORDER BY createdate DESC LIMIT ?,?";
 				break;
-			case "lowPrice":
-				sql = sql + " ORDER BY discountRate ASC LIMIT ?,?";
+			case "lowPrice": // 낮은 가격순
+				sql += " ORDER BY discountRate ASC LIMIT ?,?";
 				break;
-			case "highPrice":
-				sql = sql + " ORDER BY discountRate DESC LIMIT ?,?";
+			case "highPrice": // 높은 가격순
+				sql += " ORDER BY discountRate DESC LIMIT ?,?";
 				break;
 			default:
 				// 기본적으로 신상품순으로 정렬
-				sql = sql + " ORDER BY createdate DESC LIMIT ?,?";
+				sql += " ORDER BY createdate DESC LIMIT ?,?";
 				break;
 		}
+		
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		int parameterIndex = 1; // 물음표 인덱스
 		// 1)
@@ -493,7 +517,6 @@ public class ProductDao {
 			m.put("discountedPrice", rs.getInt("discountedPrice"));
 			list.add(m);
 		}
-		
 		return list;
 	}
 	
@@ -505,21 +528,21 @@ public class ProductDao {
 		Connection conn = dbUtil.getConnection();
 		
 		String sql = "SELECT COUNT(*) FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE 1=1";
-		// 1)
+		// 1) searchWord 값이 있을 때
 		if(!searchWord.equals("")) {
-			sql = sql + " AND p.product_name LIKE ?";
+			sql += " AND p.product_name LIKE ?";
 		}
-		// 2)
+		// 2) categoryName 값이 있을 때
 		if(!categoryName.equals("")) {
-			sql = sql + " AND p.category_name LIKE ?";
+			sql += " AND p.category_name LIKE ?";
 		}
-		// 3)
+		// 3) searchPrice1 또는 searchPrice2 값이 있을 때 (가격범위 조회)
 		if(searchPrice1 != 0 && searchPrice2 == 0) {
-			sql = sql + " AND p.product_price > ?";
+			sql += " AND p.product_price > ?";
 		} else if(searchPrice1 == 0 && searchPrice2 != 0) {
-			sql = sql + " AND p.product_price < ?";
+			sql += " AND p.product_price < ?";
 		} else if(searchPrice1 != 0 && searchPrice2 != 0) {
-			sql = sql + " AND p.product_price BETWEEN ? AND ?";
+			sql += " AND p.product_price BETWEEN ? AND ?";
 		}
 		
 		PreparedStatement stmt = conn.prepareStatement(sql);
@@ -541,6 +564,7 @@ public class ProductDao {
 			stmt.setInt(parameterIndex++, searchPrice1);
 			stmt.setInt(parameterIndex++, searchPrice2);
 		}
+		
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
 			totalRow = rs.getInt(1);
