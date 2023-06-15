@@ -20,14 +20,11 @@
 	}
 
 	//리뷰사진 출력, 글 클릭시 상품 페이지로 이동
-	//리뷰사진출력을 위한 dao 호출
+	//모델 호출	
 	ReviewDao reviewDao = new ReviewDao();
-	Review reviewImg = new Review();
-	Review reviewText = new Review();
-	reviewImg = reviewDao.reviewImg(orderProductNo);
-	//리뷰 텍스트 호출
-	reviewText = reviewDao.reviewText(orderProductNo);
-
+	//담을 변수 선언
+	HashMap<String, Object> customerReview =	reviewDao.customerReview(loginMemberId);
+	
 %>
 <!DOCTYPE html>
 <html>
@@ -90,7 +87,7 @@
 			</tr>		
 			<tr>	
 				<td>
-					<img class="thumbnail" src="<%= request.getContextPath()%>/<%=(String)reviewImg.getReviewPath()%>/<%=(String)reviewImg.getReviewSaveFilename()%>" alt="Review Image">
+					<img class="thumbnail" src="<%= request.getContextPath()%>/<%=(String)customerReview.get("reviewPath")%>/<%=(String)customerReview.get("ReviewSaveFilename")%>" alt="Review Image">
 					<script>
 						// 이미지 클릭 시 확대/축소
 						document.querySelector('.thumbnail').addEventListener('click', function() {
@@ -104,10 +101,10 @@
 						});
 					</script>
 				</td>
-				<td><%=reviewText.getReviewTitle()%></td>
-				<td><%=reviewText.getReviewContent()%></td>
-				<td><%=reviewText.getCreatedate()%></td>
-				<td><%=reviewText.getUpdatedate()%></td>
+				<td><%=customerReview.get("reviewTitle")%></td>
+				<td><%=customerReview.get("ReviewContent")%></td>
+				<td><%=customerReview.get("Createdate")%></td>
+				<td><%=customerReview.get("Updatedate")%></td>
 			</tr>
 		</table>
 		<div>			
@@ -120,7 +117,7 @@
 			<div class="col-6 text-center">				
 				<form action="<%=request.getContextPath()%>/review/removeReviewAction.jsp" method="post" >
 					<input type="hidden" name="orderProductNo" value="<%=orderProductNo  %> ">
-					<input type="hidden" name="saveFilename" value="<%=(String)reviewImg.getReviewSaveFilename()%> ">
+					<input type="hidden" name="saveFilename" value="<%=(String)customerReview.get("ReviewSaveFilename")%> ">
 					<button type="submit">삭제</button>
 				</form>	
 			</div>

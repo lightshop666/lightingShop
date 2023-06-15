@@ -9,6 +9,7 @@
 		loginMemberId = (String)session.getAttribute("loginMemberId");
 	}
 	//모델 호출
+	OrderDao orderDao = new OrderDao();
 	OrderProductDao orderProductDao = new OrderProductDao();
 	ProductDao productDao = new ProductDao();
 	
@@ -19,7 +20,7 @@
 		currentPage = Integer.parseInt(request.getParameter("currentPage"));
 	}
 	//페이지에 보여주고 싶은 행의 개수
-	int rowPerPage = 5;
+	int rowPerPage = 3;
 	//페이지 주변부에 보여주고싶은 리스트의 개수
 	int pageRange = 3;
 	//시작 행
@@ -42,16 +43,15 @@
 	if (maxPage > lastPage){
 		maxPage = lastPage;
 	}
-	
-	//orderProduct 모델 소환
-	 ArrayList<HashMap<String, Object>> AllReviewList  = orderProductDao.selectCustomerOrderList(beginRow, rowPerPage, loginMemberId);
-
+	//order모델 소환
+	ArrayList<Orders> orderList  = orderDao.justOrders(beginRow, rowPerPage, loginMemberId);   
+	ArrayList<HashMap<String, Object>> orderByOrderProduct = new ArrayList<HashMap<String, Object>>();
 %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>리뷰 게시판</title>
+<title>모든 주문 내역</title>
 <!-- Latest compiled and minified CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- Latest compiled JavaScript -->
@@ -104,85 +104,88 @@
 			사진 누르면 사진 확대
 		 -->
 	<%
-		for (HashMap<String, Object> m : AllReviewList) {
-			//product 모델 소환
-			HashMap<String, Object> productOne =  productDao.selectProductAndImgOne((int)m.get("productNo"));
-		    // productOne에서 필요한 데이터 가져오기
-		    Product product = (Product) productOne.get("product");
-		    ProductImg productImg = (ProductImg) productOne.get("productImg");		
+	System.out.println(orderList.size()+"<--orderList.size()-- orderProductList.jsp");
+		for (Orders o : orderList) {
+			System.out.println(o.getOrderNo()+"<--getOrderNo-- orderProductList.jsp");
 	%>
-			<h4>주문 번호 : <%= m.get("orderNo") %></h4>
+
+			<h4>주문 번호 : <%= o.getOrderNo() %></h4>
 			<p>
-				<a href="<%=request.getContextPath()%>/review/reviewOne.jsp?orderNo=<%=m.get("orderNo")%>">
-					주문 상세
+				<a href="<%=request.getContextPath()%>/orders/orderProductOne.jsp?orderNo=<%= o.getOrderNo() %>">
+				주문 상세
 				</a>
-			</p>			
-			<p>주문일: <%= m.get("createdate") %></p>
-			<p>배송 상태: <%= m.get("deliveryStatus") %></p>
-			<p>
-			    <a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
-			        <img class="thumbnail" src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image">
-			    </a>
 			</p>
-			<p>
-			    <a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
-			        <%= product.getProductName() %>
-			    </a>
-			</p>			
-		<%
-			System.out.println(m.get("deliveryStatus"));
-			System.out.println(m.get("reviewWritten"));
-		    if (m.get("deliveryStatus").equals("구매확정")) {	//주문확인중 이 맞는데 임시로
-		        // 주문 취소 버튼 클릭 시 동작
-		%>
-		        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelAction.jsp?orderNo=<%=m.get("orderNo")%>'">주문취소</button>
-		<%
-		    } else if (m.get("deliveryStatus").equals("배송중")) {
-		        // 수취 확인 버튼 클릭 시 동작
-		%>
-		        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%=m.get("orderProductNo")%>'">수취확인</button>
-		<%
-		    } else if (m.get("deliveryStatus").equals("배송시작")) {
-		        // 수취 확인 버튼 클릭 시 동작
-		%>
-		        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%=m.get("orderProductNo")%>'">수취확인</button>
-		<%
-		    } else if (m.get("deliveryStatus").equals("배송완료")) {
-		        // 구매 확정 버튼 클릭 시 동작
-		%>
-		        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderPurchase.jsp?orderProductNo=<%=m.get("orderProductNo")%>'">구매확정</button>
-		<%
-		    } else if (m.get("deliveryStatus").equals("취소중")) {
-		        // 취소 철회 버튼 클릭 시 동작
-		%>
-		        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelWithdraw.jsp?orderNo=<%=m.get("orderNo")%>'">취소철회</button>
-		<%
-		    } else if (m.get("deliveryStatus").equals("교환중")) {
-		        // 수취 확인 버튼 클릭 시 동작
-		%>
-		        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%=m.get("orderProductNo")%>'">수취확인</button>
-		<%
-		    } else if (m.get("deliveryStatus").equals("구매확정")
-		    && m.get("reviewWritten").equals("N")) {
-		        // 상품평 버튼 클릭 시 동작
-		%>
-				<button onclick="location.href='<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">상품평</button>
-		<%
-		    } else if (m.get("deliveryStatus").equals("취소완료")) {
-		        // 상품평 버튼 클릭 시 동작
-		%>
-				<button disabled>취소완료</button>
-		<%
-		    }
-		%>
-
-			<hr>
-	<%
-	    }
+			<p>주문일: <%= o.getCreatedate() %></p>
+<%
+			orderByOrderProduct = orderProductDao.selectOrderNoByOrderProductNo(o.getOrderNo());
+			for (HashMap<String, Object> m : orderByOrderProduct) {
+				int productNo = (int) m.get("productNo");
+				String deliveryStatus = (String) m.get("deliveryStatus");
+				String reviewWritten = (String) m.get("reviewWritten");
+				
+				// 상품 정보 및 이미지를 가져옵니다.
+				HashMap<String, Object> productMap = productDao.selectProductAndImgOne(productNo);
+				Product product = (Product) productMap.get("product");
+				ProductImg productImg = (ProductImg) productMap.get("productImg");
+%>
+				<p>상세상품번호 : <%= productNo%></p>			
+				<p>배송 상태: <%= deliveryStatus %></p>
+				<p>상품 이미지
+					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= productNo%>">
+						<img class="thumbnail" src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image">
+					</a>
+				</p>
+				<p>상품 이름
+					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= productNo%>">
+						<%= product.getProductName() %>
+					</a>
+				</p>	
+				<p><!-- 버튼 분기 -->
+	<%	
+				if (deliveryStatus.equals("주문확인중")) {
+	   			 // 주문 취소 버튼 클릭 시 동작
 	%>
-
-
+					<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelAction.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">주문취소</button>
+	<%
+				} else if (deliveryStatus.equals("배송중") || deliveryStatus.equals("배송시작") || deliveryStatus.equals("교환중")) {
+		    	// 수취 확인 버튼 클릭 시 동작
+	%>
+					<button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">수취확인</button>
+	<%
+				} else if (deliveryStatus.equals("배송완료")) {
+		   		 // 구매 확정 버튼 클릭 시 동작
+	%>
+					<button onclick="location.href='<%= request.getContextPath() %>/orders/orderPurchase.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">구매확정</button>
+	<%
+				//주문 취소는 
+				} else if (deliveryStatus.equals("취소중")) {
+		 		   // 취소 철회 버튼 클릭 시 동작
+	%>
+					<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelWithdraw.jsp?orderNo=<%= m.get("orderNo") %>'">취소철회</button>
+	<%
+				} else if (deliveryStatus.equals("구매확정") && reviewWritten.equals("N")) {
+		    		// 상품평 버튼 클릭 시 동작
+	%>
+					<button onclick="location.href='<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">상품평</button>
+	<%
+				} else if (deliveryStatus.equals("취소완료")) {
+		 		   // 상품평 버튼 클릭 시 동작
+	%>
+					<button disabled>취소완료</button>
+	<%
+				}
+	%>
+			</p>
+	<%
+			}
+	%>
+		<hr>
+	<%
+		}
+	%>
 	</div>
+	
+	
 	<div class="center" >
 	<%
 		//1번 페이지보다 작은데 나오면 음수로 가버린다

@@ -24,11 +24,7 @@
 	//리뷰사진 출력, 글 클릭시 상품 페이지로 이동
 	//리뷰사진출력을 위한 dao 호출
 	ReviewDao reviewDao = new ReviewDao();
-	Review reviewImg = new Review();
-	Review reviewText = new Review();
-	reviewImg = reviewDao.reviewImg(orderProductNo);
-	//리뷰 텍스트 호출
-	reviewText = reviewDao.reviewText(orderProductNo);
+	HashMap<String, Object> customerReview = reviewDao.customerReview(loginMemberId);
 
 %>
 <!DOCTYPE html>
@@ -93,7 +89,7 @@
 			</tr>		
 			<tr>	
 				<td>
-					<img class="thumbnail" src="<%= request.getContextPath()%>/<%=(String)reviewImg.getReviewPath()%>/<%=(String)reviewImg.getReviewSaveFilename()%>" alt="Review Image">
+					<img class="thumbnail" src="<%= request.getContextPath()%>/<%=(String)customerReview.get("reviewPath")%>/<%=(String)customerReview.get("reviewSaveFilename")%>" alt="Review Image">
 					<script>
 						// 이미지 클릭 시 확대/축소
 						document.querySelector('.thumbnail').addEventListener('click', function() {
@@ -109,18 +105,18 @@
 					<input type="file" name="reviewFile">
 				</td>
 				<td>
-					<input type="text" name="reviewTitle" value="<%=reviewText.getReviewTitle()%>">
+					<input type="text" name="reviewTitle" value="<%=customerReview.get("reviewTitle")%>">
 				</td>
 				<td>
 					<textarea rows="3" cols="70" name="reviewContent">
-						<%=reviewText.getReviewContent()%>
+						<%=customerReview.get("reviewContent")%>
 					</textarea>
 				</td>
-				<td><%=reviewText.getCreatedate()%></td>
-				<td><%=reviewText.getUpdatedate()%></td>
+				<td><%=customerReview.get("createdate")%></td>
+				<td><%=customerReview.get("updatedate")%></td>
 			</tr>
 		</table>
-		<input type="hidden" name="pastSaveFilename" value="<%=reviewImg.getReviewSaveFilename()%>">
+		<input type="hidden" name="pastSaveFilename" value="<%=customerReview.get("reviewSaveFilename")%>">
 		<input type="hidden" name="orderProductNo" value="<%=String.valueOf(orderProductNo).trim()%>">
 		<button type="submit">수정</button>
 	</form>		

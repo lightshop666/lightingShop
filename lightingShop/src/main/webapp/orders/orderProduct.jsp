@@ -14,12 +14,12 @@
 	
 	//상품번호,수량 검사
 	String[] productNo = {"2","7"};
-	if(session.getAttribute("productNo") != null) {
+	if(request.getParameter("productNo") != null) {
 		productNo = request.getParameterValues("productNo");
 	}
 	
 	String[] productCnt = {"2","5"};
-	if(session.getAttribute("productCnt") != null) {
+	if(request.getParameter("productCnt") != null) {
 		productCnt = request.getParameterValues("productCnt");
 	}
 	
@@ -215,6 +215,7 @@
 	주소
 	배송시 요청사항을 선택해주세요(셀렉트
  -->
+ 	<form action="<%= request.getContextPath()%>/orders/orderProductAction.jsp" method="post">
 	<div>
 		<p>이름 : <%=customerInfo.get("c.cstm_name") %></p>
 		<p>연락처 : <%=customerInfo.get("c.cstm_phone") %></p>
@@ -230,8 +231,9 @@
 				<option value="문 앞에 놓아주세요">문 앞에 놓아주세요</option>
 				<option value="기타">기타</option>
 			</select>
-			<input type="text" name="otherdeliOption"" id="otherdeliOption"" style="display: none;">
+			<input type="text" name="otherDeliOption" id="otherDeliOption" style="display: none;">
 		</p>
+
 	</div>
 
 <!------------------------ 주문상품 -->
@@ -304,7 +306,6 @@
 	</div>
 
 <!-------- 결제 버튼  넘겨줄 것 : productNo배열, productCnt배열, 최종금액 -->
-	<form action="<%= request.getContextPath()%>/orders/orderProductAction.jsp" method="post">
 	<% 
 		for(int i=0; i<productNo.length; i+=1) { 
 	%>
@@ -317,8 +318,6 @@
 		<input type="hidden" name="customerName" value="<%= customerInfo.get("c.cstm_name") %>">
 		<input type="hidden" name="customerPhone" value="<%= customerInfo.get("c.cstm_phone") %>">
 		<input type="hidden" name="customerAddress" value="<%= customerInfo.get("c.cstm_address") %>">
-		<input type="hidden" name="deliOption" id="deliOptionInput">
-		<input type="hidden" name="otherDeliOption" id="otherDeliOptionInput">
 		
 		<button type="submit" id="orderButton">
 			<span id="paymentAmount"><%=totalPrice %>원</span>결제
@@ -344,17 +343,15 @@
 //셀렉트 박스 기타 선택시 인풋박스 등장
 	function showHideInput() {
 		let selectBox = document.querySelector('#deliOption');
-		let inputBox = document.querySelector('#otherdeliOption');
-		let inputBoxInput = document.querySelector('#otherDeliOptionInput');
+		let inputBox = document.querySelector('#otherDeliOption');
 		
 		if (selectBox.value === "기타") {
-			inputBox.style.display = "inline-block";
-			inputBoxInput.value = inputBox.value;
+			inputBox.style.display = "inline-block";	
 		} else {
 			inputBox.style.display = "none";
-			inputBoxInput.value = "";
 		}
 	}
+
 
 		
 	
@@ -380,11 +377,11 @@
 	  
 	  // 입력이 허용 범위를 벗어나면 값을 조정
 	  if (value < 0) {
-	    input.value = 0;
+		  input.value = 0;
 	  } else if (value > maxPoint) {
-	    input.value = maxPoint;
-	    alert('최대 사용 가능 포인트는 ' + maxpoint + '입니다.');
-	  }
+			input.value = maxPoint;
+			alert('최대 사용 가능 포인트는 ' + maxpoint + '입니다.');
+		}
 	});
 
 		
@@ -395,7 +392,6 @@
 		  
 		// 전액 사용 버튼을 클릭한 경우
 		if (pointBtn.innerHTML === '전액사용') {
-			
 			input.value = maxPoint; // 입력 상자에 사용 가능한 포인트를 채웁니다.
 			input.setAttribute('readonly', 'readonly'); // 입력 상자를 읽기 전용으로 설정
 			pointBtn.innerHTML = '취소'; // 버튼 텍스트를 '취소'로 변경

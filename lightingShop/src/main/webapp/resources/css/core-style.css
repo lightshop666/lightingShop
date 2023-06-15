@@ -46,7 +46,7 @@ p {
 a {
   -webkit-transition: all 500ms ease 0s;
   transition: all 500ms ease 0s;
-  text-decoration: none;
+  text-decoration: none !important;
   outline: 0 solid transparent;
   color: #131212;
   font-weight: 400;

@@ -13,15 +13,18 @@
 	
 	//페이징 리스트를 위한 변수 선언
 	//현재 페이지
-	int currentPage=1;
+	int currentPage= 1;
 	if(request.getParameter("currentPage")!=null){
 		currentPage = Integer.parseInt(request.getParameter("currentPage"));
 	}
 	//페이지에 보여주고 싶은 행의 개수
-	int rowPerPage = 5;
+	int rowPerPage = 3;
+	
+	//페이지 주변부에 보여주고싶은 리스트의 개수
+	int pageRange = 3;
 	
 	//시작 행
-	int beginRow = (currentPage-1) * rowPerPage;
+	int beginRow = (currentPage-1) * rowPerPage + 1;
 	
 	// 객체생성 -> 로그인으로 사용
 	IdList idList = new IdList();
@@ -31,16 +34,37 @@
 	// 객체생성 -> selectCustomerOne 메서드에서 사용
 	Customer customer = new Customer();
 	customer.setId(id);
-	
+	// Customer(로그인, 고객정보) 모델호출
 	CustomerDao cDao = new CustomerDao();
 	HashMap<String, Object> loginIdList = cDao.loginMethod(idList);
-	
 	HashMap<String, Object> customerOne = cDao.selectCustomerOne(customer);
 	
-	OrderProductDao oDao = new OrderProductDao();
-	ArrayList<HashMap<String, Object>> AllReviewList = oDao.selectCustomerOrderList(beginRow, rowPerPage, loginMemberId);
+	//모델 호출
+	OrderDao orderDao = new OrderDao();
+	OrderProductDao orderProductDao = new OrderProductDao();
+	ProductDao productDao = new ProductDao();
 	
-	ProductDao pDao = new ProductDao();
+	//총 행을 구하기 위한 메소드
+	int totalRow = orderProductDao.CustomerOrderListCnt(loginMemberId);
+	
+	//마지막 페이지
+	int lastPage = totalRow / rowPerPage;
+	//마지막 페이지는 딱 나누어 떨어지지 않으니까 몫이 0이 아니다 -> +1
+	if(totalRow % rowPerPage != 0){
+		lastPage += 1;
+	}
+	//페이지 목록 중 가장 작은 숫자의 페이지
+	int minPage = ((currentPage - 1) / pageRange ) * pageRange + 1;
+	//페이지 목록 중 가장 큰 숫자의 페이지
+	int maxPage = minPage + (pageRange - 1 );
+	//maxPage 가 last Page보다 커버리면 안되니까 lastPage를 넣어준다
+	if (maxPage > lastPage){
+		maxPage = lastPage;
+	}
+	
+	//order모델 소환
+	ArrayList<Orders> orderList  = orderDao.justOrders(beginRow, rowPerPage, loginMemberId);   
+	ArrayList<HashMap<String, Object>> orderByOrderProduct = new ArrayList<HashMap<String, Object>>();
 	
 %>
 
@@ -57,14 +81,15 @@
     <title>Amado - MyPage</title>
 
     <!-- Favicon  -->
-    <link rel="icon" href="img/core-img/favicon.ico">
+    <link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
 
     <!-- Core Style CSS -->
-    <link rel="stylesheet" href="css/core-style.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
     <!-- BootStrap5 -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+	
 </head>
 <body>
 
@@ -75,7 +100,7 @@
         <div class="mobile-nav">
             <!-- Navbar Brand -->
             <div class="amado-navbar-brand">
-                <a href="index.html"><img src="img/core-img/logo.png" alt=""></a>
+                <a href="<%=request.getContextPath()%>/home.jsp"><img src="<%=request.getContextPath()%>/resources/img/core-img/logo.png" alt=""></a>
             </div>
             <!-- Navbar Toggler -->
             <div class="amado-navbar-toggler">
@@ -91,26 +116,28 @@
             </div>
             <!-- Logo -->
             <div class="logo">
-                <a href="index.html"><img src="img/core-img/logo.png" alt=""></a>
+                <a href="<%=request.getContextPath()%>/home.jsp"><img src="<%=request.getContextPath()%>/resources/img/core-img/logo.png" alt=""></a>
             </div>
             <!-- Amado Nav -->
             <nav class="amado-nav">
                 <ul>
-                    <li class="active"><a href="index.html">Home</a></li>
-                    <li><a href="shop.html">Shop</a></li>
-                    <li><a href="product-details.html">Product</a></li>
-                    <li><a href="cart.html">Cart</a></li>
+                    <li ><a href="<%=request.getContextPath()%>/home.jsp">Home</a></li>
+                    <!-- 임시로 HOME -->
+                    <li><a href="<%=request.getContextPath()%>/home.jsp">Shop</a></li>
+                    <li><a href="<%=request.getContextPath()%>/orders/orderProductList.jsp">Product</a></li>
+                    <li><a href="<%=request.getContextPath()%>/cart/cartList.jsp">Cart</a></li>
+                    <!-- 결제창 -->
                     <li><a href="checkout.html">Checkout</a></li>
                     <!-- 내정보 상세보기 -->
-                    <li><a type="button" class="btn btn-dark" href="<%=request.getContextPath()%>/customer/customerOne.jsp" role="button">내정보 상세보기</a></li>
+                    <li><a href="<%=request.getContextPath()%>/customer/customerOne.jsp">내정보 상세보기</a></li>
 					<!-- 배송지 관리 -->
-					<li><a type="button" class="btn btn-dark" href="<%=request.getContextPath()%>/customer/addressList.jsp" role="button">배송지 관리</a></li>
+					<li><a href="<%=request.getContextPath()%>/customer/addressList.jsp">배송지 관리</a></li>
 					<!-- 포인트 내역 - 추가 예정-->
-					<li><a type="button" class="btn btn-dark" href="<%=request.getContextPath()%>/customer/customerPointList.jsp" role="button">포인트 내역 확인</a></li>
+					<li><a href="<%=request.getContextPath()%>/customer/customerPointList.jsp">포인트 내역 확인</a></li>
 					<!-- 리뷰등록  -->
-					<li><a type="button" class="btn btn-dark" href="<%=request.getContextPath()%>/review/addReview.jsp" role="button">리뷰등록</a></li>
+					<li><a href="<%=request.getContextPath()%>/review/addReview.jsp">리뷰등록</a></li>
 					<!-- 문의등록 -->
-					<li><a type="button" class="btn btn-dark" href="<%=request.getContextPath()%>/board/addQuestion.jsp" role="button">문의등록</a></li>
+					<li><a href="<%=request.getContextPath()%>/board/addQuestion.jsp">문의등록</a></li>
 					
 					<%-- 사용하지 않는 기능	
 					<!-- 등급확인 - 등급에 따른 이미지 출력-->
@@ -126,9 +153,9 @@
             </div>
             <!-- Cart Menu -->
             <div class="cart-fav-search mb-100">
-                <a href="cart.html" class="cart-nav"><img src="img/core-img/cart.png" alt=""> Cart <span>(0)</span></a>
-                <a href="#" class="fav-nav"><img src="img/core-img/favorites.png" alt=""> Favourite</a>
-                <a href="#" class="search-nav"><img src="img/core-img/search.png" alt=""> Search</a>
+                <a href="<%=request.getContextPath()%>/cart/cartList.jsp" class="cart-nav"><img src="<%=request.getContextPath()%>/resources/img/core-img/cart.png" alt=""> Cart <span>(0)</span></a>
+                <a href="#" class="fav-nav"><img src="<%=request.getContextPath()%>/resources/img/core-img/favorites.png" alt=""> Favourite</a>
+                <a href="#" class="search-nav"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""> Search</a>
             </div>
             <!-- Social Button -->
             <div class="social-info d-flex justify-content-between">
@@ -149,134 +176,171 @@
 					if(session.getAttribute("loginIdListId") != null) {
 				%>
 
-                <!-- 주문내역 리스트 -->
-                <div class="col-md-3"> <!-- [시작] col-md-3 25% 차지 -->
-                	<div class="single-products-catagory clearfix">
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                            <div class="line"></div>
+             <!-- [시작] 주문내역 리스트 -->
+             <section class="section-padding-100-0">
+		        <div class="container">
+		            <div class="row align-items-center">
+		                <div class="col-12 col-lg-8">
+		                    <div class="mb-100">
 								<h1>주문내역 리스트</h1>
-								<div><!-- 
+								<div>
+									<!-- 
 										템플릿 적용 후 수정 사항
 										모든 리뷰 출력, 글 누르면 상품페이지로
 										사진 누르면 사진 확대
 									 -->
 								<%
-									for (HashMap<String, Object> m : AllReviewList) {
-										//product 모델 소환
-										HashMap<String, Object> productOne =  pDao.selectProductAndImgOne((int)m.get("productNo"));
-									    // productOne에서 필요한 데이터 가져오기
-									    Product product = (Product) productOne.get("product");
-									    ProductImg productImg = (ProductImg) productOne.get("productImg");		
+								System.out.println(orderList.size()+"<--orderList.size()-- orderProductList.jsp");
+									for (Orders o : orderList) {
+										System.out.println(o.getOrderNo()+"<--getOrderNo-- orderProductList.jsp");
 								%>
-										<h4>주문 번호 : <%= m.get("orderNo") %></h4>
-										<p>
-											<a href="<%=request.getContextPath()%>/review/reviewOne.jsp?orderNo=<%=m.get("orderNo")%>">
-												주문 상세
-											</a>
-										</p>			
-										<p>주문일: <%= m.get("createdate") %></p>
-										<p>배송 상태: <%= m.get("deliveryStatus") %></p>
-										<p>
-										    <a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
-										        <img class="thumbnail" src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image">
-										    </a>
-										</p>
-										<p>
-										    <a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
-										        <%= product.getProductName() %>
-										    </a>
-										</p>			
-									<%
-										System.out.println(m.get("deliveryStatus"));
-										System.out.println(m.get("reviewWritten"));
-									    if (m.get("deliveryStatus").equals("구매확정")) {	//주문확인중 이 맞는데 임시로
-									        // 주문 취소 버튼 클릭 시 동작
-									%>
-									        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelAction.jsp?orderNo=<%=m.get("orderNo")%>'">주문취소</button>
-									<%
-									    } else if (m.get("deliveryStatus").equals("배송중")) {
-									        // 수취 확인 버튼 클릭 시 동작
-									%>
-									        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%=m.get("orderProductNo")%>'">수취확인</button>
-									<%
-									    } else if (m.get("deliveryStatus").equals("배송시작")) {
-									        // 수취 확인 버튼 클릭 시 동작
-									%>
-									        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%=m.get("orderProductNo")%>'">수취확인</button>
-									<%
-									    } else if (m.get("deliveryStatus").equals("배송완료")) {
-									        // 구매 확정 버튼 클릭 시 동작
-									%>
-									        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderPurchase.jsp?orderProductNo=<%=m.get("orderProductNo")%>'">구매확정</button>
-									<%
-									    } else if (m.get("deliveryStatus").equals("취소중")) {
-									        // 취소 철회 버튼 클릭 시 동작
-									%>
-									        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelWithdraw.jsp?orderNo=<%=m.get("orderNo")%>'">취소철회</button>
-									<%
-									    } else if (m.get("deliveryStatus").equals("교환중")) {
-									        // 수취 확인 버튼 클릭 시 동작
-									%>
-									        <button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%=m.get("orderProductNo")%>'">수취확인</button>
-									<%
-									    } else if (m.get("deliveryStatus").equals("구매확정")
-									    && m.get("reviewWritten").equals("N")) {
-									        // 상품평 버튼 클릭 시 동작
-									%>
-											<button onclick="location.href='<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">상품평</button>
-									<%
-									    } else if (m.get("deliveryStatus").equals("취소완료")) {
-									        // 상품평 버튼 클릭 시 동작
-									%>
-											<button disabled>취소완료</button>
-									<%
-									    }
-									%>
 							
-										<hr>
+										<h4>주문 번호 : <%= o.getOrderNo() %></h4>
+										<p>
+											<a href="<%=request.getContextPath()%>/orders/orderProductOne.jsp?orderNo=<%= o.getOrderNo() %>">
+											주문 상세
+											</a>
+										</p>
+										<p>주문일: <%= o.getCreatedate() %></p>
 								<%
-								    }
+										orderByOrderProduct = orderProductDao.selectOrderNoByOrderProductNo(o.getOrderNo());
+										for (HashMap<String, Object> m : orderByOrderProduct) {
+											int productNo = (int) m.get("productNo");
+											String deliveryStatus = (String) m.get("deliveryStatus");
+											String reviewWritten = (String) m.get("reviewWritten");
+											
+											// 상품 정보 및 이미지를 가져옵니다.
+											HashMap<String, Object> productMap = productDao.selectProductAndImgOne(productNo);
+											Product product = (Product) productMap.get("product");
+											ProductImg productImg = (ProductImg) productMap.get("productImg");
 								%>
-							</div>
-                        </div>
-                	</div>
-				</div>	<!-- [끝] col-md-3 25% 차지 -->
-				
+											<p>상세상품번호 : <%= productNo%></p>			
+											<p>배송 상태: <%= deliveryStatus %></p>
+											<p>상품 이미지
+												<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= productNo%>">
+													<img class="thumbnail" src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image">
+												</a>
+											</p>
+											<p>상품 이름
+												<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= productNo%>">
+													<%= product.getProductName() %>
+												</a>
+											</p>	
+											<p><!-- 버튼 분기 -->
+								<%	
+											if (deliveryStatus.equals("주문확인중")) {
+								   			 // 주문 취소 버튼 클릭 시 동작
+								%>
+												<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelAction.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">주문취소</button>
+								<%
+											} else if (deliveryStatus.equals("배송중") || deliveryStatus.equals("배송시작") || deliveryStatus.equals("교환중")) {
+									    	// 수취 확인 버튼 클릭 시 동작
+								%>
+												<button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">수취확인</button>
+								<%
+											} else if (deliveryStatus.equals("배송완료")) {
+									   		 // 구매 확정 버튼 클릭 시 동작
+								%>
+												<button onclick="location.href='<%= request.getContextPath() %>/orders/orderPurchase.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">구매확정</button>
+								<%
+											//주문 취소는 
+											} else if (deliveryStatus.equals("취소중")) {
+									 		   // 취소 철회 버튼 클릭 시 동작
+								%>
+												<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelWithdraw.jsp?orderNo=<%= m.get("orderNo") %>'">취소철회</button>
+								<%
+											} else if (deliveryStatus.equals("구매확정") && reviewWritten.equals("N")) {
+									    		// 상품평 버튼 클릭 시 동작
+								%>
+												<button onclick="location.href='<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">상품평</button>
+								<%
+											} else if (deliveryStatus.equals("취소완료")) {
+									 		   // 상품평 버튼 클릭 시 동작
+								%>
+												<button disabled>취소완료</button>
+								<%
+											}
+								%>
+										</p>
+										<div>--------------------</div>
+								<%
+										}
+								%>
+									<hr>
+								<%
+									}
+								%>
+								</div>
+								
+								
+								<div class="center" >
+								<%
+									//1번 페이지보다 작은데 나오면 음수로 가버린다
+									if (minPage > 1) {
+								%>
+										<a href="<%=request.getContextPath()%>/orders/orderProductList.jsp?currentPage=<%=minPage-pageRange%>">이전</a>
+								
+								<%	
+									}
+									for(int i=minPage; i <= maxPage; i=i+1){
+										if ( i == currentPage){		
+								%>
+											<span><%=i %></span>
+								<%
+										}else{
+								%>
+											<a href="<%=request.getContextPath()%>/orders/orderProductList.jsp?currentPage=<%=i%>"><%=i %></a>
+								<%
+										}
+									}
+								
+									//maxPage와 lastPage가 같지 않으면 여분임으로 마지막 페이지목록일거다.
+									if(maxPage != lastPage ){
+								%>
+										<!-- maxPage+1해도 동일하다 -->
+										<a href="<%=request.getContextPath()%>/orders/orderProductList.jsp?currentPage=<%=minPage+pageRange%>">다음</a>
+								<%
+									}
+								%>
+								</div>
+	                        </div>
+	                	</div>
+					</div>
+				</div>
+			</section>	<!-- [끝] 주문내역 리스트 -->
 								<%
 									} else { // 로그인 전이라면 로그인 폼
 								%>
 								
-				<!-- 로그인 폼 출력 -->
-				<div class="col-md-3"> <!-- [시작] col-md-3 25% 차지 -->
-                	<div class="single-products-catagory clearfix">
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                            <div class="line"></div>
-                            <!-- 로그인 폼-->
-							<div class="logo">
-				                <a href="index.html"><img src="img/core-img/logo.png" alt=""></a>
-				            </div>
-								<form action="<%=request.getContextPath()%>/customer/loginAction.jsp" method="post">
-								<!-- 세션에 저장할 active값과 emp_level 값 -->
-								<input type="hidden" name="active" value="<%=loginIdList.get("active")%>">
-								<input type="hidden" name="empLevel" value="<%=loginIdList.get("empLevel")%>">
-								<table>
-									<tr>
-										<td>아이디</td>
-										<td><input type="text" name="id"></td>
-									</tr>
-									<tr>
-										<td>비밀번호</td>
-										<td><input type="password" name="lastPw"></td>
-									</tr>
-								</table>
-								<button type="submit">로그인</button>
-							</form>
-							<a type="button" class="btn btn-dark" href="<%=request.getContextPath()%>/customer/addCustomer.jsp" role="button">회원가입</a>
-                        </div>
-                	</div>
-				</div>	<!-- [끝] col-md-3 25% 차지 -->
+			<!--[시작] 로그인 폼 출력 -->
+			<section class="login-area section-padding-100">
+		        <div class="container">
+		             <div class="row justify-content-center">
+		                 <div class="col-12 col-lg-8">
+		                    <div class="login-content">
+		                    	<div class="logo">
+					                <a href="<%=request.getContextPath()%>/home.jsp"><img src="<%=request.getContextPath()%>/resources/img/core-img/logo.png" alt=""></a>
+					            </div>
+					            <br>
+		                    	<div class="login-form">
+									<form action="<%=request.getContextPath()%>/customer/loginAction.jsp" method="post">
+										<!-- 세션에 저장할 active값과 emp_level 값 -->
+										<input type="hidden" name="active" value="<%=loginIdList.get("active")%>">
+										<input type="hidden" name="empLevel" value="<%=loginIdList.get("empLevel")%>">
+										<!-- Input Fields for ID and Password-->
+								        <input type ='text' class = 'form-control my-input-field' id ='id' name = 'id' required placeholder="아이디">
+								        <input type ='password' class = 'form-control my-input-field' id ='lastPw' name = 'lastPw' required placeholder="비밀번호는 4자"><br>
+										<button type="submit" class="btn btn-warning btn-lg mt-6">로그인</button>
+									</form>
+									<a href="<%=request.getContextPath()%>/customer/addCustomer.jsp">회원가입</a>
+								</div>
+	                        </div>
+	                	</div>
+					</div>
+				</div>
+			</section> <!--[끝] 로그인 폼 출력 -->
+			
+			<!-- js 유효성 검사 - DOM API 사용 -->
 				
 								<%
 										}
@@ -284,7 +348,6 @@
             </div>
         </div>
         <!-- Product Catagories Area End -->
-        
     </div>
     <!-- ##### Main Content Wrapper End ##### -->
 
@@ -322,7 +385,7 @@
                     <div class="single_widget_area">
                         <!-- Logo -->
                         <div class="footer-logo mr-50">
-                            <a href="index.html"><img src="img/core-img/logo2.png" alt=""></a>
+                            <a href="<%=request.getContextPath()%>/home.jsp"><img src="<%=request.getContextPath()%>/resources/img/core-img/logo2.png" alt=""></a>
                         </div>
                         <!-- Copywrite Text -->
                         <p class="copywrite"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
@@ -340,18 +403,20 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
                                 <div class="collapse navbar-collapse" id="footerNavContent">
                                     <ul class="navbar-nav ml-auto">
                                         <li class="nav-item active">
-                                            <a class="nav-link" href="index.html">Home</a>
+                                            <a class="nav-link" href="<%=request.getContextPath()%>/home.jsp">Home</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="shop.html">Shop</a>
+                                        	<!-- 임시로 HOME -->
+                                            <a class="nav-link" href="<%=request.getContextPath()%>/home.jsp">Shop</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="product-details.html">Product</a>
+                                            <a class="nav-link" href="<%=request.getContextPath()%>/orders/orderProductList.jsp">Product</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="cart.html">Cart</a>
+                                            <a class="nav-link" href="<%=request.getContextPath()%>/cart/cartList.jsp">Cart</a>
                                         </li>
                                         <li class="nav-item">
+                                        	 <!-- 결제창 -->
                                             <a class="nav-link" href="checkout.html">Checkout</a>
                                         </li>
                                     </ul>
@@ -377,5 +442,4 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     <script src="js/active.js"></script>
 
 </body>
-
 </html>

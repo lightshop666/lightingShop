@@ -1,57 +1,66 @@
 package dao;
 import java.sql.*;
 import java.util.*;
+import java.util.Date;
+
 import vo.*;
 import util.*;
 import java.io.File;
 
 public class OrderProductDao {
 	
-//1-1)모든 주문 리스트 출력
+//1-1)orderNo에 따른
 	/*
 	SELECT 
-		o.order_no orderNo
-		, o.id id, o.createdate createdate
-		, op.order_product_no orderProductNo
-		, op.product_no productNo
-		, op.delivery_status deliveryStatus
-		, r.review_written reviewWritten
+		o.order_no AS orderNo,
+		o.id AS id,
+		o.createdate AS createdate,
+		op.order_product_no AS orderProductNo,
+		op.product_no AS productNo,
+		op.delivery_status AS deliveryStatus,
+		COALESCE(r.review_written, 'N') AS reviewWritten
 	FROM orders o
 		JOIN order_product op ON o.order_no = op.order_no
-			JOIN review r ON op.order_product_no = r.order_product_no
-	WHERE o.id = 'test2'
-	ORDER BY o.createdate DESC
-	*/
-	public ArrayList<HashMap<String, Object>> selectCustomerOrderList(int beginRow, int rowPerPage, String loginMemberId) throws Exception {
+		LEFT JOIN review r ON op.order_product_no = r.order_product_no
+	WHERE o.order_no = ?
+	 */
+	public ArrayList<HashMap<String, Object>> selectOrderNoByOrderProductNo(int orderNo) throws Exception {
 		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 	    DBUtil dbUtil = new DBUtil();
 	    Connection conn = dbUtil.getConnection();
 
-	    String sql = "SELECT  o.order_no orderNo, o.id id, o.createdate createdate, op.order_product_no orderProductNo, op.product_no productNo, op.delivery_status deliveryStatus, r.review_written reviewWritten FROM orders o JOIN order_product op ON o.order_no = op.order_no JOIN review r ON op.order_product_no = r.order_product_no WHERE o.id = ?"   	
-			        + " ORDER BY o.createdate DESC"
-			        + " LIMIT ?, ?";
+	    String sql = "	SELECT  "
+	    		+ "		o.order_no AS orderNo, "
+	    		+ "		o.id AS id, "
+	    		+ "		o.createdate AS createdate, "
+	    		+ "		op.order_product_no AS orderProductNo, "
+	    		+ "		op.product_no AS productNo, "
+	    		+ "		op.delivery_status AS deliveryStatus, "
+	    		+ "		COALESCE(r.review_written, 'N') AS reviewWritten "
+	    		+ "	FROM orders o "
+	    		+ "		JOIN order_product op ON o.order_no = op.order_no "
+	    		+ "		LEFT JOIN review r ON op.order_product_no = r.order_product_no "
+	    		+ "	WHERE o.order_no = ?";
 
 	    PreparedStatement mainStmt = conn.prepareStatement(sql);
-		mainStmt.setString(1, loginMemberId);
-		//페이징 처리를 위한 SQL 쿼리문에서의 인덱스는 0부터 시작하므로 beginRow를 1을 빼서 0부터 시작하도록 설정
-		mainStmt.setInt(2, beginRow - 1);
-		mainStmt.setInt(3, rowPerPage);
+		mainStmt.setInt(1, orderNo);
 		
 		ResultSet mainRs = mainStmt.executeQuery();
 		
 		//결과셋 받아오기
 		while (mainRs.next()) {
-	        HashMap<String, Object> o = new HashMap<>();
-	        o.put("orderNo", mainRs.getInt("orderNo"));
-	        o.put("createdate", mainRs.getString("createdate"));
-	        o.put("orderProductNo", mainRs.getInt("orderProductNo"));
-	        o.put("productNo", mainRs.getInt("productNo"));
-	        o.put("deliveryStatus", mainRs.getString("deliveryStatus"));
-	        o.put("reviewWritten", mainRs.getString("reviewWritten"));
-
+			HashMap<String, Object> o = new HashMap<>();
+			o.put("orderNo", mainRs.getInt("orderNo"));
+			o.put("id", mainRs.getString("id"));
+			o.put("createdate", mainRs.getString("createdate"));
+			o.put("orderProductNo", mainRs.getInt("orderProductNo"));
+			o.put("productNo", mainRs.getInt("productNo"));
+			o.put("deliveryStatus", mainRs.getString("deliveryStatus"));
+			o.put("reviewWritten", mainRs.getString("reviewWritten"));
+			
 	        list.add(o);
 	    }
-		System.out.println(list+ "<--ArrayList-- ReviewDao.selectCustomerOrderList");
+		System.out.println(list+ "<--ArrayList-- OrderProductDao.selectCustomerOrderList");
 		return list;
 	}
 	
@@ -72,6 +81,8 @@ public class OrderProductDao {
 
 	    return row;
 	}
+
+	
 	
 //2)orderProductNo 수취확인 구매확정 함수
 	/*
@@ -153,14 +164,76 @@ public class OrderProductDao {
 	    row = stmt.executeUpdate();
 	    
 	    if (row !=0) {
-	        System.out.println(row +"행 리뷰 추가 성공<--addProductDao");
+	        System.out.println(row +"행 주문-상품 추가 성공<--addProductDao");
          }else{
         	 row=0;
-            System.out.println(row +"행 리뷰 추가 실패<--addProductDao");
+            System.out.println(row +"행 주문-상품 추가 실패<--addProductDao");
          }
 	    return row;		
 	}
 	
+//5-1)리뷰는 orders 테이블의 주문날짜(createdate)로부터 31일 이내에만, 리뷰를 아직 쓰지 않은 사람만 쓸 수 있다.
+	/*
+	SELECT 
+		op.order_no orderNo
+		, op.delivery_status deleveryStatus
+		, o.createdate createdate
+		, NOW() as todaydate
+	FROM orders o
+		INNER JOIN order_product op ON o.order_no=op.order_no
+	WHERE op.order_product_no = ?
+	 */
+	public HashMap<String, Object> selectOrderProduct(int orderProductNo) throws Exception {
+	    // 반환할 결과를 담을 HashMap
+	    HashMap<String, Object> map = new HashMap<>();
+	    
+	    // DB 연결을 위한 DBUtil 객체와 Connection 객체 생성
+	    DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
+	    
+	    // 주문 및 주문 상품 정보를 조회하는 SQL문
+	    String sql = "SELECT  op.order_no orderNo, op.delivery_status deleveryStatus, o.createdate createdate,  NOW() as todaydate FROM orders o INNER JOIN order_product op ON o.order_no=op.order_no WHERE op.order_product_no =?";
+	    // SQL문 실행을 위한 PreparedStatement 객체 생성
+	    PreparedStatement mainStmt = conn.prepareStatement(sql);
+	    mainStmt.setInt(1, orderProductNo);
+	    ResultSet rs = mainStmt.executeQuery();
+	    
+	    // 결과셋 받아오기
+	    while (rs.next()) {
+	    	map.put("orderNo", rs.getInt("orderNo"));
+	    	map.put("deleveryStatus", rs.getString("deleveryStatus"));
+			// createdate와 todaydate를 Date 타입으로 변환하여 저장
+			Date createDate = rs.getDate("createdate");
+			Date todayDate = rs.getDate("todaydate");
+			map.put("createdate", createDate);
+			map.put("todaydate", todayDate);
+	    }
+	    
+	    return map;
+	}
+//5-2 리뷰 작성 기간 체크
+	public boolean checkReviewEligibility(Date createDate, Date todayDate) throws Exception {	    
+		// createDate와 todayDate를 비교하여 리뷰 작성 가능 여부를 판단
+		long diff = todayDate.getTime() - createDate.getTime();
+		long daysDiff = diff / (24 * 60 * 60 * 1000); // 밀리초를 일 단위로 변환
+		
+		if (daysDiff < 32) {
+			// 32일 이내이므로 리뷰 작성 가능
+			return true;
+		} else {
+			// 32일 이상이므로 리뷰 작성 불가능
+			return false;
+		}
+	}
+
+
+	
+	
+	
+	
+	
+	
+//orderProduct 넘버로 받아오는 orderProduct 테이블
 	
 	
 	

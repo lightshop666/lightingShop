@@ -32,12 +32,12 @@
 	// 2. 모델값
 	ProductDao dao = new ProductDao();
 	OrderProductDao dao2 = new OrderProductDao();
-	// 페이징 // 작업중 : 리뷰와 문의 페이징 분리!
+	// 페이징 // 자바스크립트) tab 구현 후 페이징 분리예정
 	int beginRow = (currentPage - 1) * rowPerPage;
 	int pagePerPage = 5;
 	int beginPage = (((currentPage - 1) / pagePerPage) * pagePerPage) + 1;
 	int endPage = beginPage + (pagePerPage - 1);
-	int totalRow = dao.selectProductQuestionCnt(productNo);
+	int totalRow = dao.selectProductQuestionCnt(productNo); // dao.selectProductReviewCnt()
 	int lastPage = totalRow / rowPerPage;
 	if(totalRow % rowPerPage != 0) {
 		lastPage = lastPage + 1;
@@ -53,7 +53,10 @@
 	ProductImg productImg = (ProductImg)productMap.get("productImg");
 	Discount discount = (Discount)productMap.get("discount");
 	// 해당 상품의 할인율이 적용된 최종 가격
-	int discountedPrice = dao2.discountedPrice(productNo);
+	int discountedPrice = (int)product.getProductPrice();
+	if(discount.getDiscountStart() != null) { // 할인이 적용되어있으면
+		discountedPrice = dao2.discountedPrice(productNo); // 할인가로 바꾸기	
+	}
 	
 	// 2-2. 해당 상품의 리뷰
 	ArrayList<HashMap<String, Object>> reviewList = dao.selectProductReviewList(beginRow, rowPerPage, searchWord, productNo);
@@ -66,7 +69,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ProductOne</title>
+<title>productOne</title>
 <style>
 	div {
 		display:table;
@@ -88,7 +91,7 @@
 <script> 
 	// 단일구매 경로
 	function submit2(frm) { 
-	   frm.action='request.getContextPath() + "/orders/orderProduct.jsp'; 
+	   frm.action='<%=request.getContextPath()%>/orders/orderProduct.jsp'; 
 	   frm.submit(); 
 	   return true; 
 	 } 
@@ -130,7 +133,18 @@
 		<table>
 			<tr> <!-- 상품 이미지, 상품 이름 -->
 				<td rowspan="5">
-					<img src="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>">
+					<%
+						// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+						if(productImg.getProductSaveFilename() == null) {
+					%>
+							<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+					<%
+						} else {
+					%>
+							<img src="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>">
+					<%	
+						}
+					%>
 				</td>
 				<td>
 					<%=product.getProductName()%>
@@ -142,7 +156,7 @@
 						if(product.getProductPrice() == discountedPrice) {
 					%>
 							<p class="font-bold">
-								<%=(int)product.getProductPrice()%>
+								<%=(int)product.getProductPrice()%>원
 							</p>
 					<%
 						} else {
@@ -163,7 +177,7 @@
 					%>
 				</td>
 			</tr>
-			<!-- 포인트 적립 고지 문구 출력예정 -->
+			<!-- 등급별 포인트 적립 고지 문구 출력예정 -->
 			<tr> <!-- 상품 상태, 상품 재고량 -->
 				<td>
 					[<%=product.getProductStatus()%>] 재고 : <%=product.getProductStock()%>개
@@ -180,7 +194,7 @@
 					       onclick='count("minus")'
 					       value='-'/>
 					<input type="hidden" name="productCnt">
-					<br> 총 결제 금액 : <!-- 구현 예정, 자바스크립트 -->
+					<br> 총 결제 금액 : <!-- 구현 예정 -->
 				</td>
 			</tr>
 			<tr> <!-- 결제 / 장바구니 버튼 -->
@@ -197,8 +211,53 @@
 	
 	<!------------- 2) 해당 상품의 리뷰 --------------->
 	<h1>리뷰 목록</h1>
-	<!-- 작업예정 : 리뷰 리스트 출력 + 검색 form -->
-	
+	<span>총 <%=totalRow%>건</span>
+	<span>
+		<form action="<%=request.getContextPath()%>/product/productOne.jsp" method="post">
+			리뷰 키워드 : <input type="text" name="searchWord">
+			<button type="submit">검색</button>
+		</form>
+	</span>
+	<span><br>이미지 모아보기<br></span>
+	<%	
+		// 자바스크립트) 슬라이드 구현 예정 // 이미지 클릭시 해당 리뷰 상세페이지 새창열림
+		for(HashMap<String, Object> m : reviewList) {
+	%>
+			<img src="<%=request.getContextPath()%>/<%=m.get("reviewPath")%>/<%=m.get("reviewSaveFilename")%>">
+	<%
+		}
+	%>
+	<table>
+		<%
+			for(HashMap<String, Object> m : reviewList) {
+		%>
+			<tr>
+				<td><!-- 리뷰제목 -->
+					<%=m.get("reviewTitle")%> <br>
+					<!-- 리뷰내용 -->
+					<%=m.get("reviewContent")%> <br>
+					<!-- 리뷰사진 -->
+					<img src="<%=request.getContextPath()%>/<%=m.get("reviewPath")%>/<%=m.get("reviewSaveFilename")%>">
+				</td>
+				<td>
+					<!-- 수정일자 -->
+					<%=m.get("reviewCreatedate") %>
+					<!-- 작성자 -->
+					<%=m.get("id")%>
+				</td>
+			</tr>
+		<%
+			}
+		%>
+	</table>
+	<%
+		if(totalRow == 0) {
+	%>
+			리뷰가 아직 없습니다
+	<%
+		}
+	%>
+	<!-- 페이지 출력부 출력예정 -->
 	
 	<!------------- 3) 해당 상품의 문의 --------------->
 	<h1>문의 목록</h1>
