@@ -5,15 +5,12 @@
 <%
 	// 1. 유효성 검사
 	// productNo
-	/*
 	if(request.getParameter("productNo") == null
 			|| request.getParameter("productNo").equals("")) {
 		response.sendRedirect(request.getContextPath() + "/product/productList.jsp");
 		return;
 	}
 	int productNo = Integer.parseInt(request.getParameter("productNo"));
-	*/
-	int productNo = 33; // 테스트용
 	
 	// reviewCurrentPage, reviewRowPerPage
 	int reviewCurrentPage = 1;
@@ -116,13 +113,11 @@
       clear: both;
       padding-top: 20px;
     }
-
     .tab-menu {
       display: inline-block;
       margin-right: 10px;
       cursor: pointer;
     }
-
     .tab-content {
       display: none;
       padding-top: 10px;
@@ -136,50 +131,55 @@
 	   return true; 
 	 } 
 	
-	// 상품 수량 증가감소
-	function count(type)  {
-	  // 결과를 표시할 element
-	  const resultElement = document.getElementById('result');
-	  
-	  // 현재 화면에 표시된 값
-	  let number = resultElement.innerText;
-	  
-	  // 더하기/빼기
-	  if(type === 'plus') {
-	    number = parseInt(number) + 1;
-	  }else if(type === 'minus')  {
-	    number = parseInt(number) - 1;
-	  }
-	  
-	  // 결과 출력
-	  resultElement.innerText = number;
+	// 선택한 상품 수량에 따라 총 금액 계산
+	function count(type) {
+		// 수량 동적으로 변경
+		const quantityElement = document.getElementById('quantity'); // 수량Element 가져오기
+		let quantity = parseInt(quantityElement.innerText); // 수량의 값 가져오기
+		const maxQuantity = <%=product.getProductStock()%>; // 상품의 최대 수량(재고량) 가져오기
+		
+		if (type === 'plus') { // '+' 버튼을 클릭한 경우
+		  if (quantity < maxQuantity) { // 현재 수량이 재고량보다 작을 경우에만
+		    quantity += 1; // 수량 1 증가
+		  }
+		} else if (type === 'minus') { // '-' 버튼을 클릭한 경우
+		  if (quantity >= 1) { // 현재 수량이 1보다 큰 경우에만
+		    quantity -= 1; // 수량을 1 감소
+		  }
+		}
+		
+		quantityElement.innerText = quantity; // 변경된 수량 출력
+		
+		// 총 결제 금액 계산
+		const totalElement = document.getElementById('totalAmount'); // 총 가격Element 가져오기
+		let price; // 할인여부에 따라 가격 변경
+		if (<%=product.getProductPrice()%> == <%=discountedPrice%>) { // 할인율이 반영된 최종가격과 원가가 같으면
+		  price = <%=product.getProductPrice()%>; // 원가
+		} else {
+		  price = <%=discountedPrice%>; // 할인율이 반영된 최종가격
+		}
+		const totalAmount = price * quantity; // 총 결제 금액
+		totalElement.innerText = totalAmount; // 변경된 총 결제 금액 출력
 	}
 	
-	/* 구현예정
-		// 수량에 따른 총 결제금액 계산
-		function totalPrice() {
-			
-		}
-	*/
-	
 	// 리뷰,문의 tab 메뉴
-	 function showTab(tabId) {
-      // 모든 탭 컨텐츠 숨기기
-      const tabContents = document.getElementsByClassName('tab-content');
-      for (let i = 0; i < tabContents.length; i++) {
-        tabContents[i].style.display = 'none';
-      }
-
-      // 모든 탭 메뉴에서 active 클래스 제거
-      const tabMenus = document.getElementsByClassName('tab-menu');
-      for (let i = 0; i < tabMenus.length; i++) {
-        tabMenus[i].classList.remove('active');
-      }
-
-      // 선택한 탭 컨텐츠 표시 및 해당하는 메뉴에 active 클래스 추가
-      document.getElementById(tabId).style.display = 'block';
-      document.getElementById('menu-' + tabId).classList.add('active');
-    }
+	function showTab(tabId) {
+		// 모든 탭 컨텐츠 숨기기
+		const tabContents = document.getElementsByClassName('tab-content');
+		for (let i = 0; i < tabContents.length; i++) {
+			tabContents[i].style.display = 'none';
+		}
+		
+		// 모든 탭 메뉴에서 active 클래스 제거
+		const tabMenus = document.getElementsByClassName('tab-menu');
+		for (let i = 0; i < tabMenus.length; i++) {
+			tabMenus[i].classList.remove('active');
+		}
+		
+		// 선택한 탭 컨텐츠 표시 및 해당하는 메뉴에 active 클래스 추가
+		document.getElementById(tabId).style.display = 'block';
+		document.getElementById('menu-' + tabId).classList.add('active');
+	}
 </script> 
 </head>
 <body>
@@ -243,18 +243,13 @@
 				</td>
 			</tr>
 			<tr><!-- 수량, 수량에 따른 총 결제금액 표시 -->
-				<td>
-					수량 :
-					<input type='button'
-					       onclick='count("plus")'
-					       value='+'/>
-					<span id='result'>0</span>
-					<input type='button'
-					       onclick='count("minus")'
-					       value='-'/>
-					<input type="hidden" name="productCnt">
-					<br> 총 결제 금액 : <!-- 구현 예정 -->
-				</td>
+			  <td>
+			    수량 :
+			    <input type='button' onclick='count("plus")' value='+'/>
+			    <span id='quantity'>0</span>
+			    <input type='button' onclick='count("minus")' value='-'/>
+			    <br> 총 결제 금액 : <span id="totalAmount">0</span>
+			  </td>
 			</tr>
 			<tr> <!-- 결제 / 장바구니 버튼 -->
 				<td>
@@ -269,8 +264,8 @@
 	</span>
 	<!-- tab 메뉴바 표시 -->
 	<div class="tab-container">
-    	<div id="menu-review" class="tab-menu active" onclick="showTab('review')">리뷰 목록</div>
-    	<div id="menu-question" class="tab-menu" onclick="showTab('question')">문의 목록</div>
+    	<div id="menu-review" class="tab-menu active" onclick="showTab('review')">리뷰 목록(총 <%=reviewTotalRow%>건)</div>
+    	<div id="menu-question" class="tab-menu" onclick="showTab('question')">문의 목록(총 <%=questionTotalRow%>건)</div>
 	</div>
 	
 	<!------------- 2) 해당 상품의 리뷰 --------------->
@@ -288,7 +283,9 @@
 			// 자바스크립트) 슬라이드 구현 예정 // 이미지 클릭시 해당 리뷰 상세페이지 새창열림
 			for(HashMap<String, Object> m : reviewList) {
 		%>
-				<img src="<%=request.getContextPath()%>/<%=m.get("reviewPath")%>/<%=m.get("reviewSaveFilename")%>">
+				<a href=""> <!-- 자바스크립트) 구현예정 : 클릭시 해당 리뷰 상세페이지 새창으로 열기 -->
+					<img src="<%=request.getContextPath()%>/<%=m.get("reviewPath")%>/<%=m.get("reviewSaveFilename")%>">
+				</a>
 		<%
 			}
 		%>

@@ -83,7 +83,7 @@
 	%>
 			<div>
 				<!-- 상품 이미지 or 이름 클릭시 상품 상세로 이동 -->
-				<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("prodcutNo")%>">
+				<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
 					<!-- 상품 이미지 -->
 					<%
 						// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
@@ -102,7 +102,7 @@
 				</a>
 				<!-- 할인유무에 따라 분기 -->
 				<%
-					if((Double)m.get("discountRate") == 0) {
+					if((Double)m.get("discountRate") == 0) { // 할인 날짜가 고려가 안됨 방안 생각해보기
 				%>
 						<!-- 원가 출력 -->
 						<p class="font-bold">
@@ -148,7 +148,7 @@
 	%>
 			<div>
 				<!-- 상품 이미지 or 이름 클릭시 상품 상세로 이동 -->
-				<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("prodcutNo")%>">
+				<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
 					<!-- 상품 이미지 -->
 					<%
 						// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
