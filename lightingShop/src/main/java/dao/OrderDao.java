@@ -25,19 +25,32 @@ public class OrderDao {
 
  */
 	public HashMap<String, Object> selectOrdersOne(int orderNo) throws Exception {
+        System.out.println(orderNo + "<--orderNo--selectOrdersOne");
+
 	    // 결과를 저장할 HashMap
 	    HashMap<String, Object> map = new HashMap<>();
 	    // 주문 정보를 저장할 Orders 객체와 주문 상품 세부 정보를 저장할 리스트
 	    Orders orders = null;
-	    List<OrderProduct> orderProducts = new ArrayList<>();
+	    ArrayList<OrderProduct> orderProducts = new ArrayList<>();
 
 	    // DBUtil 객체를 생성하고 데이터베이스 연결 수립
 	    DBUtil dbUtil = new DBUtil();
 	    Connection conn = dbUtil.getConnection();
 
 	    // 주문 정보와 주문 상품 세부 정보를 검색하기 위한 SQL 쿼리
-	    String sql = "SELECT o.order_no orderNo, o.id id, o.order_address orderAddress, o.order_price orderPrice, o.createdate orderDay, op.order_product_no orderProductNo, op.product_no productNo, op.product_cnt productCnt, op.delivery_status deliveryStatus FROM orders o INNER JOIN order_product op ON o.order_no = op.order_no WHERE o.order_no = ?";
-
+	    String sql = "	SELECT  "
+	    		+ "		o.order_no orderNo "
+	    		+ "		, o.id id "
+	    		+ "		, o.order_address orderAddress "
+	    		+ "		, o.order_price orderPrice "
+	    		+ "		, o.createdate orderDay "
+	    		+ "		, op.order_product_no orderProductNo "
+	    		+ "		, op.product_no productNo "
+	    		+ "		, op.product_cnt productCnt "
+	    		+ "		, op.delivery_status deliveryStatus "
+	    		+ "	FROM orders o "
+	    		+ "		INNER JOIN order_product op ON o.order_no = op.order_no "
+	    		+ "	WHERE o.order_no = ?";
 	    // SQL 쿼리를 실행하기 위한 PreparedStatement 객체 생성
 	    PreparedStatement mainStmt = conn.prepareStatement(sql);
 	    mainStmt.setInt(1, orderNo);
@@ -54,7 +67,10 @@ public class OrderDao {
 	            orders.setOrderAddress(rs.getString("orderAddress"));
 	            orders.setOrderPrice(rs.getInt("orderPrice"));
 	            orders.setCreatedate(rs.getString("orderDay"));
+	            System.out.println(orders.getOrderNo() + "<--orders.getOrderNo() --selectOrdersOne");
+
 	        }
+            System.out.println(orders.getOrderNo() + "<--orders.getOrderNo() if문 밖 --selectOrdersOne");
 
 	        // OrderProduct 객체를 생성하고 속성을 설정합니다.
 	        OrderProduct orderProduct = new OrderProduct();
@@ -66,14 +82,14 @@ public class OrderDao {
 	        // 주문 상품 세부 정보를 리스트에 추가합니다.
 	        orderProducts.add(orderProduct);
 	    }
+        System.out.println(orders.getOrderNo() + "<--orders.getOrderNo() while문 밖 --selectOrdersOne");
+
 
 	    // HashMap에 주문 정보와 주문 상품 세부 정보를 저장합니다.
 	    map.put("orders", orders);
 	    map.put("orderProducts", orderProducts);
         System.out.println(map.get("orders") +"<--get orders--selectOrdersOne");
         System.out.println(map.get("orderProducts") +"<--get orderProducts--selectOrdersOne");
-
-	    
 
 	    return map;
 	}

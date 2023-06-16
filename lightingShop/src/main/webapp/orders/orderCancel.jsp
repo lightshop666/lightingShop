@@ -10,8 +10,10 @@
 	int orderNo = 0;
 	if(request.getParameter("orderNo")!=null){
 		orderNo = Integer.parseInt(request.getParameter("orderNo"));
+		System.out.println(orderNo + "<-parm-- orderNo orderCancel.jsp");
+
 	}else{
-		System.out.println("orderNo 유효성 검사에서 튕긴다<---orderCancelAction.jsp");
+		System.out.println("orderNo 유효성 검사에서 튕긴다<---orderCancel.jsp");
         response.sendRedirect(request.getContextPath() + "/home.jsp");
 		return;
 	}
@@ -24,6 +26,7 @@
 	//orderNo에 따른 orderProduct 체크박스 체크를 위한 호출
 	HashMap<String, Object> map = orderDao.selectOrdersOne(orderNo);
 	Orders orders = (Orders) map.get("orders");
+	
 	List<OrderProduct> orderProducts = (List<OrderProduct>) map.get("orderProducts");
 	
 
@@ -43,11 +46,9 @@
 	<form action="<%= request.getContextPath() %>/orders/orderCancelAction.jsp" method="post">
 	<%
 		for(OrderProduct o : orderProducts){
-			//만약 배송상태가 주문확인중이 아니라면 튕긴다.
-			if(o.getDeliveryStatus().equals("주문확인중")){
-		        response.sendRedirect(request.getContextPath() + "/orders/orderProductOne.jsp?orderNo="+o.getOrderNo());
-				return;
-			}
+			orderNo =(int)orders.getOrderNo();
+			System.out.println(orderNo + "<--(int)orders.getOrderNo()--orderCancel.jsp");
+
 			
 			HashMap<String, Object> productInfo =  productDao.selectProductAndImg(o.getProductNo());
 			// 상품 정보와 이미지 가져오기
@@ -58,8 +59,11 @@
 			int discountedPrice = 0;
 			discountedPrice = orderProductDao.discountedByOrders(product.getProductNo(), orders.getCreatedate());
 			
+
+		    // 배송 상태가 주문확인중이 아니라면 체크박스를 체크할 수 없도록 처리
+			boolean disableCheckbox = !o.getDeliveryStatus().equals("주문확인중");
 	%>
-			<input type="checkbox" name="selectedProducts[]" value="<%= product.getProductNo() %>" data-price="<%= discountedPrice * o.getProductCnt() %>">>
+			<input type="checkbox" name="selectedProducts[]" value="<%= product.getProductNo() %>" data-price="<%= discountedPrice * o.getProductCnt() %>" <%= disableCheckbox ? "disabled" : "" %>>
 			<div>
 				<p>
 					<!-- 상품이미지 -->
@@ -73,19 +77,19 @@
 				<p>상품 금액 : <%=discountedPrice * o.getProductCnt()  %></p>
 				<p>상품 수량 : <%= o.getProductCnt() %></p>
 				<!-- 액션에서 처리할 값 -->
-				<input type="hidden" name="productNo" value="<%= o.getOrderProductNo()%>">
-				<input type="hidden" name="productCnt" value="<%=o.getProductCnt()%>">		
+				<input type="hidden" name="productNo[]" value="<%= o.getOrderProductNo()%>">
+				<input type="hidden" name="productCnt[]" value="<%=o.getProductCnt()%>">		
 				<hr>
 			</div>
 		
 	<%
 		}
 	%>
-		<!-- 취소 버튼 -->
-		<input type="submit" id="cancelButton" value="취소 신청">		
 		<input type="hidden" name="orderNo" value="<%= orders.getOrderNo() %>">
 		<input type="hidden" name="totalPriceInput" id="totalPriceInput">
 		<input type="hidden" name="unselectedPrice" id="unselectedPrice" value="0">
+		<!-- 취소 버튼 -->
+		<input type="submit" id="cancelButton" value="취소 신청">		
 		
 	</form>
 </div>

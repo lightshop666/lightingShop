@@ -106,23 +106,25 @@
 	<%
 	System.out.println(orderList.size()+"<--orderList.size()-- orderProductList.jsp");
 		for (Orders o : orderList) {
-			System.out.println(o.getOrderNo()+"<--getOrderNo-- orderProductList.jsp");
+			int orderNo = o.getOrderNo();
+			System.out.println(orderNo+"<--getOrderNo-- orderProductList.jsp");
 	%>
 
-			<h4>주문 번호 : <%= o.getOrderNo() %></h4>
+			<h4>주문 번호 : <%= orderNo %></h4>
 			<p>
-				<a href="<%=request.getContextPath()%>/orders/orderProductOne.jsp?orderNo=<%= o.getOrderNo() %>">
+				<a href="<%=request.getContextPath()%>/orders/orderProductOne.jsp?orderNo=<%= orderNo %>">
 				주문 상세
 				</a>
 			</p>
 			<p>주문일: <%= o.getCreatedate() %></p>
 <%
-			orderByOrderProduct = orderProductDao.selectOrderNoByOrderProductNo(o.getOrderNo());
+			orderByOrderProduct = orderProductDao.selectOrderNoByOrderProductNo(orderNo);
 			for (HashMap<String, Object> m : orderByOrderProduct) {
 				int productNo = (int) m.get("productNo");
 				String deliveryStatus = (String) m.get("deliveryStatus");
 				String reviewWritten = (String) m.get("reviewWritten");
-				System.out.println(m.get("orderProductNo")+"<--orderProductNo-- orderProductList.jsp");
+				int orderProductNo =(int)m.get("orderProductNo"); 
+				System.out.println(orderProductNo+"<--orderProductNo-- orderProductList.jsp");
 				System.out.println(m.get("orderNo")+"<--orderNo-- orderProductList.jsp");
 
 				
@@ -154,42 +156,37 @@
 						<%= product.getProductName() %>
 					</a>
 				</p>	
-				<p><!-- 버튼 분기 -->
-	<%	
-				if (deliveryStatus.equals("주문확인중")) {
-	   			 // 주문 취소 버튼 클릭 시 동작
-	%>
-					<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancel.jsp?orderNo=<%= m.get("orderNo") %>'">주문취소</button>
-	<%
-				} else if (deliveryStatus.equals("배송중") || deliveryStatus.equals("배송시작") || deliveryStatus.equals("교환중")) {
-		    	// 수취 확인 버튼 클릭 시 동작
-	%>
-					<button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">수취확인</button>
-	<%
-				} else if (deliveryStatus.equals("배송완료")) {
-		   		 // 구매 확정 버튼 클릭 시 동작
-	%>
-					<button onclick="location.href='<%= request.getContextPath() %>/orders/orderPurchase.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">구매확정</button>
-	<%
-				//주문 취소는 
-				} else if (deliveryStatus.equals("취소중")) {
-		 		   // 취소 철회 버튼 클릭 시 동작
-	%>
-					<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelWithdraw.jsp?orderNo=<%= m.get("orderNo") %>'">취소철회</button>
-	<%
-				} else if (deliveryStatus.equals("구매확정") && reviewWritten.equals("N")) {
-		    		// 상품평 버튼 클릭 시 동작
-	%>
-					<button onclick="location.href='<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=<%= m.get("orderProductNo") %>'">상품평</button>
-	<%
-				} else if (deliveryStatus.equals("취소완료")) {
-		 		   // 상품평 버튼 클릭 시 동작
-	%>
-					<button disabled>취소완료</button>
-	<%
-				}
-	%>
-			</p>
+<p><!-- 버튼 분기 -->
+<% if (deliveryStatus.equals("주문확인중")) { %>
+  <form action="<%= request.getContextPath() %>/orders/orderCancel.jsp" method="GET">
+    <input type="hidden" name="orderNo" value="<%= orderNo %>">
+    <button type="submit">주문취소</button>
+  </form>
+<% } else if (deliveryStatus.equals("배송중") || deliveryStatus.equals("배송시작") || deliveryStatus.equals("교환중")) { %>
+  <form action="<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp" method="GET">
+    <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
+    <button type="submit">수취확인</button>
+  </form>
+<% } else if (deliveryStatus.equals("배송완료")) { %>
+  <form action="<%= request.getContextPath() %>/orders/orderPurchase.jsp" method="GET">
+    <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
+    <button type="submit">구매확정</button>
+  </form>
+<% } else if (deliveryStatus.equals("취소중")) { %>
+  <form action="<%= request.getContextPath() %>/orders/orderCancelWithdraw.jsp" method="GET">
+    <input type="hidden" name="orderNo" value="<%= orderNo %>">
+    <button type="submit">취소철회</button>
+  </form>
+<% } else if (deliveryStatus.equals("구매확정") && reviewWritten.equals("N")) { %>
+  <form action="<%= request.getContextPath() %>/review/addReview.jsp" method="GET">
+    <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
+    <button type="submit">상품평</button>
+  </form>
+<% } else if (deliveryStatus.equals("취소완료")) { %>
+  <button disabled>취소완료</button>
+<% } %>
+</p>
+
 	<%
 			}
 	%>

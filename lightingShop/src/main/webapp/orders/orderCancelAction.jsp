@@ -15,25 +15,59 @@
 	*/
 	// 유효성 검사
 	int orderNo = Integer.parseInt(request.getParameter("orderNo"));
-	String[] selectedProducts = request.getParameterValues("selectedProducts[]");
-	String[] productCntArray = request.getParameterValues("productCnt");
-	//환불해줄 총액
-	int selectedPrice = Integer.parseInt(request.getParameter("totalPriceInput"));
-	//취소되지 않은 상품의 금액
-	int unselectedTotalPrice = Integer.parseInt(request.getParameter("unselectedPrice"));
+	System.out.println(orderNo + "<-parm-- orderNo orderCancelAction.jsp");
+	
+	String[] selectedProductArray = request.getParameterValues("selectedProducts");
+	ArrayList<String> selectedProducts = new ArrayList<>();
+	if (selectedProductArray != null) {
+	    selectedProducts = new ArrayList<>(Arrays.asList(selectedProductArray));
+	}
+	System.out.println(selectedProducts.size() + "<-selectedProducts.size-- orderNo orderCancelAction.jsp");
 	
 	// 선택된 상품이 없는 경우, 에러 메시지 출력 후 이전 페이지로 이동
-	if (selectedProducts == null || selectedProducts.length == 0) {
+	if (selectedProducts == null || selectedProducts.isEmpty()) {
+	    out.println("<script>alert('선택된 상품이 없습니다.'); history.go(-1);</script>");
+	    return;
+	}
+	
+	ArrayList<String> productCntList = new ArrayList<>(Arrays.asList(request.getParameterValues("productCnt")));
+	System.out.println(productCntList.size() + "<-productCntList.size-- orderNo orderCancelAction.jsp");
+	
+	// 선택된 상품의 개수와 상품 수량 배열의 길이를 비교하여 올바른지 확인
+	if (selectedProducts.size() != productCntList.size()) {
+	    out.println("<script>alert('상품 수량 정보가 올바르지 않습니다.'); history.go(-1);</script>");
+	    return;
+	}
+	
+	// 환불해줄 총액
+	String selectedPriceStr = request.getParameter("totalPriceInput");
+	int selectedPrice = 0;
+	// null이거나 비어있지 않다면 넣어준다.
+	if (selectedPriceStr != null && !selectedPriceStr.isEmpty()) {
+	    selectedPrice = Integer.parseInt(selectedPriceStr);
+	    System.out.println(selectedPrice + "<-selectedPrice-- orderNo orderCancelAction.jsp");
+	}
+	
+	// 취소되지 않은 상품의 금액
+	String unselectedTotalPriceStr = request.getParameter("unselectedPrice");
+	int unselectedTotalPrice = 0;
+	if (unselectedTotalPriceStr != null && !unselectedTotalPriceStr.isEmpty()) {
+	    unselectedTotalPrice = Integer.parseInt(unselectedTotalPriceStr);
+	    System.out.println(unselectedTotalPrice + "<-unselectedTotalPrice-- orderNo orderCancelAction.jsp");
+	}
+	
+	// 선택된 상품이 없는 경우, 에러 메시지 출력 후 이전 페이지로 이동
+	if (selectedProducts == null || selectedProducts.isEmpty()) {
 	    out.println("<script>alert('선택된 상품이 없습니다.'); history.go(-1);</script>");
 	    return;
 	}
 	
 	// 선택된 상품의 수량 배열과 선택된 상품 개수가 일치하지 않는 경우, 에러 메시지 출력 후 이전 페이지로 이동
-	if (productCntArray == null || productCntArray.length != selectedProducts.length) {
+	if (productCntList == null || productCntList.size() != selectedProducts.size()) {
 	    out.println("<script>alert('상품 수량 정보가 올바르지 않습니다.'); history.go(-1);</script>");
 	    return;
 	}
-	
+
 // 포인트 환불/적립 로직 추가
 	
 	//모델 소환

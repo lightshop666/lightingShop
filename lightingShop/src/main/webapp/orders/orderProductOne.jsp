@@ -10,9 +10,11 @@
 	}
 	
 	//주문번호 유효성 검사
-	int orderNo=15;
+	int orderNo=14;
 	if(request.getParameter("orderNo")!=null){
 		orderNo = Integer.parseInt(request.getParameter("orderNo"));
+		System.out.println(orderNo + "<--parm-- orderNo orderProductOne.jsp");
+
 	}else{
 		
 	}
@@ -184,14 +186,14 @@
 					//배송상태에 따라 버튼 분기
 					if(deleveryStatus.equals("주문확인중")){
 				%><!-- 주문취소 -->
-						<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancel.jsp?orderNo=<%= orderNo %>'">주문취소</button>
+						<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancel.jsp?orderNo=' + <%= orderNo %>'">주문취소</button>
 				<%
 					}
 					else if(deleveryStatus.equals("배송중")
 					||deleveryStatus.equals("배송완료")
 					||deleveryStatus.equals("교환 중")){				
 				%><!-- 수취확인 -->
-						<button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>'">수취확인</button>
+						<button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=' + <%= orderProducts.get(i).getOrderProductNo() %>'">수취확인</button>
 				
 				<%
 					//배송 상태가 구매확정이고 리뷰 상태가 아직 쓰여지지 않은 경우
@@ -201,7 +203,7 @@
 					//작성여부가 N인지
 					&& reviewWritten.equals("N")){
 				%><!-- 리뷰작성 -->
-						<button onclick="location.href='<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>'">수취확인</button>
+						<button onclick="location.href='<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=' + <%= orderProducts.get(i).getOrderProductNo() %>'">수취확인</button>
 				<%
 					}else if(deleveryStatus.equals("구매확정")
 							//주문한지 한 달 이내인지
@@ -209,7 +211,7 @@
 							//작성여부가 Y인지
 							&& reviewWritten.equals("Y")){
 				%><!-- 리뷰수정 -->
-						<button onclick="location.href='/review/modifyReview.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %> '">리뷰수정</button>
+						<button onclick="location.href='/review/modifyReview.jsp?orderProductNo=' + <%= orderProducts.get(i).getOrderProductNo() %> '">리뷰수정</button>
 
 				<%
 					}
