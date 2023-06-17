@@ -32,7 +32,7 @@
 	// 필수 필드 검사를 수행합니다.
 	if (productNos == null || productCnts == null || finalPrice == null) {
 		System.out.println("유효성검사에서 튕긴다 <--orderProductAction.jsp");
-		response.sendRedirect(request.getContextPath() + "/orderProduct.jsp");
+		response.sendRedirect(request.getContextPath() + "/orders/orderProduct.jsp");
 		return;
 	}
 	

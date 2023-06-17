@@ -17,29 +17,42 @@
 	int orderNo = Integer.parseInt(request.getParameter("orderNo"));
 	System.out.println(orderNo + "<-parm-- orderNo orderCancelAction.jsp");
 	
-	String[] selectedProductArray = request.getParameterValues("selectedProducts");
-	ArrayList<String> selectedProducts = new ArrayList<>();
-	if (selectedProductArray != null) {
-	    selectedProducts = new ArrayList<>(Arrays.asList(selectedProductArray));
-	}
-	System.out.println(selectedProducts.size() + "<-selectedProducts.size-- orderNo orderCancelAction.jsp");
-	
-	// 선택된 상품이 없는 경우, 에러 메시지 출력 후 이전 페이지로 이동
-	if (selectedProducts == null || selectedProducts.isEmpty()) {
+	//체크박스 선택된 값들 받아온다
+	String[] selectedProductList = request.getParameterValues("selectedProducts");
+	//인트 배열 선언
+	int[] intSelectedProducts = null;
+	//받아온 값들이 널이 아니라면
+	if (selectedProductList != null) {
+		//배열의 길이만큼 int 선언
+		intSelectedProducts = new int[selectedProductList.length];
+		for (int i = 0; i<selectedProductList.length; i += 1){	//배열에 새로운 값을 써줘야하기 때문에 foreach가 아니라 for문
+			intSelectedProducts[i] = Integer.parseInt(selectedProductList[i]);
+		}
+		System.out.println(intSelectedProducts.length + "<-selectedProducts.size-- orderNo orderCancelAction.jsp");
+	}else{
 	    out.println("<script>alert('선택된 상품이 없습니다.'); history.go(-1);</script>");
 	    return;
 	}
 	
-	ArrayList<String> productCntList = new ArrayList<>(Arrays.asList(request.getParameterValues("productCnt")));
-	System.out.println(productCntList.size() + "<-productCntList.size-- orderNo orderCancelAction.jsp");
+	//체크박스 선택된 값들 받아온다
+	String[] productCntList = request.getParameterValues("productCnt");
+	//인트 배열 선언
+	int[] intProductCntList = null;
 	
-	// 선택된 상품의 개수와 상품 수량 배열의 길이를 비교하여 올바른지 확인
-	if (selectedProducts.size() != productCntList.size()) {
-	    out.println("<script>alert('상품 수량 정보가 올바르지 않습니다.'); history.go(-1);</script>");
+	//받아온 값들이 널이 아니라면
+	if (productCntList != null) {
+		//배열의 길이만큼 int 선언
+		intSelectedProducts = new int[productCntList.length];
+		for (int i = 0; i<productCntList.length; i += 1){	//배열에 새로운 값을 써줘야하기 때문에 foreach가 아니라 for문
+			intProductCntList[i] = Integer.parseInt(productCntList[i]);
+		}
+		System.out.println(intProductCntList.length + "<-selectedProducts.size-- orderNo orderCancelAction.jsp");
+	}else{
+	    out.println("<script>alert('선택된 상품(개수)이 없습니다.'); history.go(-1);</script>");
 	    return;
 	}
 	
-	// 환불해줄 총액
+	
 	String selectedPriceStr = request.getParameter("totalPriceInput");
 	int selectedPrice = 0;
 	// null이거나 비어있지 않다면 넣어준다.
@@ -56,17 +69,6 @@
 	    System.out.println(unselectedTotalPrice + "<-unselectedTotalPrice-- orderNo orderCancelAction.jsp");
 	}
 	
-	// 선택된 상품이 없는 경우, 에러 메시지 출력 후 이전 페이지로 이동
-	if (selectedProducts == null || selectedProducts.isEmpty()) {
-	    out.println("<script>alert('선택된 상품이 없습니다.'); history.go(-1);</script>");
-	    return;
-	}
-	
-	// 선택된 상품의 수량 배열과 선택된 상품 개수가 일치하지 않는 경우, 에러 메시지 출력 후 이전 페이지로 이동
-	if (productCntList == null || productCntList.size() != selectedProducts.size()) {
-	    out.println("<script>alert('상품 수량 정보가 올바르지 않습니다.'); history.go(-1);</script>");
-	    return;
-	}
 
 // 포인트 환불/적립 로직 추가
 	

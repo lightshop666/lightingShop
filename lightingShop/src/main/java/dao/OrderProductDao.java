@@ -245,7 +245,6 @@ public class OrderProductDao {
 			map.put("createdate", createDate);
 			map.put("todaydate", todayDate);
 	    }
-	    
 	    return map;
 	}
 //5-2 리뷰 작성 기간 체크
@@ -265,14 +264,50 @@ public class OrderProductDao {
 
 
 	
+//6) orderProduct 넘버로 받아오는 orderProduct 테이블
+	/*
+	SELECT 
+		order_product_no orderProductNo
+		, order_no orderNo
+		, product_no productNo
+		, product_cnt productCnt
+		, delivery_status deliveryStatus
+	FROM order_product
+	WHERE order_product_no=?
+	*/
 	
-	
-	
-	
-	
-//orderProduct 넘버로 받아오는 orderProduct 테이블
-	
-	
+	public OrderProduct orderProductOne (int orderProductNo) throws Exception {
+		OrderProduct orderProduct = null;
+	    
+	    // DB 연결을 위한 DBUtil 객체와 Connection 객체 생성
+	    DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
+	    
+	    // 주문 및 주문 상품 정보를 조회하는 SQL문
+	    String sql = "SELECT  "
+	    		+ "	order_product_no orderProductNo "
+	    		+ "	, order_no orderNo "
+	    		+ "	, product_no productNo "
+	    		+ "	, product_cnt productCnt "
+	    		+ "	, delivery_status deliveryStatus "
+	    		+ "FROM order_product "
+	    		+ "WHERE order_product_no=?"; 
+	    // SQL문 실행을 위한 PreparedStatement 객체 생성
+	    PreparedStatement mainStmt = conn.prepareStatement(sql);
+	    mainStmt.setInt(1, orderProductNo);
+	    ResultSet rs = mainStmt.executeQuery();
+	    
+	    // 결과셋 받아오기
+	    if (rs.next()) {
+	    	orderProduct = new OrderProduct();
+	    	orderProduct.setOrderProductNo(rs.getInt("orderProductNo"));
+	    	orderProduct.setOrderNo(rs.getInt("orderNo"));
+	    	orderProduct.setProductNo(rs.getInt("productNo"));
+	    	orderProduct.setProductCnt(rs.getInt("productCnt"));
+	    	orderProduct.setDeliveryStatus(rs.getString("deliveryStatus"));
+	    }
+	    return orderProduct;
+	}
 	
 	
 	

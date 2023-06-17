@@ -3,7 +3,7 @@
 <%@ page import="vo.*" %>
 <%@ page import="java.util.*"%>
 <%
-	//order_product_no가 테이블 외래키이자 기본키다.
+	//order_product_no와  orderNo를 받아온다
 	if(request.getParameter("orderProductNo") == null){
 		response.sendRedirect(request.getContextPath()+"/review/reviewList.jsp");	
 		System.out.println("orderProductNo 유효성 검사에서 튕긴다<--reviewOne.jsp");

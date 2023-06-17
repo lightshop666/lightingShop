@@ -119,11 +119,12 @@
 			OrderProduct orderProduct = orderProducts.get(i);
 		//디버깅
 			System.out.println(orderProduct.getOrderProductNo()+"<--orderPorductNo orderProductOne.jsp");
-		
+			int orderProductNo = orderProduct.getOrderProductNo();
+			
 			//상품 정보와 이미지 가져오기
 			Product product = (Product) productInfo.get("product");
 			ProductImg productImg = (ProductImg) productInfo.get("productImg");
-			
+		
 			// 한 달 이후로는 리뷰를 쓸 수 없게 리뷰 버튼 없애기 위한 DB 조회
 			HashMap<String, Object> orderProductInfo = orderProductDao.selectOrderProduct(orderProduct.getOrderProductNo());
 			String deleveryStatus = (String)orderProductInfo.get("deleveryStatus");
@@ -146,10 +147,20 @@
 				<p>배송 상태: <%=deleveryStatus %></p>
 				
 				<div onclick="location.href='<%= request.getContextPath() %>/product/productOne.jsp?productNo=' + <%= product.getProductNo() %>;">
-					<p>
-						상품 이미지
-						<img class="thumbnail" src="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>" alt="Product Image">
-					</p>
+					<p>상품 이미지
+			<%
+						// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+						if(productImg.getProductSaveFilename() == null) {
+			%>
+							<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+			<%
+						}else {
+			%>
+							<img class="thumbnail" src="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>" alt="Product Image">
+			<%
+						}
+			%>
+				</p>
 					<p>상품 이름: <%= product.getProductName() %></p>
 				</div>
 				
@@ -161,7 +172,7 @@
 					||deleveryStatus.equals("배송완료"))) { 
 				%>   
 						<p><!-- 반품신청 -->
-							<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelAction.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>'">반품신청</button>
+							<button onclick="location.href='<%= request.getContextPath() %>/orders/returnProduct.jsp?orderProductNo=' + <%=orderProductNo %>">반품신청</button>
 						</p>
 				<%
 					}
@@ -171,7 +182,7 @@
 					||deleveryStatus.equals("배송완료"))) { 
 					%>   
 						<p><!-- 교환신청 -->
-							<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancelAction.jsp?orderProductNo=<%= orderProducts.get(i).getOrderProductNo() %>'">교환신청</button>	
+							<button onclick="location.href='<%= request.getContextPath() %>/orders/switchProduct.jsp?orderProductNo=<%= orderProductNo%>'">교환신청</button>	
 						</p>
 				<%
 					}
@@ -193,7 +204,7 @@
 					||deleveryStatus.equals("배송완료")
 					||deleveryStatus.equals("교환 중")){				
 				%><!-- 수취확인 -->
-						<button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=' + <%= orderProducts.get(i).getOrderProductNo() %>'">수취확인</button>
+						<button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=' + <%= orderProductNo%>'">수취확인</button>
 				
 				<%
 					//배송 상태가 구매확정이고 리뷰 상태가 아직 쓰여지지 않은 경우
@@ -203,15 +214,15 @@
 					//작성여부가 N인지
 					&& reviewWritten.equals("N")){
 				%><!-- 리뷰작성 -->
-						<button onclick="location.href='<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=' + <%= orderProducts.get(i).getOrderProductNo() %>'">수취확인</button>
+								<button onclick="location.href='<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=<%= orderProductNo %>'">리뷰작성</button>
 				<%
-					}else if(deleveryStatus.equals("구매확정")
+					}else if ( deleveryStatus.equals("구매확정")
 							//주문한지 한 달 이내인지
 							&& isReviewAllowed==true
 							//작성여부가 Y인지
 							&& reviewWritten.equals("Y")){
 				%><!-- 리뷰수정 -->
-						<button onclick="location.href='/review/modifyReview.jsp?orderProductNo=' + <%= orderProducts.get(i).getOrderProductNo() %> '">리뷰수정</button>
+								<button onclick="location.href='<%= request.getContextPath() %>//review/modifyReview.jsp?orderProductNo=<%= orderProductNo %>'">리뷰수정</button>
 
 				<%
 					}
