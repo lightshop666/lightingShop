@@ -225,7 +225,7 @@ public class CustomerDao {
 		
 		// SQL 명령, 명령 준비
 		String sql = ("SELECT c.id, c.cstm_name, c.cstm_address, c.cstm_email, c.cstm_birth, c.cstm_phone, c.cstm_gender, c.cstm_rank, "
-				+ " c.cstm_point, c.cstm_last_login, c.cstm_agree, c.createdate, a.address_name"
+				+ " c.cstm_point, c.cstm_last_login, c.cstm_agree, c.createdate, a.address_name, a.default_address"
 				+ " FROM customer c INNER JOIN address a "
 				+ " ON c.id = a.id "
 				+ " WHERE c.id = ?");
@@ -249,29 +249,30 @@ public class CustomerDao {
 			customerOne.put("c.cstm_agree", rs.getString("c.cstm_agree")); 
 			customerOne.put("c.createdate", rs.getString("c.createdate")); 
 			customerOne.put("a.address_name", rs.getString("a.address_name"));
+			customerOne.put("a.default_address", rs.getString("a.default_address"));
 		}
 		return customerOne;
 	}
 	
 	// 5-1) CustomerOne 포인트 내역 출력
-		public int selectPointCustomer(String id) throws Exception {
-			
-			int point = 0;
-			DBUtil dbutil = new DBUtil();
-			Connection conn = dbutil.getConnection();
-			
-			// SQL 명령, 명령 준비
-			String sql = "SELECT cstm_point FROM customer WHERE id= ?";
-			PreparedStatement stmt = conn.prepareStatement(sql);
-			stmt.setString(1, id); 	// Customer Id를 입력받는다.
-			
-			ResultSet rs = stmt.executeQuery();
-			
-			if (rs.next()) {
-				point = rs.getInt("cstm_point");
-			}
-			return point;
+	public int selectPointCustomer(String id) throws Exception {
+		
+		int point = 0;
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		// SQL 명령, 명령 준비
+		String sql = "SELECT cstm_point FROM customer WHERE id= ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, id); 	// Customer Id를 입력받는다.
+		
+		ResultSet rs = stmt.executeQuery();
+		
+		if (rs.next()) {
+			point = rs.getInt("cstm_point");
 		}
+		return point;
+	}
 	
 	// 6) Customer 전체 행 출력 메소드
 	public int selectCustomerCnt() throws Exception {
