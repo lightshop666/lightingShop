@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="dao.*" %>
 <%@ page import="vo.*" %>
+<%@ page import="java.net.*" %>
 <%
 	//세션검사
 	if (session.getAttribute("loginIdListId") == null) { // 비회원이면 홈으로
@@ -36,8 +37,10 @@
 		
 		response.sendRedirect(request.getContextPath()+"/customer/myPage.jsp");
 		return;
-	} else {
+	} else { // 비밀번호 미일치
 		System.out.println("회원탈퇴 실패 - 비밀번호 불일치");
-		response.sendRedirect(request.getContextPath()+"/customer/removeCustomer.jsp");
+		String msg = URLEncoder.encode("비밀번호가 일치하지 않습니다.", "UTF-8");
+		response.sendRedirect(request.getContextPath()+"/customer/removeCustomer.jsp?msg="+msg);
+		return;
 	}
 %>

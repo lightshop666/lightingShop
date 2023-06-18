@@ -11,7 +11,6 @@
 		return;
 	}
 	
-	
 	System.out.println(request.getParameter("lastPw")); 
 	System.out.println(request.getParameter("cstmName"));
 	System.out.println(request.getParameter("addressName"));
@@ -100,8 +99,9 @@
 	
 	if(checkId) { 
 		// 중복일 경우 회원가입 폼으로 리다이렉션
-		System.out.println("중복된 아이디가 존재합니다");
-		response.sendRedirect(request.getContextPath()+"/customer/addCustomer.jsp");
+		System.out.println("중복된 아이디가 존재합니다.");
+		String msg = "overLapId";
+		response.sendRedirect(request.getContextPath()+"/customer/addCustomer.jsp?msg="+msg);
 		return;
 	}else {
 		// 중복이 아닐경우 회원가입 진행, 메서드 호출

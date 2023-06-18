@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="dao.*" %>
 <%@ page import="vo.*" %>
+<%@ page import="java.net.*" %>
 <%
 	//인코딩	
 	request.setCharacterEncoding("utf-8"); 
@@ -50,7 +51,8 @@
 	// 비밀번호가 서로 일치하지 않는다면 수정폼으로 리다이렉션
 	if(!customerNewPw.equals(customerNewPwCk) || !lastPw.equals(pw)) {
 		System.out.println("비밀번호가 서로 일치하지 않습니다.");
-		response.sendRedirect(request.getContextPath()+"/customer/modifyCustomer.jsp");
+		String noPwMsg = URLEncoder.encode("비밀번호가 서로 일치하지 않습니다.", "UTF-8");
+		response.sendRedirect(request.getContextPath()+"/customer/modifyCustomer.jsp?noPwMsg="+noPwMsg);
 		return;
 	}
 	
@@ -91,9 +93,9 @@
 	System.out.println("비밀번호이력 중복체크 true값이 뜨면 중복 --> :"+pwHistoryCk);
 	
 	if(pwHistoryCk) {
-		System.out.println("최근 변경했던 비밀번호들과 중복됩니다");
-		String msg = "overlapPw";
-		response.sendRedirect(request.getContextPath()+"/customer/modifyCustomer.jsp?msg="+msg);
+		System.out.println("최근 변경했던 비밀번호들과 중복됩니다.");
+		String overlapPw = URLEncoder.encode("최근 변경했던 비밀번호들과 중복됩니다.", "UTF-8");
+		response.sendRedirect(request.getContextPath()+"/customer/modifyCustomer.jsp?overlapPw="+overlapPw);
 		return;
 	}
 	

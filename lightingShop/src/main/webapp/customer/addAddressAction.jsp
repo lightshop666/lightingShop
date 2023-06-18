@@ -12,6 +12,10 @@
 		return;
 	}
 	
+	System.out.println(request.getParameter("address"));
+	System.out.println(request.getParameter("addressName"));
+	System.out.println(request.getParameter("defaultAddress"));
+	
 	//유효성 검사 
 	if(request.getParameter("address") == null
 		|| request.getParameter("addressName") == null
@@ -32,12 +36,9 @@
 	// address에 set
 	Address address = new Address();
 	address.setId(id);
-	
-	/* 
 	address.setAddressName(addressName);
 	address.setAddress(addressStr); 
 	address.setDefaultAddress(defaultAddress) ; 
-	*/
 	
 	// Dao 호출
 	CustomerDao cDao = new CustomerDao();
@@ -45,8 +46,9 @@
 	System.out.println("기본배송지 중복체크 true - 중복 --> :"+checkAddress);
 	
 	if(checkAddress) { // 중복일 경우 주소추가로 리다이렉션
-		System.out.println("기본 배송지가 중복됩니다.");
-		response.sendRedirect(request.getContextPath()+"/customer/addAddress.jsp");
+		System.out.println("기본 배송지가 중복됩니다.\n 기본 배송지를 해제하고 다시 추가해주세요.");
+		String msg = "overLapAddress";
+		response.sendRedirect(request.getContextPath()+"/customer/addAddress.jsp?msg="+msg);
 		return;
 	} else { // 중복이 아닐경우 배송지 추가 진행
 		System.out.println("배송지추가 성공");

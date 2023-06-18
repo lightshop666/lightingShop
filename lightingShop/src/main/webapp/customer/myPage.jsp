@@ -116,7 +116,7 @@
 		            <div class="row align-items-center">
 		                <div class="col-12">
 		                    <table class = "table table-hover w-100 rounded" style="table-layout: auto; width: 100%; table-layout: fixed;">
-					         	<thead>
+					           <thead>
 					              <tr>
 					                  <th>주문번호</th>
 					                  <th>상품이름</th>
@@ -181,7 +181,7 @@
 			<section class="login-area section-padding-100">
 		        <div class="container">
 		             <div class="row justify-content-center">
-		                 <div class="col-12 col-lg-8">
+		                 <div class="col-12 col-lg-6">
 		                    <div class="login-content">
 		                    	<div class="logo">
 					                <a href="<%=request.getContextPath()%>/home.jsp"><img src="<%=request.getContextPath()%>/resources/img/core-img/logo.png" alt=""></a>
@@ -232,7 +232,7 @@
     <!-- Active js -->
     <script src="js/active.js"></script>
 
-	<!-- js 유효성 검사 - DOM API 사용  -->
+	<!-- js 유효성 검사  -->
 	<script>
 		<%
 			String loginMsg =  request.getParameter("loginMsg");

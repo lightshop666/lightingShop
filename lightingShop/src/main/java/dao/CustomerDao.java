@@ -217,7 +217,7 @@ public class CustomerDao {
 		return pwCk;
 	}
 	
-	// 5) CustomerOne (+ADDRESS NAME)
+	// 5) CustomerOne - ( + 배송지, 기본배송지)
 	public HashMap<String, Object> selectCustomerOne(Customer customer) throws Exception {
 		
 		DBUtil dbutil = new DBUtil();
@@ -308,6 +308,7 @@ public class CustomerDao {
 			a.setId(rs.getString("id"));
 			a.setAddressName(rs.getString("address_name"));
 			a.setAddress(rs.getString("address"));
+			a.setDefaultAddress(rs.getString("default_address"));
 			list.add(a);
 		}
 		
@@ -321,7 +322,7 @@ public class CustomerDao {
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
 		
-		String sql = "SELECT address_no, address_name, address, updatedate FROM address WHERE address_no = ?";
+		String sql = "SELECT address_no, address_name, address, default_address, updatedate FROM address WHERE address_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, addressNo);
 		ResultSet rs = stmt.executeQuery();
@@ -329,11 +330,12 @@ public class CustomerDao {
 			myAddress.setAddressNo(rs.getInt("address_no"));
 			myAddress.setAddressName(rs.getString("address_name"));
 			myAddress.setAddress(rs.getString("address"));
+			myAddress.setDefaultAddress(rs.getString("default_address"));
 		}
 		return myAddress;
 	}
 		
-	// 2) 주소추가 - 회원가입시 자동생성
+	// 2) 주소추가 - 배송지 추가시, 위에 회원가입시 추가되는 메서드 있음.
 	public int addMyAddress(Address address) throws Exception {
 		int addMyAddress = 0;
 		
@@ -342,11 +344,12 @@ public class CustomerDao {
 		
 		String sql = "INSERT INTO address("
 				+ " id, address, address_name, address_last_date, default_address, createdate, updatedate)"
-				+ " VALUES(?, ?, ?, NOW(), 'N', NOW(), NOW())"; 
+				+ " VALUES(?, ?, ?, NOW(), ?, NOW(), NOW())"; 
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, address.getId());
 		stmt.setString(2, address.getAddress());
 		stmt.setString(3, address.getAddressName());
+		stmt.setString(4, address.getDefaultAddress());
 		
 		addMyAddress = stmt.executeUpdate();
 		
@@ -420,21 +423,21 @@ public class CustomerDao {
 		return removeOldAddress;
 	}
 	
-	// 5) 주소 총개수 - (최대 4개로 제한 - operateAddress 메서드 이용)
+	// 5) 주소 총개수 - (최대 4개로 제한 - operateAddress 메서드에서 이용)
 	public int ttlCntAddress(Address address) throws Exception {
-		int ttlAddress = 0;
+		int ttlCntAddress = 0;
 		
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
 		
-		String sql = "SELECT COUNT(*) FROM address WHERE customer_id = ?";
+		String sql = "SELECT COUNT(*) FROM address WHERE id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, address.getId());
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
-			ttlAddress = rs.getInt("COUNT(*)");
+			ttlCntAddress = rs.getInt("COUNT(*)");
 		}
-		return ttlAddress;
+		return ttlCntAddress;
 	}
 	
 	// 6) 배송지 추가시 address에 배송지 추가 및 최대 4개 넘을 시, 가장 오래된 배송지 자동삭제
@@ -447,37 +450,41 @@ public class CustomerDao {
 		// 모델 생성
 		CustomerDao cDao = new CustomerDao();
 		// address 개수를 저장할 변수선언
-		int CntAddress = 0;
+		int cntAddress = 0;
 		// 4개가 넘어갔을시 address를 삭제할 변수 선언
 		int removeOldAddress = 0;
 		// 가장 오래된 배송지를 불어올 객체 생성
 		Address selectOldestAddress = new Address();
 		System.out.println("[operateAddress]");
 		
-		if(CntAddress < 4) { // 3개 이하일 경우, 배송지추가 진행
+		// 주소지 총 개수
+		cntAddress = cDao.ttlCntAddress(address);
+		
+		if(cntAddress < 4) { // 3개 이하일 경우, 배송지추가 진행
 			System.out.println("배송지내역 4개 미만");
 			operateAddress = addMyAddress(address);
 		} else { // 4개 이상일 경우, 가장 오래된 주소지내역 삭제 후, 배송지추가 진행
 			System.out.println("배송지내역 4개 이상");
 			// 삭제할 가장오래된 배송지내역 하나 불러오기
-			selectOldestAddress = selectOldestAddress(address);
+			selectOldestAddress = cDao.selectOldestAddress(address);
+			System.out.println("삭제할 배송지의 아이디명 :" + selectOldestAddress.getId());
 			System.out.println("삭제할 배송지명 :" + selectOldestAddress.getAddressName());
 			
 			//가장 오래된 배송지 삭제
-			removeOldAddress = removeOldAddress(address);
+			removeOldAddress = cDao.removeOldAddress(selectOldestAddress);
 			
 			if(removeOldAddress == 1) { // old 배송지가 삭제된 경우 - 변경된 배송지 추가
 				System.out.println("old 배송지내역 삭제 성공");
-				// 수정된 배송지 추가
-				operateAddress = addMyAddress(address);
+				// 배송지 추가
+				operateAddress = cDao.addMyAddress(address);
 			} else { // 삭제되지 않은경우
 				System.out.println("old 배송지내역 삭제 실패");
 			}
 		}
 		
-		// 배송지내역 총개수
-		CntAddress = cDao.ttlCntAddress(address);
-		System.out.println("배송지내역 총 개수:" + CntAddress);
+		// 로직 진행 후 배송지내역 총개수
+		cntAddress = cDao.ttlCntAddress(address);
+		System.out.println("배송지내역 총 개수:" + cntAddress);
 		
 		// 배송지 추가가 됬다면 1반환
 		return operateAddress;
@@ -500,6 +507,7 @@ public class CustomerDao {
 		if(rs.next()) {
 			selectOldestAddress = new Address();
 			selectOldestAddress.setId(rs.getString("id"));
+			selectOldestAddress.setAddressName(rs.getString("address_name"));
 			selectOldestAddress.setCreatedate(rs.getString("createdate"));
 		}
 		
@@ -555,35 +563,38 @@ public class CustomerDao {
 		
 		int operatePwHistory = 0;
 		CustomerDao cDao = new CustomerDao();
-		int CntPwHistory = 0;
+		int cntPwHistory = 0;
 		int removePwHistory = 0;
 		PwHistory selectOldestPw = new PwHistory();
 		System.out.println("[operatePwHistory]");
 		
-		if(CntPwHistory < 4) { // 3개 이하일 경우, 이력추가 진행
+		// 비밀번호 총 개수
+		cntPwHistory = cDao.ttlCntPwHistory(pwHistory);
+		
+		if(cntPwHistory < 4) { // 3개 이하일 경우, 이력추가 진행
 			System.out.println("비밀번호내역 4개미만");
-			operatePwHistory = addPwHistory(pwHistory);
+			operatePwHistory = cDao.addPwHistory(pwHistory);
 		} else { // 4개 이상일 경우, 가장오래된 비밀번호내역 삭제 후, 이력추가 진행
 			System.out.println("비밀번호내역 4개이상");
 			// 삭제할 가장오래된 비밀번호내역 하나 불러오기
-			selectOldestPw = selectOldestPw(pwHistory);
+			selectOldestPw = cDao.selectOldestPw(pwHistory);
 			System.out.println("삭제할 pw :" + selectOldestPw.getPw());
 			System.out.println("삭제할 id : "+selectOldestPw.getId());
 			
 			// 오래된 비밀번호내역 삭제
-			removePwHistory = removePwHistory(selectOldestPw);
+			removePwHistory = cDao.removePwHistory(selectOldestPw);
 			
 			if(removePwHistory == 1) {
 				System.out.println("old 비밀번호내역 삭제 성공");
 				// 수정된 비밀번호 추가
-				operatePwHistory = addPwHistory(pwHistory);
+				operatePwHistory = cDao.addPwHistory(pwHistory);
 			} else {
 				System.out.println("old 비밀번호내역 삭제 실패");
 			}
 		}
-		// 총개수
-		CntPwHistory = cDao.ttlCntPwHistory(pwHistory);
-		System.out.println("비밀번호내역 총 갯수 : "+ CntPwHistory);
+		// 로직 후 비밀번호 총개수
+		cntPwHistory = cDao.ttlCntPwHistory(pwHistory);
+		System.out.println("비밀번호내역 총 갯수 : "+ cntPwHistory);
 		
 		// 비밀번호 이력추가가 됬다면 1 반환 
 		return operatePwHistory;
