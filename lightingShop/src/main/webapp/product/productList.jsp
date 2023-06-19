@@ -16,7 +16,7 @@
 	}
 	String categoryName = request.getParameter("categoryName");
 	*/
-	String categoryName = "스탠드"; // 테스트용
+	String categoryName = "실내조명"; // 테스트용
 	
 	int currentPage = 1;
 	if(request.getParameter("currentPage") != null) {
@@ -80,57 +80,46 @@
 	<!-- (자바스크립트) 자동 슬라이드 효과 예정 -->
 	<%
 		for(HashMap<String, Object> m : discountProductList) {
+			// 할인율이 적용된 최종 가격과 비교해야 할인 날짜까지 고려가능
+			if((int)m.get("productPrice") != (int)m.get("discountedPrice")) {
 	%>
-			<div>
-				<!-- 상품 이미지 or 이름 클릭시 상품 상세로 이동 -->
-				<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
-					<!-- 상품 이미지 -->
-					<%
-						// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
-						if(m.get("productImgSaveFilename") == null) {
-					%>
-							<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
-					<%
-						} else {
-					%>
-							<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
-					<%	
-						}
-					%>
-					<!-- 상품 이름 --><br>
-					<%=m.get("productName")%>[<%=m.get("productStatus")%>]
-				</a>
-				<!-- 할인유무에 따라 분기 -->
-				<%
-					if((Double)m.get("discountRate") == 0) { // 할인 날짜가 고려가 안됨 방안 생각해보기
-				%>
-						<!-- 원가 출력 -->
-						<p class="font-bold">
-							<%=m.get("productPrice")%>원
-						</p>
-				<%
-					} else {
-				%>
-						<!-- 할인 가격 굵게 출력 -->
-						<p class="font-bold">
-							<%=m.get("discountedPrice")%>원
-						</p>
-						<!-- 원가 취소선 출력 -->
-						<p class="line-through">
-							<%=m.get("productPrice")%>원
-						</p>
-						<!-- 할인율 -->
-						<p class="font-bold font-orange">
-							<%=(Double)m.get("discountRate") * 100%>%
-						</p>
-				<%
-					}
-				%>
-			</div>
+				<div>
+					<!-- 상품 이미지 or 이름 클릭시 상품 상세로 이동 -->
+					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
+						<!-- 상품 이미지 -->
+						<%
+							// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+							if(m.get("productImgSaveFilename") == null) {
+						%>
+								<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+						<%
+							} else {
+						%>
+								<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
+						<%	
+							}
+						%>
+						<!-- 상품 이름 --><br>
+						<%=m.get("productName")%>[<%=m.get("productStatus")%>]
+					</a>
+					<!-- 할인이 적용된 최종 가격 표시 -->
+					<!-- 할인 가격 굵게 출력 -->
+					<p class="font-bold">
+						<%=m.get("discountedPrice")%>원
+					</p>
+					<!-- 원가 취소선 출력 -->
+					<p class="line-through">
+						<%=m.get("productPrice")%>원
+					</p>
+					<!-- 할인율 -->
+					<p class="font-bold font-orange">
+						<%=(Double)m.get("discountRate") * 100%>%
+					</p>
+				</div>
 	<%
+			}
 		}
 	%>
-	
 	<!-- 해당 카테고리의 상품 리스트 출력 -->
 	<h1><%=categoryName%>의 상품 리스트</h1>
 	총 <%=totalRow%>개의 상품
@@ -167,7 +156,7 @@
 				</a>
 				<!-- 할인유무에 따라 분기 -->
 				<%
-					if((Double)m.get("discountRate") == 0) {
+					if((int)m.get("productPrice") == (int)m.get("discountedPrice")) {
 				%>
 						<!-- 원가 출력 -->
 						<p class="font-bold">

@@ -75,10 +75,7 @@
 	ProductImg productImg = (ProductImg)productMap.get("productImg");
 	Discount discount = (Discount)productMap.get("discount");
 	// 해당 상품의 할인율이 적용된 최종 가격
-	int discountedPrice = (int)product.getProductPrice();
-	if(discount.getDiscountStart() != null) { // 할인이 적용되어있으면
-		discountedPrice = dao2.discountedPrice(productNo); // 할인가로 바꾸기	
-	}
+	int discountedPrice = dao2.discountedPrice(productNo);
 	
 	// 2-2. 해당 상품의 리뷰
 	ArrayList<HashMap<String, Object>> reviewList = dao.selectProductReviewList(reviewBeginRow, reviewRowPerPage, searchWord, productNo);
@@ -150,14 +147,15 @@
 		
 		quantityElement.innerText = quantity; // 변경된 수량 출력
 		
+		// 동적으로 바뀌는 quantity 값을 hidden input에 설정
+		const hiddenInput = document.getElementsByName('quantity')[0];
+		const hiddenInput2 = document.getElementsByName('productCnt')[0];
+		hiddenInput.value = quantity;
+		hiddenInput2.value = quantity;
+		
 		// 총 결제 금액 계산
 		const totalElement = document.getElementById('totalAmount'); // 총 가격Element 가져오기
-		let price; // 할인여부에 따라 가격 변경
-		if (<%=product.getProductPrice()%> == <%=discountedPrice%>) { // 할인율이 반영된 최종가격과 원가가 같으면
-		  price = <%=product.getProductPrice()%>; // 원가
-		} else {
-		  price = <%=discountedPrice%>; // 할인율이 반영된 최종가격
-		}
+		let price = <%=discountedPrice%>; // 할인율이 반영된 최종가격
 		const totalAmount = price * quantity; // 총 결제 금액
 		totalElement.innerText = totalAmount; // 변경된 총 결제 금액 출력
 	}
@@ -188,7 +186,12 @@
 	<!-- 상품 카테고리 -->
 	> 카테고리 > 조명 > <%=product.getCategoryName()%>
 	<form action="<%=request.getContextPath()%>/cart/cartList.jsp" method="post">
+	<!-- cartList로 넘기는 값 -->
 	<input type="hidden" name="productNo" value="<%=product.getProductNo()%>">
+	<input type="hidden" name="quantity" value=""> <!-- 동적으로 값 변경 -->
+	<input type="hidden" name="discountedPrice" value="<%=discountedPrice%>">
+	<!-- orderProduct로 넘기는 값 -->
+	<input type="hidden" name="productCnt" value=""> <!-- 동적으로 값 변경 -->
 		<table>
 			<tr> <!-- 상품 이미지, 상품 이름 -->
 				<td rowspan="5">
@@ -215,7 +218,7 @@
 						if(product.getProductPrice() == discountedPrice) {
 					%>
 							<p class="font-bold">
-								<%=(int)product.getProductPrice()%>원
+								<%=discountedPrice%>원
 							</p>
 					<%
 						} else {
@@ -278,17 +281,6 @@
 				<button type="submit">검색</button>
 			</form>
 		</span>
-		<span><br>이미지 모아보기<br></span>
-		<%	
-			// 자바스크립트) 슬라이드 구현 예정 // 이미지 클릭시 해당 리뷰 상세페이지 새창열림
-			for(HashMap<String, Object> m : reviewList) {
-		%>
-				<a href=""> <!-- 자바스크립트) 구현예정 : 클릭시 해당 리뷰 상세페이지 새창으로 열기 -->
-					<img src="<%=request.getContextPath()%>/<%=m.get("reviewPath")%>/<%=m.get("reviewSaveFilename")%>">
-				</a>
-		<%
-			}
-		%>
 		<table>
 			<%
 				for(HashMap<String, Object> m : reviewList) {
