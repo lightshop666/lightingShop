@@ -8,6 +8,7 @@
 <%@ page import="vo.Discount" %>
 <%@ page import="java.net.URLEncoder" %>
 <%
+
     request.setCharacterEncoding("UTF-8");
 	
     // 할인 정보 가져오기

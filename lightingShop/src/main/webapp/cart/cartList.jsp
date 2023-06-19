@@ -80,12 +80,12 @@
 <h1>장바구니 목록</h1>
 
 <%
-    // 로그인 여부를 확인합니다
+    // 로그인 여부를 확인
     if (session.getAttribute("loginIdListId") == null) {
-        // 로그인되지 않은 경우 세션 카트 정보를 표시합니다
+        // 로그인되지 않은 경우 세션 카트 정보를 표시
         HashMap<String, Object> cart = (HashMap<String, Object>) session.getAttribute("cart");
         if (cart != null && cart.size() > 0) {
-            // 장바구니에 담긴 상품 목록을 표시합니다
+            // 장바구니에 담긴 상품 목록을 표시
 %>
         <form action="<%=request.getContextPath()%>/order/orderProduct.jsp" method="post">
             <table>
@@ -101,7 +101,7 @@
                 </thead>
                 <tbody>
                     <%
-                        // 장바구니에 담긴 각 상품에 대한 정보를 표시합니다
+                        // 장바구니에 담긴 각 상품에 대한 정보를 표시
                         double totalPrice = 0.0; // 총 가격을 누적하기 위한 변수
                         for (String productNo : cart.keySet()) {
                             HashMap<String, Object> cartProduct = (HashMap<String, Object>) cart.get(productNo);
