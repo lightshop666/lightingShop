@@ -107,7 +107,7 @@ public class CustomerDao {
 			SELECT i.id, i.last_pw, i.active, e.emp_level
 			FROM id_list i LEFT OUTER JOIN	employees e 
 			ON i.id = e.id
-			WHERE i.id = 'admin'
+			WHERE i.id = 'admin' AND i.last_pw = PASSWORD(1234)";
 		*/
 		
 		String sql = "SELECT i.id id, i.last_pw lastPw, i.active active, e.emp_level empLevel FROM id_list i "

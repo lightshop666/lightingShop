@@ -54,6 +54,12 @@
 		session.setAttribute("loginIdListLastPw", loginIdList.get("lastPw"));	// 세션에 로그인 성공한 id_list last_pw를 저장
 		session.setAttribute("loginIdListActive", loginIdList.get("active"));	// 세션에 로그인 성공한 id_list active를 저장
 		session.setAttribute("loginIdListEmpLevel", loginIdList.get("empLevel")); // 세션에 로그인 성공한 employees emp_level을 저장
+		
+		// 로그인 성공시 카트 세션에 있는 정보가 아닌 실제 데이터베이스의 장바구니 정보를 가져오기 위해 카트 세션이 있다면 해제
+		if(session.getAttribute("cart") != null) {
+			session.removeAttribute("cart");
+		}
+		
 		// 디버깅
 		System.out.println("로그인 성공 세션정보 : " + session.getAttribute("loginIdListId"));
 		System.out.println("로그인 성공 세션정보 : " + session.getAttribute("loginIdListLastPw"));

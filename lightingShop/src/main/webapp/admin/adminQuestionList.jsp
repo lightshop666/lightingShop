@@ -8,12 +8,14 @@
 	//인코딩
 	request.setCharacterEncoding("utf-8");
 
+	/* 
 	// 세션 확인 - 관리자면 전부 가능
 	if(session.getAttribute("loginIdListId") == null
 		|| session.getAttribute("loginIdListEmpLevel") == null) {
 		response.sendRedirect(request.getContextPath()+"/admin/home.jsp");
 		return;
-	} 
+	}  
+	*/
 	
 	// 현재 페이지
 	int currentPage=1;
@@ -84,9 +86,93 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- Latest compiled JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+ <style>
+        body {
+        margin: 20px;
+        background-color: #f9f9f9; 
+    	}
+        /* 테이블 스타일 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        /* 테이블 헤더 색상 */
+        .table thead th {
+            background-color: #f2f2f2;
+        }
+
+        /* 테이블 로우 색상 */
+        .table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .table tbody tr:hover {
+            background-color: #e9e9e9;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            background-color: #4caf50;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+        }
+
+        /* 페이지네이션 스타일 */
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 5px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #000;
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .pagination .current-page {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 5px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #4caf50;
+            border: 1px solid #4caf50;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-	<h1>문의글 목록</h1>
+	<!--관리자 메인메뉴 -->
+	<jsp:include page ="/admin/adminMenu.jsp"></jsp:include>
+	<br>
+
+	<!-- 본문 -->
+	<h1>Question List</h1>
 	총 <%=totalRow%>건
 	<!-- msg 발생시 출력 -->
 	<%
@@ -98,7 +184,7 @@
 	%>
 	<!-- 문의 유형 카테고리 선택 + 검색(작성자 or 제목+내용) + 답변유무 조회 form -->
 	<form action="<%=request.getContextPath()%>/admin/adminQuestionList.jsp" method="post">
-		<table>
+		<table class="table">
 			<tr>
 				<td> <!-- 문의 유형 카테고리 선택 -->
 					<select name="qCategory" onchange="this.form.submit()"> <!-- 옵션 선택시 바로 submit -->
@@ -124,8 +210,6 @@
 					</select>
 					<!-- 검색 단어 input 태그 -->
 					<input type="text" name="searchWord">
-				</td>
-				<td>
 					<button type="submit">검색</button>
 				</td>
 			</tr>
@@ -133,15 +217,18 @@
 	</form>
 		<!-- 문의글 리스트 출력 -->
 	<form action="<%=request.getContextPath()%>/admin/removeAdminQuestionAction.jsp" method="post">
-		<table>
-			<tr>
-				<th>선택</th>
-				<th>문의유형</th>
-				<th>작성자</th>
-				<th>제목</th>
-				<th>문의날짜</th>
-				<th>문의상태</th>
-			</tr>
+		<table class="table">
+			<thead class="table-active">
+				<tr>
+					<th>선택</th>
+					<th>문의유형</th>
+					<th>작성자</th>
+					<th>제목</th>
+					<th>문의날짜</th>
+					<th>문의상태</th>
+				</tr>
+			</thead>
+			<tbody>
 			<%
 				for(Question q : list) {
 			%>
@@ -172,12 +259,9 @@
 			<%
 				}
 			%>
-			<tr>
-				<td>
-					<button type="submit">삭제</button>
-				</td>
-			</tr>
+			</tbody>
 		</table>
+		<button type="submit">삭제</button>
 	</form>
 	<%
 		if(totalRow == 0) {
@@ -188,33 +272,41 @@
 	%>
 	
 	<!-- 페이지 네비게이션 -->
-	<div class = "center">
+	<nav class="pagination justify-content-center">
+        <ul class="pagination">
 		<%
 			if (minPage > 1) {
 		%>
-				<a href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage-1%>">이전</a>
-		
+			<li class="page-item">
+				<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage-1%>">이전</a>
+			</li>
 		<%	
 			}
 			for(int i=minPage; i <= maxPage; i=i+1){
 				if ( i == currentPage){		
 		%>
-					<strong><%=i %></strong>
+				<li class="page-item">
+					<a class="page-link"><%=i %></a>
+				</li>
 		<%
 				}else{
 		%>
-					<a href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=i%>"><%=i %></a>
+				<li class="page-item">
+					<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=i%>"><%=i %></a>
+				</li>
 		<%
 				}
 			}
 		
 			if(maxPage != lastPage ){
 		%>
-				<!-- maxPage+1해도 동일하다 -->
+			<li class="page-item">	
 				<a href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage+1%>">다음</a>
+			</li>
 		<%
 			}
 		%>
-	</div>
+		</ul>
+	</nav>
 </body>
 </html>

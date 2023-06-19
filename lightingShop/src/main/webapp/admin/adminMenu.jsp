@@ -32,5 +32,6 @@
         <li><a href="<%=request.getContextPath()%>/admin/adminOrderList.jsp">주문관리</a></li>
         <li><a href="<%=request.getContextPath()%>/admin/adminPointList.jsp">포인트관리</a></li>
         <li><a href="<%=request.getContextPath()%>/admin/adminDiscountList.jsp">할인율관리</a></li>
+        <li><a href="<%=request.getContextPath()%>/admin/adminQuestionList.jsp">문의관리</a></li>
     </ul>
 </div>

@@ -40,7 +40,7 @@
                     <li><a href="<%=request.getContextPath()%>/customer/customerOne.jsp">내정보 상세보기</a></li>
 					<!-- 배송지 관리 -->
 					<li><a href="<%=request.getContextPath()%>/customer/addressList.jsp">배송지 관리</a></li>
-					<!-- 포인트 내역 - 추가 예정-->
+					<!-- 포인트 내역 -->
 					<li><a href="<%=request.getContextPath()%>/customer/customerPointList.jsp">포인트 내역 확인</a></li>
 					<!-- 리뷰등록  -->
 					<li><a href="<%=request.getContextPath()%>/review/addReview.jsp">리뷰등록</a></li>

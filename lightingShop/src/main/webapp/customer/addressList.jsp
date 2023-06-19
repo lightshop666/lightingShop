@@ -57,33 +57,6 @@
         <div class="products-catagories-area clearfix">
             <div class="amado-pro-catagory clearfix">
 
-			<!-- Modal -->
-			<div id="myModal" class="modal fade" role="dialog">
-			  <div class="modal-dialog">
-			
-			    <!-- Modal content-->
-			    <div class="modal-content">
-			      <div class="modal-header">
-			        <h4 class="modal-title">배송지 목록</h4>
-			      </div>
-			      <div class="modal-body">
-			        	<c:forEach var="a" items="${list}">
-							<p>
-								<span><input type="radio" name="addressCode" class="addressCode" value="${a.addressCode}"></span>
-								${a.address}
-								<span><a href="${pageContext.request.contextPath}/AddressRemoveOrder?customerId=${a.customerId}&address=${a.address}">삭제</a></span>
-							</p>
-						</c:forEach>
-			      </div>
-			      <div class="modal-footer">
-			      	<button type="button" class="btn btn-default" data-dismiss="modal">선택</button>
-			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			      </div>
-			    </div>
-			
-			  </div>
-			</div>
-
 				 <!-- [시작] 주소목록 출력 -->
 				 <section class=" login-area section-padding-100-0">
 			        <div class="container">
@@ -105,7 +78,7 @@
 									      	</tr>
 								      	</thead>
 										<%
-											/* 리스트 4개까지 출력 - {0, 1, 2, 3} */
+											/* 리스트 4개까지 출력 - {0, 1, 2, 3} - 배송지 추가시 Action 페이지에서 id당 최대 4개까지 저장되도록 코드작성 */
 											int maxCount = 4; // 최대 4개까지만 표시
 										    for (int i = 0; i < list.size() && i < maxCount; i++) {
 										        Address a = list.get(i);

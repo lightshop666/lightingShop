@@ -23,6 +23,11 @@
 	CustomerDao cDao = new CustomerDao();
 	HashMap<String, Object> customerOne = cDao.selectCustomerOne(customer);
 	
+	// 주소정보 불러오기
+	Address address = new Address();
+	address.setId(sessionId);
+	ArrayList<Address> list = cDao.myAddressList(address);
+	
 	String DefaultAddress = (String)customerOne.get("a.default_address");
 	System.out.println(DefaultAddress + "[customerOne컨트롤러 DefaultAddress]");
 %>   
@@ -118,7 +123,8 @@
 								</div>
 								
 								<%
-									if(DefaultAddress.equals("Y")) {
+									for(Address a : list) {
+										if(a.getDefaultAddress().equals("Y")) {
 								%>
 									<div>
 										배송지명 : <%=customerOne.get("a.address_name")%>
@@ -127,11 +133,8 @@
 										주소 : <%=customerOne.get("c.cstm_address")%>
 									</div>
 								<%
-									} else {
-								%>
-										기본배송지 없음.
-								<%
-										}
+										} 
+									}
 								%>
 								
 								</div>

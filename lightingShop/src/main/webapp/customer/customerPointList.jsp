@@ -1,7 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import = "dao.*" %>
 <%@ page import = "java.util.*" %>
+<%@ page import = "vo.*" %>
 <%
+	//인코딩
+	request.setCharacterEncoding("utf-8");
+
 	//세션검사
 	if (session.getAttribute("loginIdListId") == null) { // 비회원이면
 		response.sendRedirect(request.getContextPath() + "/home.jsp");
@@ -25,7 +29,7 @@
 	
 	// 포인트 내역확인 메서드 호출
 	PointHistoryDao pDao = new PointHistoryDao();
-	ArrayList<HashMap<String, Object>> list = pDao.CustomerPointList(beginRow, rowPerPage);
+	ArrayList<PointHistory> pointHistory = pDao.customerPointList(id ,beginRow, rowPerPage);
 	
 	// 고객 전체행 출력 메서드 호출
 	CustomerDao cDao = new CustomerDao();
@@ -54,63 +58,138 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+ <meta charset="UTF-8">
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <!-- Title  -->
+    <title>Amado - MyPage</title>
+
+    <!-- Favicon  -->
+    <link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
+
+    <!-- Core Style CSS -->
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
+    <!-- BootStrap5 -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+	
 </head>
 <body>
-	<!-- 포인트 내역 확인 -->
-	<div class="container">
-		<h2>포인트 확인</h2>
-		<table>
-				<tr>
-					<th>주문번호</th>
-					<th>포인트 내역</th>
-					<th>포인트</th>
-					<th>적립일</th>
-				</tr>
-			<%
-				for(HashMap<String, Object> m : list) {
-			%>
-				
-				<tr>
-					<td><%=m.get("orderNo") %></td>
-					<td><%=m.get("pointInfo") %></td>
-					<td><%=m.get("point") %></td>
-					<td><%=m.get("createdate") %></td>
-				</tr>
-			<%
-				}
-			%>
-		</table>	
+
+	<!-- ##### Main Content Wrapper Start ##### -->
+    <div class="main-content-wrapper d-flex clearfix">
+    
+    	<!-- menu 좌측 bar -->
+	    <div>
+			<jsp:include page="/inc/menu.jsp"></jsp:include>
+		</div>
+
+        <!-- Product Catagories Area Start -->
+        <div class="products-catagories-area clearfix">
+            <div class="amado-pro-catagory clearfix">
+
+				 <!-- [시작] 주소목록 출력 -->
+				 <section class=" login-area section-padding-100-0">
+			        <div class="container">
+			            <div class="row justify-content-center">
+			                <div class="col-12 col-lg-10">
+			                	<div class="login-content">
+			                  
+							   	<!-- 포인트 내역 확인 -->
+								<h2>포인트 확인</h2>
+								<table class = "table" style="table-layout: auto; width: 100%; table-layout: fixed;">
+										<tr>
+											<th>주문번호</th>
+											<th>포인트 내역</th>
+											<th>포인트</th>
+											<th>적립일</th>
+										</tr>
+									<%
+										for(PointHistory p : pointHistory) {
+									%>
+										
+										<tr>
+											<td><%=p.getOrderNo() %></td>
+											<td><%=p.getPointInfo() %></td>
+											<td><%=p.getPoint() %></td>
+											<td><%=p.getCreatedate() %></td>
+										</tr>
+									<%
+										}
+									%>
+								</table>	
+									<div class="oneMusic-pagination-area">
+										<ul class="pagination">
+										<%
+											if (minPage > 1) {
+										%>
+												<li class="page-item">
+												<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage-1%>">이전</a>
+												</li>
+										<%	
+											}
+											for(int i=minPage; i <= maxPage; i=i+1){
+												if ( i == currentPage){		
+										%>
+												<li class="page-item">
+													<strong class="page-link"><%=i %></strong>
+												</li>
+										<%
+												}else{
+										%>
+												<li class="page-item">
+													<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=i%>"><%=i %></a>
+												</li>
+										<%
+												}
+											}
+										
+											if(maxPage != lastPage ){
+										%>
+											<li class="page-item">
+												<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage+1%>">다음</a>
+											</li>
+										<%
+											}
+										%>
+								      	
+										</ul>
+									</div>
+									<div class="row">
+								      	<div class="col-auto mr-auto">	
+									        <a class="btn btn-sm btn-outline-dark" href="<%=request.getContextPath()%>/customer/myPage.jsp">취소</a>
+										</div>
+									</div>
+								</div>
+		                	</div>
+						</div>
+					</div>
+				</section>	<!-- [끝] 주소목록 출력 -->	
+            </div>
+        </div>
+        <!-- Product Catagories Area End -->
+    </div>
+    <!-- ##### Main Content Wrapper End ##### -->
+    
+    <!-- footer 하단 bar -->
+    <div>
+		<jsp:include page="/inc/footer.jsp"></jsp:include>
 	</div>
-	
-	<div class = "center">
-		<%
-			if (minPage > 1) {
-		%>
-				<a href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage-1%>">이전</a>
-		
-		<%	
-			}
-			for(int i=minPage; i <= maxPage; i=i+1){
-				if ( i == currentPage){		
-		%>
-					<strong><%=i %></strong>
-		<%
-				}else{
-		%>
-					<a href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=i%>"><%=i %></a>
-		<%
-				}
-			}
-		
-			if(maxPage != lastPage ){
-		%>
-				<!-- maxPage+1해도 동일하다 -->
-				<a href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage+1%>">다음</a>
-		<%
-			}
-		%>
-	</div>
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <script src="js/jquery/jquery-2.2.4.min.js"></script>
+    <!-- Popper js -->
+    <script src="js/popper.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="js/bootstrap.min.js"></script>
+    <!-- Plugins js -->
+    <script src="js/plugins.js"></script>
+    <!-- Active js -->
+    <script src="js/active.js"></script>
+
 </body>
-</html>
+</html>							
