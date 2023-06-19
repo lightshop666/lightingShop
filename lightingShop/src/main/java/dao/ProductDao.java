@@ -5,7 +5,7 @@ import java.util.*;
 import java.sql.*;
 
 public class ProductDao {
-	// 카테고리별 상품 리스트 조회 (product, product_img, discount join) + 정렬 선택
+	// 카테고리별 상품 리스트 조회 (product, product_img, discount join) + 정렬 선택, 페이징
 	public ArrayList<HashMap<String, Object>> selectProductListByPage(String categoryName, String orderBy, int beginRow, int rowPerPage) throws Exception {
 		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 		
@@ -147,6 +147,9 @@ public class ProductDao {
 		}
 		return list;
 	}
+	
+	// 파격세일 상품 리스트 (product, product_img, discount join) + 카테고리별 선택 조회, 정렬 선택, 페이징
+	// 추가 예정..
 	
 	// 상품 상세보기 (product, product_img, discount join)
 	public HashMap<String, Object> selectProductAndImgOne(int productNo) throws Exception {

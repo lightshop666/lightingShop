@@ -16,6 +16,11 @@
 	}
 	String categoryName = request.getParameter("categoryName");
 	*/
+	// 추가 예정
+	/*
+		categoryName이 "파격세일"이면 discountList.jsp로 이동
+		또는 메인 메뉴바 클릭시 부터 discountList.jsp로 경로 지정 필요
+	*/
 	String categoryName = "실내조명"; // 테스트용
 	
 	int currentPage = 1;
@@ -39,7 +44,7 @@
 	// 해당 카테고리의 특가할인 상품 상위 n개 조회 메서드 호출
 	int n = 5; // 몇개 조회할지 선택
 	ArrayList<HashMap<String, Object>> discountProductList = dao.selectDiscountProductTop(categoryName, n);	
-	// 문의글 리스트 조회 메서드 호출
+	// 카테고리별 상품 리스트 조회 메서드 호출
 	ArrayList<HashMap<String, Object>> list = dao.selectProductListByPage(categoryName, orderBy, beginRow, rowPerPage);
 	// 2-2. 페이지 출력부
 	int pagePerPage = 5;
