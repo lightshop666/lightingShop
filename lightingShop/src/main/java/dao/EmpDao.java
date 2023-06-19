@@ -140,9 +140,9 @@ public class EmpDao {
 		
 		
 		//업로드 파일이 PDF파일이 아니면
-		 if(productImg.getProductFiletype().equals("image/jpeg")==false){
-			 //이미 upload폴더에 저장된 파일을 삭제
-			 System.out.println("image/jpeg파일이 아닙니다");
+		if (!productImg.getProductFiletype().equals("image/jpeg") && !productImg.getProductFiletype().equals("image/png")) {
+			// 이미 upload 폴더에 저장된 파일을 삭제
+			System.out.println("이미지 파일이 아닙니다.");
 			 String saveFilename = productImg.getProductSaveFilename(); //저장된 파일네임 가져오기
 			 File f = new File(dir+"/"+saveFilename); //파일 객체 f 를 가져온 파일명으로 지정 / = new File("d:/abc/uploadsign.파일명")
 			 //역슬러쉬가 window 기본 포맷
@@ -217,7 +217,7 @@ public class EmpDao {
 		//업로드 파일이 이미지 파일 여부 확인
 			if((String)product.get("originalFileName")!= null){
 				String originFilename =(String)product.get("originalFileName");
-				if(contentType.equals("image/jpeg")==false){
+				if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
 					System.out.println("이미지파일이 아닙니다");
 					 File f = new File(dir+"/"+saveFilename); //파일 객체 f 를 가져온 파일명으로 지정 / = new File("d:/abc/uploadsign.파일명")
 					 if(f.exists()){
