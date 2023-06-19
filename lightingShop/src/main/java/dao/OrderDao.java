@@ -55,7 +55,7 @@ public class OrderDao {
 	    PreparedStatement mainStmt = conn.prepareStatement(sql);
 	    mainStmt.setInt(1, orderNo);
 	    ResultSet rs = mainStmt.executeQuery();
-        System.out.println(rs + "<--rs--selectOrdersOne");
+        //System.out.println(rs + "<--rs--selectOrdersOne");
 
 	    // 결과셋 가져오기
 	    while (rs.next()) {
@@ -67,7 +67,7 @@ public class OrderDao {
 	            orders.setOrderAddress(rs.getString("orderAddress"));
 	            orders.setOrderPrice(rs.getInt("orderPrice"));
 	            orders.setCreatedate(rs.getString("orderDay"));
-	            System.out.println(orders.getOrderNo() + "<--orders.getOrderNo() --selectOrdersOne");
+	           // System.out.println(orders.getOrderNo() + "<--orders.getOrderNo() --selectOrdersOne");
 
 	        }
             System.out.println(orders.getOrderNo() + "<--orders.getOrderNo() if문 밖 --selectOrdersOne");
@@ -82,14 +82,14 @@ public class OrderDao {
 	        // 주문 상품 세부 정보를 리스트에 추가합니다.
 	        orderProducts.add(orderProduct);
 	    }
-        System.out.println(orders.getOrderNo() + "<--orders.getOrderNo() while문 밖 --selectOrdersOne");
+       // System.out.println(orders.getOrderNo() + "<--orders.getOrderNo() while문 밖 --selectOrdersOne");
 
 
 	    // HashMap에 주문 정보와 주문 상품 세부 정보를 저장합니다.
 	    map.put("orders", orders);
 	    map.put("orderProducts", orderProducts);
-        System.out.println(map.get("orders") +"<--get orders--selectOrdersOne");
-        System.out.println(map.get("orderProducts") +"<--get orderProducts--selectOrdersOne");
+        //System.out.println(map.get("orders") +"<--get orders--selectOrdersOne");
+       System.out.println(map.get("orderProducts") +"<--get orderProducts--selectOrdersOne");
 
 	    return map;
 	}

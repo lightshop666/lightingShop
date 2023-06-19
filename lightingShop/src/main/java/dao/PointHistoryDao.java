@@ -95,8 +95,11 @@ public class PointHistoryDao {
 							"JOIN customer c ON o.id = c.id " +
 							"WHERE o.order_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS);
-		stmt.setInt(1, unselectedTotalPrice);
-		stmt.setInt(2, orderNo);
+		stmt.setInt(1, orderNo);
+		stmt.setInt(2, unselectedTotalPrice);
+		stmt.setInt(3, unselectedTotalPrice);
+		stmt.setInt(4, unselectedTotalPrice);
+		stmt.setInt(5, orderNo);
 		result = stmt.executeUpdate();
 		
 	    ResultSet keyRs = stmt.getGeneratedKeys(); // 저장된 키값을 반환

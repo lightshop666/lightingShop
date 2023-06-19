@@ -43,10 +43,12 @@
 </head>
 <body>
 <div class="container">	
-	<form action="<%= request.getContextPath() %>/orders/orderCancelAction.jsp" method="post">
+	<form action="<%= request.getContextPath() %>/orders/orderCancelAction.jsp" method="post" enctype="application/x-www-form-urlencoded">
 	<%
+		int orderProductNo = 0;
 		for(OrderProduct o : orderProducts){
 			orderNo =(int)orders.getOrderNo();
+			orderProductNo = o.getOrderProductNo();
 			System.out.println(orderNo + "<--(int)orders.getOrderNo()--orderCancel.jsp");
 
 			
@@ -63,21 +65,20 @@
 		    // 배송 상태가 주문확인중이 아니라면 체크박스를 체크할 수 없도록 처리
 			boolean disableCheckbox = !o.getDeliveryStatus().equals("주문확인중");
 	%>
-			<input type="checkbox" name="selectedProducts[]" value="<%= product.getProductNo() %>" data-price="<%= discountedPrice * o.getProductCnt() %>" <%= disableCheckbox ? "disabled" : "" %>>
+			<input type="checkbox" name="selectedProducts[]" value="<%=(int) o.getOrderProductNo()%>" data-price="<%= discountedPrice * o.getProductCnt() %>" <%= disableCheckbox ? "disabled" : "" %>>
 			<div>
 				<p>
 					<!-- 상품이미지 -->
 					<!-- 체크박스 (name 속성에 []를 추가하여 배열로 설정) -->
 					<img class="thumbnail" src="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>" alt="Product Image">
 				</p>
-				<p onclick="location.href='<%= request.getContextPath() %>/product/productOne.jsp?productNo=' + <%= product.getProductNo() %>;">
+				<p onclick="location.href='<%= request.getContextPath() %>/product/productOne.jsp?productNo=' + <%= product.getProductNo()%>;">
 					<!-- 상품이름 -->
 					상품 이름: <%= product.getProductName() %>
 				</p>
 				<p>상품 금액 : <%=discountedPrice * o.getProductCnt()  %></p>
 				<p>상품 수량 : <%= o.getProductCnt() %></p>
 				<!-- 액션에서 처리할 값 -->
-				<input type="hidden" name="productNo[]" value="<%= o.getOrderProductNo()%>">
 				<input type="hidden" name="productCnt[]" value="<%=o.getProductCnt()%>">		
 				<hr>
 			</div>
@@ -91,6 +92,10 @@
 		<!-- 취소 버튼 -->
 		<input type="submit" id="cancelButton" value="취소 신청">		
 		
+		<script>
+		    // 폼 전송 시 값을 설정하는 함수 호출
+		    calculateTotalPrice();
+		</script>
 	</form>
 </div>
 </body>

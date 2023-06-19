@@ -13,14 +13,14 @@
 	}
 	
 	//상품번호,수량 검사
-	String[] productNo = {"10"};
-	if(request.getParameter("productNo") != null) {
-		productNo = request.getParameterValues("productNo");
+	String[] productNo = {"10","11","12"};
+	if(request.getParameter("productNo[]") != null) {
+		productNo = request.getParameterValues("productNo[]");
 	}
 	
-	String[] productCnt = {"2"};
-	if(request.getParameter("productCnt") != null) {
-		productCnt = request.getParameterValues("productCnt");
+	String[] productCnt = {"2","1","1"};
+	if(request.getParameter("productCnt[]") != null) {
+		productCnt = request.getParameterValues("productCnt[]");
 	}
 	
 	// 배열의 길이 확인

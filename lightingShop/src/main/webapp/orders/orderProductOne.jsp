@@ -192,20 +192,24 @@
 4-2)교환신청 버튼->교환 페이지 /
 4-3) 수취확인 버튼 -> db 상태값 변경  ***** 수취확인시 상품평 버튼으로 변경**** ->리뷰 작성 페이지******* 리뷰 작성시 리뷰 수정 페이지
  -->
-				<p>
 				<%
 					//배송상태에 따라 버튼 분기
 					if(deleveryStatus.equals("주문확인중")){
 				%><!-- 주문취소 -->
-						<button onclick="location.href='<%= request.getContextPath() %>/orders/orderCancel.jsp?orderNo=' + <%= orderNo %>'">주문취소</button>
-				<%
+					  <form action="<%= request.getContextPath() %>/orders/orderCancel.jsp" method="GET">
+					    <input type="hidden" name="orderNo" value="<%= orderNo %>">
+					    <button type="submit">주문취소</button>
+					  </form>
+  				<%
 					}
 					else if(deleveryStatus.equals("배송중")
 					||deleveryStatus.equals("배송완료")
 					||deleveryStatus.equals("교환 중")){				
 				%><!-- 수취확인 -->
-						<button onclick="location.href='<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp?orderProductNo=' + <%= orderProductNo%>'">수취확인</button>
-				
+					  <form action="<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp" method="GET">
+					    <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
+					    <button type="submit">수취확인</button>
+					  </form>
 				<%
 					//배송 상태가 구매확정이고 리뷰 상태가 아직 쓰여지지 않은 경우
 					}else if(deleveryStatus.equals("구매확정")
@@ -214,20 +218,23 @@
 					//작성여부가 N인지
 					&& reviewWritten.equals("N")){
 				%><!-- 리뷰작성 -->
-								<button onclick="location.href='<%= request.getContextPath() %>/review/addReview.jsp?orderProductNo=<%= orderProductNo %>'">리뷰작성</button>
-				<%
+					  <form action="<%= request.getContextPath() %>/review/addReview.jsp" method="GET">
+					    <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
+					    <button type="submit">상품평</button>
+					  </form>				<%
 					}else if ( deleveryStatus.equals("구매확정")
 							//주문한지 한 달 이내인지
 							&& isReviewAllowed==true
 							//작성여부가 Y인지
 							&& reviewWritten.equals("Y")){
 				%><!-- 리뷰수정 -->
-								<button onclick="location.href='<%= request.getContextPath() %>//review/modifyReview.jsp?orderProductNo=<%= orderProductNo %>'">리뷰수정</button>
-
+						<form action="<%= request.getContextPath() %>/review/modifyReview.jsp?orderProductNo=<%= orderProductNo %>">
+							 <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
+							 <button type="submit">리뷰 수정</button>							
+						</form>						
 				<%
 					}
 				%>
-				</p>
 			</div>
 			<hr>
 	<%
