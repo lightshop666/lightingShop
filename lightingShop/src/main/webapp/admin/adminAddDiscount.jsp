@@ -113,7 +113,8 @@
                 </tr>
             </table>
             
-            <button id="backBtn" type="button">뒤로가기</button>
+            <button id="backBtn" type="button">뒤로
+            가기</button>
             <button type="submit">할인 등록</button>
             <script>
 	 		// 돔객체.addEventListener('이벤트이름', 실행코드함수)

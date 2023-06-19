@@ -181,7 +181,7 @@
         <% 
             for (String categoriCk : categories) { 
         %>
-            <button type="submit" name="category" value="<%= categoriCk %>" class="btn btn-secondary" <% if (category.equals(categoriCk)) { %>style="background-color:yellow"<% } %>><%= categoriCk %></button>
+            <button type="submit" name="category" value="<%= categoriCk %>" class="btn btn-secondary" <% if (category.equals(categoriCk)) { %>style="background-color:black"<% } %>><%= categoriCk %></button>
         	
         <% 
             }
