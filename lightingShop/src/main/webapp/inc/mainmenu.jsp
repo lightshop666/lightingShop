@@ -35,7 +35,6 @@
 
 
 
-
 <body>
 	<nav class="navbar navbar-expand-lg justify-content-end">
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#footerNavContent" aria-controls="footerNavContent" aria-expanded="false" aria-label="Toggle navigation"><i class="fa fa-bars"></i></button>
