@@ -186,12 +186,9 @@
 	<!-- 상품 카테고리 -->
 	> 카테고리 > 조명 > <%=product.getCategoryName()%>
 	<form action="<%=request.getContextPath()%>/cart/cartList.jsp" method="post">
-	<!-- cartList로 넘기는 값 -->
-	<input type="hidden" name="productNo" value="<%=product.getProductNo()%>">
-	<input type="hidden" name="quantity" value=""> <!-- 동적으로 값 변경 -->
-	<input type="hidden" name="discountedPrice" value="<%=discountedPrice%>">
-	<!-- orderProduct로 넘기는 값 -->
-	<input type="hidden" name="productCnt" value=""> <!-- 동적으로 값 변경 -->
+		<input type="hidden" name="productNo" value="<%=product.getProductNo()%>">
+		<input type="hidden" name="productCnt" value=""> <!-- 동적으로 값 변경 -->
+		<input type="hidden" name="discountedPrice" value="<%=discountedPrice%>">
 		<table>
 			<tr> <!-- 상품 이미지, 상품 이름 -->
 				<td rowspan="5">
