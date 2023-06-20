@@ -11,10 +11,14 @@
 		return;
 	}
 	
+	System.out.println(request.getParameter("id"));
 	System.out.println(request.getParameter("lastPw")); 
 	System.out.println(request.getParameter("cstmName"));
 	System.out.println(request.getParameter("addressName"));
-	System.out.println(request.getParameter("cstmAddress"));
+	System.out.println(request.getParameter("sample3Postcode"));
+	System.out.println(request.getParameter("sample3Address"));
+	System.out.println(request.getParameter("sample3DetailAddress"));
+	// System.out.println(request.getParameter("cstmAddress"));
 	System.out.println(request.getParameter("cstmEmail"));
 	System.out.println(request.getParameter("cstmBirth"));
 	System.out.println(request.getParameter("cstmPhone"));
@@ -27,7 +31,10 @@
 		|| request.getParameter("lastPw") == null
 		|| request.getParameter("cstmName") == null
 		|| request.getParameter("addressName") == null
-		|| request.getParameter("cstmAddress") == null
+		// || request.getParameter("cstmAddress") == null
+		|| request.getParameter("sample3Postcode") == null
+		|| request.getParameter("sample3Address") == null
+		|| request.getParameter("sample3DetailAddress") == null
 		|| request.getParameter("cstmEmail") == null
 		|| request.getParameter("cstmBirth") == null
 		|| request.getParameter("cstmPhone") == null
@@ -38,7 +45,10 @@
 		|| request.getParameter("lastPw").equals("")
 		|| request.getParameter("cstmName").equals("")
 		|| request.getParameter("addressName").equals("")
-		|| request.getParameter("cstmAddress").equals("")
+		// || request.getParameter("cstmAddress").equals("")
+		|| request.getParameter("sample3Postcode").equals("")
+		|| request.getParameter("sample3Address").equals("")
+		|| request.getParameter("sample3DetailAddress").equals("")
 		|| request.getParameter("cstmEmail").equals("")
 		|| request.getParameter("cstmBirth").equals("")
 		|| request.getParameter("cstmPhone").equals("")
@@ -50,11 +60,15 @@
 	}
 	
 	// 변수값 받아오기
+	String sample3Postcode = request.getParameter("sample3Postcode");
+	String sample3Address = request.getParameter("sample3Address");
+	String sample3DetailAddress = request.getParameter("sample3DetailAddress");
+	
 	String id = request.getParameter("id");
 	String lastPw = request.getParameter("lastPw");
 	String cstmName = request.getParameter("cstmName");
 	String addressName = request.getParameter("addressName");
-	String cstmAddress = request.getParameter("cstmAddress");
+	String cstmAddress = "("+sample3Postcode+")" + " " + sample3Address + " " + sample3DetailAddress;
 	String cstmEmail = request.getParameter("cstmEmail");
 	String cstmBirth = request.getParameter("cstmBirth");
 	String cstmPhone = request.getParameter("cstmPhone");

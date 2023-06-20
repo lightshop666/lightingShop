@@ -55,9 +55,29 @@
 		session.setAttribute("loginIdListActive", loginIdList.get("active"));	// 세션에 로그인 성공한 id_list active를 저장
 		session.setAttribute("loginIdListEmpLevel", loginIdList.get("empLevel")); // 세션에 로그인 성공한 employees emp_level을 저장
 		
-		// 로그인 성공시 카트 세션에 있는 정보가 아닌 실제 데이터베이스의 장바구니 정보를 가져오기 위해 카트 세션이 있다면 해제
-		if(session.getAttribute("cart") != null) {
+		
+		
+		if(session.getAttribute("cart") != null) { // 로그인시 비로그인상태에서 cart세션에 담은 물건이 있을경우
+			
+			
+			/* 
+			// 비로그인시에 사용했던 cart정보를 list 타입으로 가져온다.
+			ArrayList<HashMap<String, Object>> cartList = (ArrayList<HashMap<String, Object>>)session.getAttribute("cart");
+			int cartCnt = 0;
+			
+			
+			System.out.println(" 비로그인시에 담긴내용을 로그인시 cart DB로 옮긴다. "); // 디버깅
+			// 반복문 사용해서 cart 세션에 저장된 내용을 cartDB로 옮긴다.
+			for(HashMap<String, Object> c : cartList) {
+				
+				// 로그인된 유저의 회원바구니와 중복확인 -> 수량 추가
+				
+			} 
+			*/
+			
+			// 세션에 저장된 내용을 삭제한다.
 			session.removeAttribute("cart");
+			
 		}
 		
 		// 디버깅

@@ -12,15 +12,24 @@
 		return;
 	}
 	
-	System.out.println(request.getParameter("address"));
+	System.out.println(request.getParameter("sample3Postcode"));
+	System.out.println(request.getParameter("sample3Address"));
+	System.out.println(request.getParameter("sample3DetailAddress"));
+	// System.out.println(request.getParameter("address"));
 	System.out.println(request.getParameter("addressName"));
 	System.out.println(request.getParameter("defaultAddress"));
 	
 	//유효성 검사 
-	if(request.getParameter("address") == null
+	if(// request.getParameter("address") == null
+		  request.getParameter("sample3Postcode") == null
+		|| request.getParameter("sample3Address") == null
+		|| request.getParameter("sample3DetailAddress") == null
 		|| request.getParameter("addressName") == null
 		|| request.getParameter("defaultAddress") == null
-		|| request.getParameter("address").equals("")
+		// || request.getParameter("address").equals("")
+		|| request.getParameter("sample3Postcode").equals("")
+		|| request.getParameter("sample3Address").equals("")
+		|| request.getParameter("sample3DetailAddress").equals("")
 		|| request.getParameter("addressName").equals("")
 		|| request.getParameter("defaultAddress").equals("")) {
 		response.sendRedirect(request.getContextPath()+"/customer/addAddress.jsp");
@@ -28,10 +37,17 @@
 	}
 	
 	// 변수값 받아오기
+	String sample3Postcode = request.getParameter("sample3Postcode");
+	String sample3Address = request.getParameter("sample3Address");
+	String sample3DetailAddress = request.getParameter("sample3DetailAddress");
+
+	
 	String id = (String)session.getAttribute("loginIdListId");
-	String addressStr = request.getParameter("address");
+	String addressStr = "("+sample3Postcode+")" + " " + sample3Address + " " + sample3DetailAddress;
 	String addressName = request.getParameter("addressName");
 	String defaultAddress = request.getParameter("defaultAddress");
+	
+	System.out.println(addressStr+"<-- 입력받은 주소값");
 	
 	// address에 set
 	Address address = new Address();

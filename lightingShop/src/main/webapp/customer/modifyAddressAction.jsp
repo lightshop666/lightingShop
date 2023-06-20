@@ -13,17 +13,23 @@
 	}
 	
 	System.out.println(request.getParameter("addressName"));
-	System.out.println(request.getParameter("address"));
+	// System.out.println(request.getParameter("address"));
 	System.out.println(request.getParameter("addressNo"));
 	System.out.println(request.getParameter("defaultAddress"));
 	
 	//유효성 검사 후 입력값이 맞지 않으면 배송지 목록으로 리디렉션
 	if(request.getParameter("addressName") == null
-		|| request.getParameter("address") == null
+		// || request.getParameter("address") == null
+		|| request.getParameter("sample3Postcode") == null
+		|| request.getParameter("sample3Address") == null
+		|| request.getParameter("sample3DetailAddress") == null
 		|| request.getParameter("addressNo") == null
 		|| request.getParameter("defaultAddress") == null
 		|| request.getParameter("addressName").equals("")
-		|| request.getParameter("address").equals("")
+		// || request.getParameter("address").equals("")
+		|| request.getParameter("sample3Postcode").equals("")
+		|| request.getParameter("sample3Address").equals("")
+		|| request.getParameter("sample3DetailAddress").equals("")
 		|| request.getParameter("addressNo").equals("")
 		|| request.getParameter("defaultAddress").equals("")) {
 		System.out.println("[modifyAddressAction.jsp] : 유효성검사 실패");
@@ -33,9 +39,13 @@
 	}
 		
 	// 변수값 받아오기
+	String sample3Postcode = request.getParameter("sample3Postcode");
+	String sample3Address = request.getParameter("sample3Address");
+	String sample3DetailAddress = request.getParameter("sample3DetailAddress");
+	
 	String id = (String)session.getAttribute("loginIdListId");
 	String addressName = request.getParameter("addressName");
-	String addressStr = request.getParameter("address");
+	String addressStr = "("+sample3Postcode+")" + " " + sample3Address + " " + sample3DetailAddress;
 	String defaultAddress = request.getParameter("defaultAddress");
 	int addressNo = Integer.parseInt(request.getParameter("addressNo"));
 	

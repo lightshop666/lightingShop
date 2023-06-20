@@ -112,10 +112,10 @@
 										    <div>
 												<!-- 카카오 다음 우편번호 서비스 JS API -->
 													<div class="ml-4 text-left">
-													<input class="mr-3 mb-1" type="text" id="sample3_postcode" placeholder="우편번호" readonly="readonly">
+													<input class="mr-3 mb-1" type="text" name="sample3Postcode" id="sample3_postcode" placeholder="우편번호" readonly="readonly">
 													<input class="ml-2 mb-1" type="button" onclick="sample3_execDaumPostcode()" value="우편번호 찾기"><br>
-													<input class="mb-1" style="width:260px;" type="text" id="sample3_address" placeholder="주소"><br>
-													<input class="mb-1" style="width:260px;" type="text" id="sample3_detailAddress" placeholder="상세주소">
+													<input class="mb-1" style="width:260px;" type="text" name="sample3Address" id="sample3_address" placeholder="주소"><br>
+													<input class="mb-1" style="width:260px;" type="text" name="sample3DetailAddress" id="sample3_detailAddress" placeholder="상세주소">
 													<input class="mb-1" style="width:140px;" type="text" id="sample3_extraAddress" placeholder="참고항목">
 													</div>
 													<div id="wrap" style="display:none;border:1px solid;width:500px;height:300px;margin:5px 0;position:relative">

@@ -85,10 +85,10 @@
 								    <div>
 										<!-- 카카오 다음 우편번호 서비스 JS API -->
 											<div class="ml-4 text-left">
-											<input class="mr-3 mb-1" type="text" id="sample3_postcode" placeholder="우편번호" readonly="readonly">
+											<input class="mr-3 mb-1" type="text" name ="sample3Postcode" id="sample3_postcode" placeholder="우편번호" readonly="readonly">
 											<input class="ml-2 mb-1" type="button" onclick="sample3_execDaumPostcode()" value="우편번호 찾기"><br>
-											<input class="mb-1" style="width:260px;" type="text" id="sample3_address" placeholder="주소"><br>
-											<input class="mb-1" style="width:260px;" type="text" id="sample3_detailAddress" placeholder="상세주소">
+											<input class="mb-1" style="width:260px;" type="text" name ="sample3Address" id="sample3_address" placeholder="주소"><br>
+											<input class="mb-1" style="width:260px;" type="text" name ="sample3DetailAddress" id="sample3_detailAddress" placeholder="상세주소">
 											<input class="mb-1" style="width:140px;" type="text" id="sample3_extraAddress" placeholder="참고항목">
 											</div>
 											<div id="wrap" style="display:none;border:1px solid;width:500px;height:300px;margin:5px 0;position:relative">
@@ -147,7 +147,7 @@
 											                }
 											
 											                // 우편번호와 주소 정보를 해당 필드에 넣는다.
-											                document.getElementById('sample3_postcode').value = data.zonecode;
+											                document.getElementById("sample3_postcode").value = data.zonecode;
 											                document.getElementById("sample3_address").value = addr;
 											                
 											                // 커서를 상세주소 필드로 이동한다.
@@ -170,6 +170,7 @@
 											
 											        // iframe을 넣은 element를 보이게 한다.
 											        element_wrap.style.display = 'block';
+											        
 											    }
 											</script>
 											<input type="hidden" name="address" id="addressInput">
@@ -211,35 +212,29 @@
 	<!-- js 유효성 검사 - DOM API 사용 -->
 	<script>
 	
-	// 주소 추가 버튼 클릭 이벤트 핸들러
-    document.getElementById("addressAddBtn").addEventListener("click", function() {
-        // 주소 값 가져오기
-        var postcode = document.getElementById("sample3_postcode").value;
-        var address = document.getElementById("sample3_address").value;
-        var detailAddress = document.getElementById("sample3_detailAddress").value;
+	document.addEventListener('DOMContentLoaded', function() {
+	  // 배송지 추가
+	  document.getElementById('addressAddBtn').addEventListener('click', function() {
+	    let postCode = document.querySelector('#sample3_postcode'); // 우편번호
+	    let searchAddress = document.querySelector('#sample3_address'); // 주소지
+	    console.log(searchAddress.value);
 
-        if (postcode.value.trim() === '') {
-            event.preventDefault();
-            alert('우편번호를 입력해주세요.');
-            return;
-        } 
-        
-        if (address.value.trim() === '') {
-            event.preventDefault();
-            alert('주소를 입력해주세요.');
-            return;
-        } 
-        
-        if (detailAddress.value.trim() === '') {
-            event.preventDefault();
-            alert('상세주소를 입력해주세요.');
-            return;
-        } 
-        
-        // 주소 값 조합하여 addressInput의 값을 설정
-        var fullAddress = postcode +" "+ address + " " + detailAddress;
-        document.getElementById("addressInput").value = fullAddress;
-    });
+	    let detailAddress = document.querySelector('#sample3_detailAddress'); // 상세주소
+
+	     if (searchAddress.value.trim() === '' || detailAddress.value.trim() === '') {
+	       alert("주소를 입력해주세요.");
+	       return;
+	     }
+
+	     let addAddress = '(' + postCode.value + ') ' + searchAdresss.valuue +' '+detailAdresss.valuue;
+	      console.log(addAdress);
+		
+	      const addressInput= documnet.getElementsByName("address")[0];
+	      addressInput.setAttribute("value",addAdress);
+	      
+	   });
+	});
+
 	
 	<!-- 오류 메세지 출력 -->
 	<%
