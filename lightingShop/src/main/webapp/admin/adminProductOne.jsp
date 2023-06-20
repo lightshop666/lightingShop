@@ -183,7 +183,7 @@ if (!session.getAttribute("loginIdListEmpLevel").equals("3")) { // 직원레벨 
             </tr>
             <tr>
                 <th class="table-info">상세정보</th>
-                <td><textarea name="productInfo"><%=productInfo%></textarea></td>
+                <td><textarea name="productInfo" cols="50" rows="8"><%=productInfo%></textarea></td>
             </tr>
 
         </table>
