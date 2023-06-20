@@ -43,7 +43,7 @@
 	ProductDao dao = new ProductDao();
 	// 해당 카테고리의 특가할인 상품 상위 n개 조회 메서드 호출
 	int n = 5; // 몇개 조회할지 선택
-	ArrayList<HashMap<String, Object>> discountProductList = dao.selectDiscountProductTop(categoryName, n);	
+	ArrayList<HashMap<String, Object>> discountProductTop = dao.selectDiscountProductTop(categoryName, n);	
 	// 카테고리별 상품 리스트 조회 메서드 호출
 	ArrayList<HashMap<String, Object>> list = dao.selectProductListByPage(categoryName, orderBy, beginRow, rowPerPage);
 	// 2-2. 페이지 출력부
@@ -84,7 +84,7 @@
 	<h1>특가 상품</h1>
 	<!-- (자바스크립트) 자동 슬라이드 효과 예정 -->
 	<%
-		for(HashMap<String, Object> m : discountProductList) {
+		for(HashMap<String, Object> m : discountProductTop) {
 			// 할인율이 적용된 최종 가격과 비교해야 할인 날짜까지 고려가능
 			if((int)m.get("productPrice") != (int)m.get("discountedPrice")) {
 	%>
