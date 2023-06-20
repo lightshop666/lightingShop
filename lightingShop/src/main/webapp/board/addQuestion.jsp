@@ -6,8 +6,8 @@
 	// 요청값 검사
 	// id
 	String id = "guest"; // 기본값 비회원
-	if(session.getAttribute("loginIdloginList") != null) {
-		id = (String)session.getAttribute("loginIdloginList");
+	if(session.getAttribute("loginIdListId") != null) {
+		id = (String)session.getAttribute("loginIdListId");
 	}
 	// productNo
 	int productNo = 1; // 상품 선택 안했을시 기본값 관리자 코드

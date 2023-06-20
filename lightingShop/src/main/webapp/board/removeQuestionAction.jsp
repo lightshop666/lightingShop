@@ -34,11 +34,7 @@
 	}
 	
 	// DELETE 메서드 호출
-	/*
-		문의글 삭제 메서드는 문의글 다중 선택후
-		일괄 삭제도 가능하게 하기 위해
-		배열로 값을 입력받는다
-	*/
+	// 문의글 삭제 메서드는 문의글 다중 선택후 일괄 삭제도 가능하게 하기 위해 배열로 값 저장
 	int[] intCkQno = new int[1];
 	intCkQno[0] = qNo;
 	int row = dao.deleteQuestion(intCkQno);

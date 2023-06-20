@@ -30,8 +30,8 @@
 		<div class="row">
 			<div class="col-12">
 				<div class="search-content">
-					<form action="<%=request.getContextPath()%>/searchResult.jsp" method="post">
-						<input type="search" name="search" id="search" placeholder="키워드를 입력하세요">
+					<form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
+						<input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
 						<button type="submit"><img src="<%=request.getContextPath()%>/img/core-img/search.png" alt=""></button>
 					</form>
 				</div>

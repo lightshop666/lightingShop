@@ -275,17 +275,17 @@ public class BoardDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT q_pw FROM question WHERE q_no = ?";
+		String sql = "SELECT COUNT(*) FROM question WHERE q_no = ? AND q_pw = PASSWORD(?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, qNo);
+		stmt.setString(2, inputPw);
 		ResultSet rs = stmt.executeQuery();
-		
-		String qPw = "";
+		int row = 0;
 		if(rs.next()) {
-			qPw = rs.getString(1);
+			row = rs.getInt(1);
 		}
 		
-		if(qPw.equals(inputPw)) {
+		if(row == 1) {
 			return true;
 		} else {
 			return false;
@@ -378,7 +378,7 @@ public class BoardDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "INSERT INTO question(product_no, id, q_name, q_category, q_title, q_content, q_pw, a_chk, private_chk, createdate, updatedate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+		String sql = "INSERT INTO question(product_no, id, q_name, q_category, q_title, q_content, q_pw, a_chk, private_chk, createdate, updatedate) VALUES(?, ?, ?, ?, ?, ?, PASSWORD(?), ?, ?, NOW(), NOW())";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		// RETURN_GENERATED_KEYS -> 방금 insert한 키 값을 받아올 수 있다
 		stmt.setInt(1, productNo);

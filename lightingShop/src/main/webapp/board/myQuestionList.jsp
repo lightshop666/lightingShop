@@ -5,16 +5,14 @@
 <%
 	// 한글 깨지지 않게 인코딩
 	request.setCharacterEncoding("utf-8");
-	/*
-		// 1. 유효성 검사
-		// 1-1) 세션정보
-		if(session.getAttribute("loginIdListId") == null) {
-			response.sendRedirect(request.getContextPath() + "home.jsp");
-			return;
-		}
-		String loginId = (String)session.getAttribute("loginIdListId");
-	*/
-	String loginId = "guest"; // 테스트용
+
+	// 1. 유효성 검사
+	// 1-1) 세션정보
+	if(session.getAttribute("loginIdListId") == null) {
+		response.sendRedirect(request.getContextPath() + "home.jsp");
+		return;
+	}
+	String loginId = (String)session.getAttribute("loginIdListId");
 	
 	// 1-2) 요청값
 	int currentPage = 1;

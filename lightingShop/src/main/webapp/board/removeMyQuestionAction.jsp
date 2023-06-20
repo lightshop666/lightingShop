@@ -10,15 +10,13 @@
 		response.sendRedirect(request.getContextPath() + "/board/myQuestionList.jsp");
 		return;
 	}
-	/*
-		// 세션정보 // 세션정보가 없거나 일치하지 않으면 home으로
-		if(request.getParameter("loginId") == null
-				|| request.getParameter("loginId").equals("")
-				|| !session.getAttribute("loginIdListId").equals(request.getParameter("loginId"))) {
-			response.sendRedirect(request.getContextPath() + "/home.jsp");
-			return;
-		}
-	*/
+	// 세션정보 // 세션정보가 없거나 일치하지 않으면 home으로
+	if(request.getParameter("loginId") == null
+			|| request.getParameter("loginId").equals("")
+			|| !session.getAttribute("loginIdListId").equals(request.getParameter("loginId"))) {
+		response.sendRedirect(request.getContextPath() + "/home.jsp");
+		return;
+	}
 	
 	// 삭제할 qNo의 값을 받아올 배열 생성
 	String[] ckQno = request.getParameterValues("qNo");
