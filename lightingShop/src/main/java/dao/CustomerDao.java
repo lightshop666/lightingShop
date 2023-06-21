@@ -711,7 +711,8 @@ public class CustomerDao {
 				+ ", id"
 				+ ", cart_cnt"
 				+ ", createdate"
-				+ ") VALUES (?, ?, ?, NOW())";
+				+ ", updatedate"
+				+ ") VALUES (?, ?, ?, NOW(), NOW())";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setInt(1, cart.getProductNo() );
 		stmt.setString(2, cart.getId() );
