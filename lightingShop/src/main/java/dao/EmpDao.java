@@ -139,7 +139,7 @@ public class EmpDao {
 	public int insertProductImg(ProductImg productImg, String dir) throws Exception {
 		
 		
-		//업로드 파일이 PDF파일이 아니면
+		//업로드 파일이 이미지파일이 아니면
 		if (!productImg.getProductFiletype().equals("image/jpeg") && !productImg.getProductFiletype().equals("image/png")) {
 			// 이미 upload 폴더에 저장된 파일을 삭제
 			System.out.println("이미지 파일이 아닙니다.");
