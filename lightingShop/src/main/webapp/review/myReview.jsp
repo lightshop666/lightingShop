@@ -69,11 +69,11 @@
 	<title>조명 가게 - 나의 리뷰 | My review</title>
 	
 	<!-- Favicon  -->
-	<link rel="icon" href=" <%=request.getContextPath()%>/img/core-img/favicon.ico">
+	<link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
 	
 	<!-- Core Style CSS -->
-	<link rel="stylesheet" href=" <%=request.getContextPath()%>/css/core-style.css">
-	<link rel="stylesheet" href=" <%=request.getContextPath()%>/style.css">
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
 </head>
 <style>
 	/*이미지 사이즈, 클릭시 풀스크린*/
@@ -98,7 +98,6 @@
     max-height: 80%;
 	}
 </style>
-
 </head>
 <body>
 <!-- Search Wrapper Area Start -->
@@ -111,116 +110,41 @@
 			<div class="col-12">
 				<div class="search-content">
 					<form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
-						<input type="search" name="search" id="search" placeholder="키워드를 입력하세요">
-						<button type="submit"><img src="<%=request.getContextPath()%>/img/core-img/search.png" alt=""></button>
+						<input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
+						<button type="submit"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""></button>
 					</form>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
-<!-- Single Widget Area -->
-<div class="col-12 col-lg-8">
-    <div class="single_widget_area">
-        <div class="header_menu">
-        	<!-- 상단메뉴 인클루드 -->
-			<jsp:include page="/inc/mainmenu.jsp"  />
-        </div>
-    </div>
-</div>
 
-  <!-- ##### Main Content Wrapper Start ##### -->
+   <!-- ##### Main Content Wrapper Start ##### -->
     <div class="main-content-wrapper d-flex clearfix">
-
+    
         <!-- Mobile Nav (max width 767px)-->
         <div class="mobile-nav">
             <!-- Navbar Brand -->
             <div class="amado-navbar-brand">
-                <a href=" <%=request.getContextPath()%>/index.html"><img src="<%=request.getContextPath()%>/imgcore-img/logo.png" alt=""></a>
+                <a href="<%=request.getContextPath()%>/home.jsp"><img src = "<%=request.getContextPath()%>/resources/img/core-img/logo.png" alt=""></a>
             </div>
             <!-- Navbar Toggler -->
             <div class="amado-navbar-toggler">
                 <span></span><span></span><span></span>
             </div>
-        </div>
-
-        <!-- Header Area Start -->
-        <header class="header-area clearfix">
-            <!-- Close Icon -->
-            <div class="nav-close">
-                <i class="fa fa-close" aria-hidden="true"></i>
-            </div>
-            <!-- Logo -->
-            <div class="logo">
-                <a href=" <%=request.getContextPath()%>/index.html"><img src="<%=request.getContextPath()%>/imgcore-img/logo.png" alt=""></a>
-            </div>
-	<!-- Amado Nav -->
-	<nav class="amado-nav">
-	    <ul>
-	        <li class="active">
-				<!-- 비로그인 : 회원가입 버튼 / 로그인 : 로그아웃 버튼-->
-			<%//비로그인 : 회원가입
-				if(session.getAttribute("loginMemberId") == null) {//로그인 전
-			%>
-					<a href=" <%=request.getContextPath()%>/customer/addCustomer.jsp">
-						회원가입
-					</a>
-			<%
-				//로그인시 : 로그아웃
-				}else{
-			%>
-					<a href=" <%=request.getContextPath()%>/customer/logoutAction.jsp">
-						로그아웃
-					</a>
-			<%
-				}
-			%>
-			</li>
-			
-	        <li>	        
-			<!-- 비로그인 : 로그인 버튼 / 로그인 : 마이페이지 버튼-->
-		<%//비로그인 : 로그인
-			if(session.getAttribute("loginMemberId") == null) { // 로그인전
-		%>
-				<a href=" <%=request.getContextPath()%>/customer/loginAction.jsp">
-				로그인
-				</a>
-		<%
-			//로그인시 : 마이페이지
-			}else{
-		%>
-				<a href=" <%=request.getContextPath()%>/customer/myPage.jsp">
-					마이페이지
-				</a>
-				
-		<%
-			}
-		%>
-	        </li>
-	        
-	        <li><a href=" <%=request.getContextPath()%>/cart/cartList.jsp">
-	        	장바구니
-			</a></li>
-	        <li>
-				<!-- 카테고리 n개(모든 상품, 카테고리별 상품)-->
-				<a href=" <%=request.getContextPath()%>/product/productList.jsp">상품목록</a>
-			</li>
-	    </ul>
-	</nav>
-            <!-- Cart Menu -->
-            <div class="cart-fav-search mb-100">
-                <a href=" <%=request.getContextPath()%>/cart/cartList.html" class="cart-nav"><img src="<%=request.getContextPath()%>/imgcore-img/cart.png" alt=""> Cart <span>(0)</span></a>
-                <a href="<%=request.getContextPath()%>/product/SearchResult.jsp" class="search-nav"><img src="<%=request.getContextPath()%>/imgcore-img/search.png" alt=""> Search</a>
-            </div>
-        </header>
+        </div>		
+        
+        
+    	<!-- menu 좌측 bar -->
+		<!-- Header Area Start -->  
+	    <div>
+			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
+		</div>        
         <!-- Header Area End -->
         
-        
-    
         <div class="amado_product_area section-padding-100">
             <div class="container-fluid">
-            
- <!-- 정렬 상품 카테고리 별로 -->
+             <!-- 정렬 상품 카테고리 별로 -->
                 <div class="row">
                     <div class="col-12">
                         <div class="product-topbar d-xl-flex align-items-end justify-content-between">
@@ -341,42 +265,24 @@
             </div>
         </div>
     </div>
-    <!-- ##### Main Content Wrapper End ##### -->   
- </div>   
-    <!-- ##### Footer Area Start ##### -->
-    <footer class="footer_area clearfix">
-        <div class="container">
-            <div class="row align-items-center">
-                <!-- Single Widget Area -->
-                <div class="col-12 col-lg-4">
-                    <div class="single_widget_area">
-                        <!-- Logo -->
-                        <div class="footer-logo mr-50">
-                            <a href="<%=request.getContextPath()%>/home.jsp"><img src="<%=request.getContextPath()%>/img/core-img/logo2.png" alt=""></a>
-                        </div>
-                        <!-- Copywrite Text -->
-                        <p class="copywrite"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-							<!-- 하단 카피라잇 인클루드 -->
-							<jsp:include page="/inc/copyright.jsp"></jsp:include>
-							<!-- 하단 카피라잇 인클루드 종료 -->
-						</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <!-- ##### Footer Area End ##### -->
-    
- <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
-<script src="js/jquery/jquery-2.2.4.min.js"></script>
-<!-- Popper js -->
-<script src="js/popper.min.js"></script>
-<!-- Bootstrap js -->
-<script src="js/bootstrap.min.js"></script>
-<!-- Plugins js -->
-<script src="js/plugins.js"></script>
-<!-- Active js -->
-<script src="js/active.js"></script>
+    <!-- ##### Main Content Wrapper End ##### -->  
+     
+<!-- ##### Footer Area Start ##### -->
+    <div>
+		<jsp:include page="/inc/copyright.jsp"></jsp:include>
+	</div>
+<!-- ##### Footer Area End ##### -->
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <script src="<%=request.getContextPath()%>/resources/js/jquery/jquery-2.2.4.min.js"></script>
+    <!-- Popper js -->
+    <script src="<%=request.getContextPath()%>/resources/js/popper.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+    <!-- Plugins js -->
+    <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
+    <!-- Active js -->
+    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
 </body>
 <script>
 // 이미지 클릭 시 확대/축소

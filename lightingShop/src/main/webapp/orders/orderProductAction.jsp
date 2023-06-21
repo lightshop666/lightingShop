@@ -8,7 +8,7 @@
 //유효성 검사
 	//세션 유효성 검사 --> 비회원은 주문할 수 없다 게스트 걸러내기
 	Customer customer = new Customer(); // 객체 생성 및 초기화
-	customer.setId("test2"); //-------------------------임시 테스트용-------------------------------------//
+	customer.setId("user1"); //-------------------------임시 테스트용-------------------------------------//
 	if(session.getAttribute("loginMemberId") != null) {
 		customer.setId((String)session.getAttribute("loginMemberId"));
 	}
@@ -85,7 +85,13 @@
 	int pointResult1= pointHistoryDao.cstmPointUpdate(pointUsedPk);
 	int pointResult2 = pointHistoryDao.cstmPointUpdate(pointAddPk);
 
-	response.sendRedirect("orderProductOne.jsp?orderNo=" + orderPk);
-	return;
-
-%>
+	if(pointResult1 != 0
+	||pointResult2 != 0){
+		response.sendRedirect("orderProductOne.jsp?orderNo=" + orderPk);
+		return;
+	}else{
+	    out.println("<script>alert('주문 중 에러가 발생했습니다.'); history.go(-1);</script>");
+	}
+	
+	%>
+	

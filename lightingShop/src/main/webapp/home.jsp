@@ -47,7 +47,7 @@
 			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
 		</div>
 		
-		
+<!----------------------------------------------------- 공통적용 부분 끝 -->		
         <!-- Mobile Nav (max width 767px)-->
         <div class="mobile-nav">
             <!-- Navbar Brand -->

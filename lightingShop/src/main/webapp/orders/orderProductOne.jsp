@@ -4,13 +4,13 @@
 <%@ page import="java.util.*"%>
 <%
 	//세션 로그인 검사
-	String loginMemberId = "test2";
+	String loginMemberId ="user1";
 	if(session.getAttribute("loginMemberId") != null) {
 		loginMemberId = (String)session.getAttribute("loginMemberId");
 	}
 	
 	//주문번호 유효성 검사
-	int orderNo=14;
+	int orderNo =20;
 	if(request.getParameter("orderNo")!=null){
 		orderNo = Integer.parseInt(request.getParameter("orderNo"));
 		System.out.println(orderNo + "<--parm-- orderNo orderProductOne.jsp");
@@ -174,14 +174,20 @@
 			boolean isReviewAllowed = orderProductDao.checkReviewEligibility(createDate, todayDate);
 			
 		//디버깅	
-			System.out.println(deleveryStatus+"<--deleveryStatus orderProductOne.jsp");
-			System.out.println(createDate+"<--createDate orderProductOne.jsp");
-			System.out.println(todayDate+"<--todayDate orderProductOne.jsp");
+			//System.out.println(deleveryStatus+"<--deleveryStatus orderProductOne.jsp");
+			//System.out.println(createDate+"<--createDate orderProductOne.jsp");
+			//System.out.println(todayDate+"<--todayDate orderProductOne.jsp");
 			HashMap<String, Object> review = reviewDao.customerReview(orders.getId());
-			String reviewWritten = (String)review.get("reviewWritten");
+			String reviewWritten = null;
+			if (review != null) {
+			    reviewWritten = (String) review.get("reviewWritten");
+			}
+;
 			
 			//원가 더하기
-			oriPrice += (int) productInfo.get("discountedPrice");
+			oriPrice += (int) product.getProductPrice() * orderProduct.getProductCnt();
+			System.out.println(oriPrice+"<--oriPrice 원가 orderProductOne.jsp");
+
 		    
 	%>
 			<div>
@@ -205,7 +211,7 @@
 					<p>상품 이름: <%= product.getProductName() %></p>
 				</div>
 				
-				<p>상품 가격: <%=(int) productInfo.get("discountedPrice") %>원</p>
+				<p>상품 가격: <%=(int) productInfo.get("discountedPrice") * orderProduct.getProductCnt()%>원</p>
 				<% 
 					//반품신청은 한달 이내만 받는다 
 					if (isReviewAllowed==true && 
@@ -257,7 +263,8 @@
 					//주문한지 한 달 이내인지
 					&& isReviewAllowed==true
 					//작성여부가 N인지
-					&& reviewWritten.equals("N")){
+       				 && (reviewWritten == null || reviewWritten.equals("N"))
+					||review==null){
 				%><!-- 리뷰작성 -->
 					  <form action="<%= request.getContextPath() %>/review/addReview.jsp" method="GET">
 					    <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
@@ -290,7 +297,7 @@
  	<div>
  		<p>총 결제 금액 : <%=(int)orders.getOrderPrice() %> 원</p>
  		<p>총 상품 금액 : <%=oriPrice%> 원</p>
- 		<p>총 할인 금액 : <%=(int)orders.getOrderPrice() - oriPrice%> 원</p>
+ 		<p>총 할인 금액 : <%= oriPrice - (int)orders.getOrderPrice() %> 원</p>
  	</div>
  
  

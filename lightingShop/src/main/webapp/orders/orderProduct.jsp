@@ -1,3 +1,4 @@
+<%@page import="javax.script.ScriptContext"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="dao.*"%>
 <%@ page import="vo.*" %>
@@ -7,18 +8,21 @@
 //유효성 검사
 	//세션 유효성 검사 --> 비회원은 주문할 수 없다 게스트 걸러내기
 	Customer customer = new Customer();
-	customer.setId("guest");	//-------------------------임시 테스트용-------------------------------------//
+	customer.setId("user1");	//-------------------------임시 테스트용-------------------------------------//
 	if(session.getAttribute("loginMemberId") != null) {
 		customer.setId((String)session.getAttribute("loginMemberId"));
+		System.out.println(customer.getId()+"<--새로 들어온 아이디 orderProduct.jsp");
 	}
+
+	System.out.println(customer.getId()+"<--customer.getId()-- orderProduct.jsp");
 	
 	//상품번호,수량 검사
-	String[] productNo = {"10","11","12"};
+	String[] productNo = {"33", "112","114","67"};
 	if(request.getParameter("productNo[]") != null) {
 		productNo = request.getParameterValues("productNo[]");
 	}
 	
-	String[] productCnt = {"2","1","1"};
+	String[] productCnt = {"2","1", "1","1"};
 	if(request.getParameter("productCnt[]") != null) {
 		productCnt = request.getParameterValues("productCnt[]");
 	}
@@ -87,7 +91,8 @@
 			} else {
 				// 단일 주문인 경우
 				int singleProductNo = Integer.parseInt(productNo[0]);
-				response.sendRedirect(request.getContextPath() + "/product/productOne.jsp?productNo=" + product.getProductNo());
+			    out.println("<script>alert('상품이 품절입니다.'); history.go(-1);</script>");
+				//response.sendRedirect(request.getContextPath() + "/product/productOne.jsp?productNo=" + product.getProductNo());
 			}
 			
 		//상품의 재고보다 많이 주문한 경우 
@@ -117,6 +122,7 @@
 	//고객 정보 출력을 위한 모델 소환
 	CustomerDao customerDao = new CustomerDao();
 	HashMap<String, Object> customerInfo = customerDao.selectCustomerOne(customer);
+	System.out.println(customerInfo.get("c.id")+"<--c.id--orderProduct.jsp");
 	
 	int totalPoint = customerDao.selectPointCustomer(customer.getId());
 	
@@ -254,6 +260,8 @@
 	        Product product = selectedProducts.get(i);
 	        ProductImg productImg = selectedProductImgs.get(i);
 	        int discountedPrice = discountedPrices.get(i);
+	        //System.out.println(discountedPrice + "<--discountedPrice-- orderProduct.jsp");
+	        
 	        totalPrice += discountedPrice *  Integer.parseInt(productCnt[i]);
 	%>
 	        <p>
@@ -276,8 +284,21 @@
 	        	</a>
 	        </p>
 	        <p><%=productCnt[i] %>개</p><!-- 상품갯수 -->
-	        <p>상품 가격 : <%= product.getProductPrice() * Integer.parseInt(productCnt[i])  %></p><!-- 상품 원래 가격 * 상품 개수 -->
-	        <p>할인된 가격 : <%= discountedPrice * Integer.parseInt(productCnt[i]) %></p><!-- 할인된 가격 * 상품 개수 -->
+	        <p>상품 가격 : <%= (int) (product.getProductPrice() * Integer.parseInt(productCnt[i]))  %> 원</p><!-- 상품 원래 가격 * 상품 개수 --> 
+	        <p>
+	        <%
+	        	if (discountedPrice==product.getProductPrice() ){
+	        %>
+	        		할인된 가격 : 0 원
+	        <%
+	        	}else{
+	        %>	        		
+		        	할인된 가격 : 
+		        	<%= discountedPrice * Integer.parseInt(productCnt[i]) %> 원
+	        <%
+	        	}
+	        %>
+	        </p><!-- 할인된 가격 * 상품 개수 -->
 			<p>배송비 :
 			<%
 				if(totalPrice >= 25000){

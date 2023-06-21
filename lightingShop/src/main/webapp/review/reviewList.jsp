@@ -15,6 +15,7 @@
 	}
 	//모델 호출
 	ReviewDao reviewDao = new ReviewDao();
+	CategoryDao cateDao = new CategoryDao();
 	
 	//페이징 리스트를 위한 변수 선언
 	//현재 페이지
@@ -48,30 +49,33 @@
 	}
 	//Review 출력
 	 ArrayList<HashMap<String, Object>> AllReviewList  = reviewDao.allReviewListByPage(beginRow, rowPerPage, category );
+	//카테고리 출력
+	List<String> cateList = cateDao.getCategoryList();
 %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>리뷰 게시판</title>
-<!-- Latest compiled and minified CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Latest compiled JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<head>
+	<meta charset="UTF-8">
+	<!-- 웹페이지와 호환되는 Internet Explorer의 버전을 지정합니다. -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- 다양한 기기에서 더 나은 반응성을 위해 뷰포트 설정을 구성합니다. -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	
+	<!-- Title  -->
+	<title>조명 가게 - 리뷰 게시판 | Review List</title>
+	
+	<!-- Favicon  -->
+	<link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
+	
+	<!-- Core Style CSS -->
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
+</head>
 <style>
-	a{
-		/* 링크의 라인 없애기  */
-		text-decoration: none;
-	}
-	.p2 {/* 본문 폰트 좌정렬*/
-		font-family: "Lucida Console", "Courier New", monospace;
-		text-align: left;
-	}
-	}
-	h1{	
-		font-family: 'Black Han Sans', sans-serif;
-		text-align: center;
-	}
 	/*이미지 사이즈, 클릭시 풀스크린*/
 	.thumbnail {
     max-width: 200px;
@@ -93,13 +97,202 @@
     max-width: 80%;
     max-height: 80%;
 	}
-	
 </style>
-
 </head>
 <body>
-<div class="container">	
-<h1>리뷰 게시판</h1>
+<!-- Search Wrapper Area Start -->
+<div class="search-wrapper section-padding-100">
+	<div class="search-close">
+		<i class="fa fa-close" aria-hidden="true"></i>
+	</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<div class="search-content">
+					<form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
+						<input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
+						<button type="submit"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""></button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+   <!-- ##### Main Content Wrapper Start ##### -->
+    <div class="main-content-wrapper d-flex clearfix">
+    
+        <!-- Mobile Nav (max width 767px)-->
+        <div class="mobile-nav">
+            <!-- Navbar Brand -->
+            <div class="amado-navbar-brand">
+                <a href="<%=request.getContextPath()%>/home.jsp"><img src = "<%=request.getContextPath()%>/resources/img/core-img/logo.png" alt=""></a>
+            </div>
+            <!-- Navbar Toggler -->
+            <div class="amado-navbar-toggler">
+                <span></span><span></span><span></span>
+            </div>
+        </div>		
+        
+        
+    	<!-- menu 좌측 bar -->
+		<!-- Header Area Start -->  
+	    <div>
+			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
+		</div>        
+        <!-- Header Area End -->
+        
+        <div class="amado_product_area section-padding-100">
+            <div class="container-fluid">
+             <!-- 정렬 상품 카테고리 별로 -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="product-topbar d-xl-flex align-items-end justify-content-between">
+                            <!-- Sorting -->
+                            <div class="product-sorting d-flex">
+                                <div class="sort-by-date d-flex align-items-center mr-15">
+                                    <p>Sort by</p>
+                                    <form action="<%=request.getContextPath()%>/review/myReview.jsp" method="get">
+                                        <select name="selectCategory" id="sortBydate">
+                                        	<option value="All">&nbsp;ALL</option>
+                                        <%
+                                        	for(String s : cateList){
+                                                if(s.equals("관리자")) continue; // 관리자 카테고리 건너뛰기
+                                        %>
+                                            <option value="<%=s %>">&nbsp;<%=s %></option>
+                                        <%
+                                        	}
+                                        %>
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+
+				<!-- 모든 리뷰 출력, 글 누르면 상품 페이지로 -->
+			<%
+				for (HashMap<String, Object> m : AllReviewList) {
+			%>
+                    <!-- Single Product Area -->
+                    <div class="col-12 col-sm-6 col-md-12 col-xl-6">
+                        <div class="single-product-wrapper">
+<!-- 리뷰 이미지 -->
+                            <div class="product-img">
+								<img class="thumbnail" src="<%= request.getContextPath() %>/<%= (String) m.get("reviewPath") %>/<%= (String) m.get("reviewSaveFilename") %>" alt="Review Image">
+<!--호버(마우스 위에 올렸을 경우)시 상품 이미지-->
+                                <img class="hover-img" src="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>" alt="Product Image">
+                            </div>
+
+<!-- 리뷰 타이틀 -->
+                            <div class="product-description d-flex align-items-center justify-content-between">
+                                <!-- Product Meta Data -->
+                                <div class="product-meta-data">
+                                    <div class="line"></div>
+                                    <p class="product-price"><%= m.get("reviewTitle") %></p>
+                                    <a href=" <%=request.getContextPath()%>/review/reivewOne.jsp?orderProductNo=<%=(int)m.get("orderProductNo")%>">
+                                        <h6><%= m.get("reviewContent") %></h6>
+                                    </a>
+                                </div>
+<!-- 장바구니에 담기-->
+	                                <div class="ratings-cart text-right">
+	                                    <div class="ratings">
+	                                    	작성일 : <%= m.get("createdate") %>
+	                                    </div>
+	                                    <div class="cart">
+                                        	<a href=" <%=request.getContextPath()%>cart/cartList.html" data-toggle="tooltip" data-placement="left" title="Add to Cart"><img src="<%=request.getContextPath()%>/imgcore-img/cart.png"></a>
+                                    	</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+              <%
+              }
+              %>
+ <!-- 리뷰리스트 출력 종료 -->
+ 
+                <div class="row">
+                
+                
+<!-- 페이징 -->
+                    <div class="col-12">
+                        <nav aria-label="navigation">
+                            <ul class="pagination justify-content-end mt-50">
+							<%
+								//1번 페이지보다 작은데 나오면 음수로 가버린다
+								if (minPage > 1) {
+							%>
+									<li class="page-item"><a href=" <%=request.getContextPath()%>/review/myReview.jsp?currentPage=<%=minPage-pageRange%>">이전</a></li>
+							
+							<%	
+								}
+								for(int i=minPage; i <= maxPage; i=i+1){
+									if ( i == currentPage){		
+							%>
+										<li class="page-item active"><span><%=i %></span></li>
+							<%
+									}else{
+							%>
+										<li class="page-item"><a href=" <%=request.getContextPath()%>/review/myReview.jsp?currentPage=<%=i%>"><%=i %></a></li>
+							<%
+									}
+								}
+							
+								//maxPage와 lastPage가 같지 않으면 여분임으로 마지막 페이지목록일거다.
+								if(maxPage != lastPage ){
+							%>
+									<!-- maxPage+1해도 동일하다 -->
+									<li class="page-item"><a href=" <%=request.getContextPath()%>/review/myReview.jsp?currentPage=<%=minPage+pageRange%>">다음</a></li>
+							<%
+								}
+							%>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ##### Main Content Wrapper End ##### -->  
+     
+<!-- ##### Footer Area Start ##### -->
+    <div>
+		<jsp:include page="/inc/copyright.jsp"></jsp:include>
+	</div>
+<!-- ##### Footer Area End ##### -->
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <script src="<%=request.getContextPath()%>/resources/js/jquery/jquery-2.2.4.min.js"></script>
+    <!-- Popper js -->
+    <script src="<%=request.getContextPath()%>/resources/js/popper.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+    <!-- Plugins js -->
+    <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
+    <!-- Active js -->
+    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
+</body>
+<script>
+// 이미지 클릭 시 확대/축소
+	document.querySelector('.thumbnail').addEventListener('click', function() {
+		var img = document.createElement('img');
+		img.src = this.src;
+		img.classList.add('fullscreen');
+		img.addEventListener('click', function() {
+			document.body.removeChild(this);
+	});
+	document.body.appendChild(img);
+});
+</script>
+</html>
+
+
+
+
 	<div>	<!-- 
 			템플릿 적용 후 수정 사항
 			모든 리뷰 출력, 글 누르면 상품페이지로
