@@ -193,7 +193,7 @@
 			<div>
 				<p>배송 상태: <%=deleveryStatus %></p>
 				
-				<div onclick="location.href='<%= request.getContextPath() %>/product/productOne.jsp?productNo=' + <%= product.getProductNo() %>;">
+					<div onclick="location.href='<%= request.getContextPath() %>/product/productOne.jsp?productNo=' + <%= product.getProductNo() %>;">
 					<p>상품 이미지
 			<%
 						// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력

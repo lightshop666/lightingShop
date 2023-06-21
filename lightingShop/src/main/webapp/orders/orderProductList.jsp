@@ -4,7 +4,7 @@
 <%@ page import="java.util.*"%>
 <%
 	//세션 로그인 확인
-	String loginMemberId = "test2";
+	String loginMemberId = "user1";
 	if(session.getAttribute("loginMemberId") != null) {
 		loginMemberId = (String)session.getAttribute("loginMemberId");
 	}

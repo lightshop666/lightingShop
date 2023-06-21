@@ -93,7 +93,7 @@
 			// 상품 정보와 이미지 가져오기
 			Product product = (Product) productInfo.get("product");
 			ProductImg productImg = (ProductImg) productInfo.get("productImg");
-			
+						
 			// 할인된 가격 계산
 			int discountedPrice = 0;
 			discountedPrice = orderProductDao.discountedByOrders(product.getProductNo(), orders.getCreatedate());
@@ -124,15 +124,10 @@
 		}
 	%>
 		<input type="hidden" name="orderNo" value="<%= orders.getOrderNo() %>">
-		<input type="hidden" name="totalPriceInput" id="totalPriceInput">
-		<input type="hidden" name="unselectedPrice" id="unselectedPrice" value="0">
+		<input type="hidden" name="totalPriceInput" id="totalPriceInput" value="">
 		<!-- 취소 버튼 -->
 		<input type="submit" id="cancelButton" value="취소 신청">		
 		
-		<script>
-		    // 폼 전송 시 값을 설정하는 함수 호출
-		    calculateTotalPrice();
-		</script>
 	</form>
 </div>
 </body>
@@ -155,21 +150,34 @@
 	
 	// 체크박스 선택 여부에 따라 합계를 계산하고 넘겨주는 함수
 	function calculateTotalPrice() {
+		//체크박스 전부 가져오기
 		let checkboxes = document.querySelectorAll('input[type="checkbox"][name="selectedProducts[]"]');
+		//총 가격 초기화
 		let totalPrice = 0;
+		//선택되지 않은 상품 가격 초기화
 		let unselectedTotalPrice = 0;
 		
+		//체크박스 돌며 가격 계산
 		checkboxes.forEach(function(checkbox) {
+			//체크박스에 설정된 가격을 가져온다
 			let productPrice = parseFloat(checkbox.dataset.price);
+			//체크박스가 선택되었다면
 			if (checkbox.checked) {
+				//토탈가격에 상품 가격 더해준다
 				totalPrice += productPrice;
-			} else {
-				unselectedTotalPrice += productPrice;
-			}
+				console.log(totalPrice +'<--토탈가격에 더한다. orderCancel.jsp JS');
+			} 
 		});
 		
+		//총 가격과 선택되지 않은 가격 html에 뿌려준다.
 		document.querySelector('#totalPriceInput').value = totalPrice;
-		document.querySelector('#unselectedPrice').value = unselectedTotalPrice;
+		console.log(totalPrice);
+		console.log(totalPrice.toFixed(2));
+
 	}
+	
+
+    // 폼 전송 시 값을 설정하는 함수 호출
+	  calculateTotalPrice();
 </script>
 </html>

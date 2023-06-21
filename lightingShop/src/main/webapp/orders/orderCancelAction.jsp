@@ -68,22 +68,13 @@
 	}
 	
 	
-	String selectedPriceStr = request.getParameter("totalPriceInput[]");
+	String selectedPriceStr = request.getParameter("totalPriceInput");
 	int selectedPrice = 0;
 	// null이거나 비어있지 않다면 넣어준다.
 	if (selectedPriceStr != null && !selectedPriceStr.isEmpty()) {
 	    selectedPrice = Integer.parseInt(selectedPriceStr);
-	    System.out.println(selectedPrice + "<-selectedPrice-- 선택된 상품의 금액 orderCancelAction.jsp");
 	}
-	
-	// 취소되지 않은 상품의 금액
-	String unselectedTotalPriceStr = request.getParameter("unselectedPrice");
-	int unselectedTotalPrice = 0;
-	if (unselectedTotalPriceStr != null && !unselectedTotalPriceStr.isEmpty()) {
-	    unselectedTotalPrice = Integer.parseInt(unselectedTotalPriceStr);
-	    System.out.println(unselectedTotalPrice + "<-unselectedTotalPrice-- 취소되지 않은 상품의 금액 orderCancelAction.jsp");
-	}
-	
+    System.out.println(selectedPrice + "<-selectedPrice-- 선택된 상품의 금액 orderCancelAction.jsp");
 	
 	// 포인트 환불/적립 로직 추가
 	
@@ -109,7 +100,9 @@
 	int totalPrice =(int) orders.getOrderPrice();
     System.out.println(totalPrice + "<--totalPrice--총 주문금액 orderCancelAction.jsp");
 
-	
+	//주문서 금액에서 선택된 상품 가격을 빼면 선택되지 않은 상품들 가격
+	int unselectedTotalPrice = totalPrice - selectedPrice;
+    System.out.println(unselectedTotalPrice + "<--unselectedTotalPrice--선택되지 않은 상품 금액 orderCancelAction.jsp");
 	//환불해줄 금액
 	int refundAmount = 0;
 	
