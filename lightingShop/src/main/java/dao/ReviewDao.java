@@ -161,7 +161,7 @@ public class ReviewDao {
 	LIMIT ?, ?	
 
 	 * */
-	public ArrayList<HashMap<String, Object>> allReviewListByPage(int beginRow, int rowPerPage) throws Exception {
+	public ArrayList<HashMap<String, Object>> allReviewListByPage(int beginRow, int rowPerPage, String category) throws Exception {
 		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 		//디비 호출
 		DBUtil dbUtil = new DBUtil();
@@ -180,6 +180,8 @@ public class ReviewDao {
 				+ "INNER JOIN product p ON op.product_no = p.product_no "
 				+ "LEFT JOIN product_img pi ON p.product_no = pi.product_no "
 				+ "WHERE r.review_written = 'Y' "
+				
+				
 				+ "ORDER BY r.createdate DESC "
 				+ "LIMIT ?, ?";
 

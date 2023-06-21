@@ -8,6 +8,11 @@
 	if(session.getAttribute("loginMemberId") != null) {
 		loginMemberId = (String)session.getAttribute("loginMemberId");
 	}
+
+	String category = null;
+	if(request.getParameter("category") !=null){
+		category = request.getParameter("category");
+	}
 	//모델 호출
 	ReviewDao reviewDao = new ReviewDao();
 	
@@ -41,9 +46,8 @@
 	if (maxPage > lastPage){
 		maxPage = lastPage;
 	}
-	
 	//Review 출력
-	 ArrayList<HashMap<String, Object>> AllReviewList  = reviewDao.allReviewListByPage(beginRow, rowPerPage);
+	 ArrayList<HashMap<String, Object>> AllReviewList  = reviewDao.allReviewListByPage(beginRow, rowPerPage, category );
 %>
 <!DOCTYPE html>
 <html>

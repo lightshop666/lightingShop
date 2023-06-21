@@ -24,7 +24,7 @@
 
 	//모델 호출
 	EmpDao empDao = new EmpDao();
-	String deliveryStatus = "교환중";
+	String deliveryStatus = "배송중";
 	//정환님 딜리버리 업데이트 dao
 	int result = empDao.updateOrder(deliveryStatus, orderProductNo);
 	

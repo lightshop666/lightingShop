@@ -73,7 +73,7 @@
 	// null이거나 비어있지 않다면 넣어준다.
 	if (selectedPriceStr != null && !selectedPriceStr.isEmpty()) {
 	    selectedPrice = Integer.parseInt(selectedPriceStr);
-	    System.out.println(selectedPrice + "<-selectedPrice-- orderNo orderCancelAction.jsp");
+	    System.out.println(selectedPrice + "<-selectedPrice-- 선택된 상품의 금액 orderCancelAction.jsp");
 	}
 	
 	// 취소되지 않은 상품의 금액
@@ -81,7 +81,7 @@
 	int unselectedTotalPrice = 0;
 	if (unselectedTotalPriceStr != null && !unselectedTotalPriceStr.isEmpty()) {
 	    unselectedTotalPrice = Integer.parseInt(unselectedTotalPriceStr);
-	    System.out.println(unselectedTotalPrice + "<-unselectedTotalPrice-- orderNo orderCancelAction.jsp");
+	    System.out.println(unselectedTotalPrice + "<-unselectedTotalPrice-- 취소되지 않은 상품의 금액 orderCancelAction.jsp");
 	}
 	
 	
@@ -98,7 +98,7 @@
 	HashMap<String, Object> map = null;
 	map = orderDao.selectOrdersOne(orderNo);
 	if (map == null) {
-	    System.out.println("주문 정보를 가져오는 데 실패했습니다. orderNo orderCancelAction.jsp");
+	    System.out.println("주문 정보를 가져오는 데 실패했습니다.  orderCancelAction.jsp");
 	    response.sendRedirect(request.getContextPath() + "/home.jsp");
 	    return;
 	}
@@ -107,6 +107,8 @@
 	
 	//총 주문금액
 	int totalPrice =(int) orders.getOrderPrice();
+    System.out.println(totalPrice + "<--totalPrice--총 주문금액 orderCancelAction.jsp");
+
 	
 	//환불해줄 금액
 	int refundAmount = 0;
@@ -119,39 +121,51 @@
 			int refundpoint = 0;
 			//사용한 포인트
 			int usedPoint = p.getPoint();
+		    System.out.println(totalPrice + "<--usedPoint--포인트사용한 경우 사용한 포인트 orderCancelAction.jsp");
 			
 			// 1-1) point 사용량이 환불 총액보다 많은 경우 -> 환불 총액만큼 포인트 P 해줌
 			if (selectedPrice < usedPoint) {
 				refundpoint = usedPoint - selectedPrice;
+			    System.out.println(refundpoint + "<--refundpoint--환불총액보다 포인트 보유량이 많은 경우 orderCancelAction.jsp");
 				refundAmount = 0;
+				
 			// 1-2) point 사용량이 환불 총액보다 적은 경우 -> 사용한 포인트만큼 P 해주고 차액만큼 환불
 			} else {
 				refundpoint = usedPoint;
 				refundAmount = selectedPrice - refundpoint;
+			    System.out.println(refundAmount + "<--refundAmount--point 사용량이 환불 총액보다 적은 경우 orderCancelAction.jsp");
+
 			}
 			 //포인트 환불-증가
 			int pointPkRefund = pointHistoryDao.pointByCancel(orderNo, refundpoint);
+		    System.out.println(pointPkRefund + "<--pointPkRefund--포인트 환불 orderCancelAction.jsp");
+
 			//customer 테이블의 point 총합 업데이트
 			int pointResult1 = pointHistoryDao.cstmPointUpdate(pointPkRefund);
+		    System.out.println(pointResult1 + "<--pointResult1--customer테이블 업데이트PK orderCancelAction.jsp");
+
 	}
 	
 	
 	// 2) point_pm에서 P인 경우(=주문한 금액만큼 적립)
 		if (p.getPointPm().equals("P")) {
 			System.out.println("point_pm에서 P인 경우 orderCancelAction.jsp");
-			//사용한 포인트
+			//얻은 포인트
 			int usedPoint = p.getPoint();
-			System.out.println(usedPoint + "<--p-- usedPoint orderCancelAction.jsp");
+			System.out.println(usedPoint + "<--usedPoint-- 적립한포인트 orderCancelAction.jsp");
 			//3-1) 얻은 포인트만큼 빼주고-감소
 			int pointCancelM = pointHistoryDao.usedPoint(orderNo, usedPoint);
-			System.out.println(pointCancelM + "<--p-- pointCancelM  orderCancelAction.jsp");
+			System.out.println(pointCancelM + "<--pointCancelM-- 적립된 포인트만큼 감소  orderCancelAction.jsp");
 			 //3-2)unselectedPrice(주문취소하지 않은 상품들 누적 총액)만큼 다시 계산해서 insert한다.
 			int pointCancelP = pointHistoryDao.pointCancelP(orderNo, unselectedTotalPrice);
-			System.out.println(pointCancelM + "<--p-- pointCancelP  orderCancelAction.jsp");
+			System.out.println(pointCancelP + "<--pointCancelP-- 주문취소하지 않은 상품 총액만큼 포인트계산  orderCancelAction.jsp");
 			
 			//customer 테이블의 point 총합 업데이트
 			int pointResult2 = pointHistoryDao.cstmPointUpdate(pointCancelM);
 			int pointResult3 = pointHistoryDao.cstmPointUpdate(pointCancelP);
+		    System.out.println(pointResult2 + "<--pointResult2--customer테이블 업데이트PK orderCancelAction.jsp");
+		    System.out.println(pointResult3 + "<--pointResult3--customer테이블 업데이트PK orderCancelAction.jsp");
+
 		}
 	}
 	 

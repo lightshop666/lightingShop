@@ -66,10 +66,11 @@
 		text-align: left;
 	}
 	}
-	h1{	
+	h1{	/*제목 폰트*/
 		font-family: 'Black Han Sans', sans-serif;
 		text-align: center;
 	}
+	
 	/*이미지 사이즈, 클릭시 풀스크린*/
 	.thumbnail {
     max-width: 200px;
@@ -82,7 +83,7 @@
     width: 100%;
     height: 100%;
     z-index: 9999;
-    background: rgba(0, 0, 0, 0.7);
+    background-color: white;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -91,9 +92,7 @@
     max-width: 80%;
     max-height: 80%;
 	}
-	
 </style>
-
 </head>
 <body>
 <div class="container">	

@@ -44,7 +44,43 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- Latest compiled JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-</head>
+<style>
+	a{
+		/* 링크의 라인 없애기  */
+		text-decoration: none;
+	}
+	.p2 {/* 본문 폰트 좌정렬*/
+		font-family: "Lucida Console", "Courier New", monospace;
+		text-align: left;
+	}
+	}
+	h1{	/*제목 폰트*/
+		font-family: 'Black Han Sans', sans-serif;
+		text-align: center;
+	}
+	
+	/*이미지 사이즈, 클릭시 풀스크린*/
+	.thumbnail {
+    max-width: 200px;
+    cursor: pointer;
+  	}
+	.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  	}
+	.fullscreen img {
+    max-width: 80%;
+    max-height: 80%;
+	}
+</style>
 <body>
 <div class="container">	
 	<h3>반품 사유를 선택하세요</h3>

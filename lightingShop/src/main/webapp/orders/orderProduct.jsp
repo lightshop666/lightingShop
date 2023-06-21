@@ -7,7 +7,7 @@
 //유효성 검사
 	//세션 유효성 검사 --> 비회원은 주문할 수 없다 게스트 걸러내기
 	Customer customer = new Customer();
-	customer.setId("test2");	//-------------------------임시 테스트용-------------------------------------//
+	customer.setId("guest");	//-------------------------임시 테스트용-------------------------------------//
 	if(session.getAttribute("loginMemberId") != null) {
 		customer.setId((String)session.getAttribute("loginMemberId"));
 	}
@@ -178,7 +178,7 @@
     width: 100%;
     height: 100%;
     z-index: 9999;
-    background: rgba(0, 0, 0, 0.7);
+    background-color: white;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -481,6 +481,7 @@
 
 //주문에 따른 포인트
 	function calculatePointByOrder() {
+		//id 값 가져와서 JS변수로 변경
 		let finalPriceElement = document.querySelector('#finalPrice');
 		let pointByOrderElement = document.querySelector('#pointByOrder');
 		
