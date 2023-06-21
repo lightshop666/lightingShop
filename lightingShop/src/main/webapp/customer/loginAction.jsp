@@ -3,6 +3,8 @@
 <%@ page import="vo.*" %>
 <%@ page import="java.util.*" %>
 <%@ page import="java.net.*" %>
+<%@ page import="com.oreilly.servlet.*"%>
+<%@ page import="com.oreilly.servlet.multipart.*"%>
 <%
 	//	세션검사
 	if (session.getAttribute("loginIdListId") != null) { // 회원이면
@@ -39,6 +41,8 @@
 	System.out.println(loginIdList.get("active")); // 디버깅
 	System.out.println(loginIdList.get("empLevel")); // 디버깅
 	
+	
+	
 	// 아이디와 비밀번호가 DB와 같지 않은 경우
 	if (loginIdList.get("active") == null) { 
 		System.out.println("아이디 혹은 비밀번호가 틀렸습니다.\n다시 한 번 확인해주세요.");
@@ -55,31 +59,72 @@
 		session.setAttribute("loginIdListActive", loginIdList.get("active"));	// 세션에 로그인 성공한 id_list active를 저장
 		session.setAttribute("loginIdListEmpLevel", loginIdList.get("empLevel")); // 세션에 로그인 성공한 employees emp_level을 저장
 		
+		/* 
+		// 카트 수량을 세션에 저장
+		int ttlCntCart = cDao.ttlCntCart(id);
+		session.setAttribute("ttlCntCart", ttlCntCart); 
+		*/
 		
+		// 카트 객체생성
+		Cart cart = new Cart();
+		// 카트 객체에 id 저장
+		cart.setId(id);
 		
 		if(session.getAttribute("cart") != null) { // 로그인시 비로그인상태에서 cart세션에 담은 물건이 있을경우
+			System.out.println("비회원이 장바구니에 물건을 넣은 상태");
+			
+			// 세션에 저장된 cart 값을 받는다.
+			HashMap<String, Object> cartMap  = (HashMap<String, Object>)session.getAttribute("cart");
 			
 			
-			/* 
-			// 비로그인시에 사용했던 cart정보를 list 타입으로 가져온다.
-			ArrayList<HashMap<String, Object>> cartList = (ArrayList<HashMap<String, Object>>)session.getAttribute("cart");
-			int cartCnt = 0;
 			
-			
-			System.out.println(" 비로그인시에 담긴내용을 로그인시 cart DB로 옮긴다. "); // 디버깅
-			// 반복문 사용해서 cart 세션에 저장된 내용을 cartDB로 옮긴다.
-			for(HashMap<String, Object> c : cartList) {
+			// cart의 내용을 조회 -> 회원바구니 중복 품목인지 확인 -> 중복일경우 수량만 추가
+			for(String productNos : cartMap.keySet()) {
+				// 각 상품의 정보(HashMap)을 가져와서 리스트에 추가하기 
+			    HashMap<String,Object> cartProduct = (HashMap<String,Object>)cartMap.get(productNos);
+				System.out.println("productNo"+ (Integer)cartProduct.get("productNo")); // 넘버확인
 				
-				// 로그인된 유저의 회원바구니와 중복확인 -> 수량 추가
+				// 기존 회원장바구니에 중복된 품목 확인
+				// 제품번호를 세션을 통해 저장
+				int productNo = (Integer)cartProduct.get("productNo");
+				System.out.println((Integer)cartProduct.get("productNo")+"번 품목 중복검사");
+				// 카트 객체에 productNo 저장
+				cart.setProductNo(productNo);
 				
+				boolean cartListCk = cDao.cartListCk(cart);
+				
+					if(cartListCk) { // 중복일경우
+						int addQuantity = (Integer)cartProduct.get("quantity"); // 비회원 cart에 저장된 해당 품목의 수량
+						System.out.println(addQuantity+"비회원 카트에 저장된 품목수량");
+						int oldQuantity = cDao.cartOneQty(cart); // 기존 db에 저장된 해당 품목의 수량
+						System.out.println(oldQuantity+"기존 DB에 저장된 품목수량");
+						int newQuantity = addQuantity + oldQuantity; // 기존 품목에 비회원 cart 수량 더하기
+						System.out.println(newQuantity+"총 저장된 품목수량");
+						
+						// 카트수량 변경
+						int modifyQuantity = cDao.modifyCart(newQuantity, productNo, id);
+						if(modifyQuantity == 1) { // 변경일경우
+							System.out.println("중복품목 수량 추가 성공");
+						}
+					} else {
+						System.out.println("기존 장바구니에 새로 추가");
+						// 카트 객체에 quantity 저장
+						cart.setCartCnt((Integer)cartProduct.get("quantity"));
+						System.out.println("대입하려는 제품번호 : " + cartProduct.get("productNo"));
+						System.out.println("대입하려는 카트수 : " + cartProduct.get("quantity"));
+						
+						int addCart = cDao.addCart(cart); // 카트추가
+						if(addCart == 1) {
+							System.out.println((Integer)cartProduct.get("productNo") + "번 상품 장바구니 이동성공"); 
+						}
+						}
 			} 
-			*/
-			
-			// 세션에 저장된 내용을 삭제한다.
-			session.removeAttribute("cart");
-			
+				System.out.println("이동성공"); 
+				
+				// 세션에 저장된 내용을 삭제한다.
+				session.removeAttribute("cart");
 		}
-		
+	
 		// 디버깅
 		System.out.println("로그인 성공 세션정보 : " + session.getAttribute("loginIdListId"));
 		System.out.println("로그인 성공 세션정보 : " + session.getAttribute("loginIdListLastPw"));
@@ -93,13 +138,12 @@
 			response.sendRedirect(request.getContextPath() + "/admin/adminQuestionList.jsp");
 			return;
 		}
-	}
-	else {	// 로그인에 실패했을 경우 -> 탈퇴회원인 경우
+			
+	} else {	// 로그인에 실패했을 경우 -> 탈퇴회원인 경우
 		if (loginIdList.get("active").equals("N")) {	// Y면 가입된 사용자, N이면 탈퇴한 사용자
 			System.out.println("탈퇴된 사용자입니다.");
 			response.sendRedirect(request.getContextPath() + "/customer/home.jsp");
 			return;
 		} 
 	}
-	
 %>  

@@ -51,7 +51,7 @@
 				<%	//비로그인 : 로그인
 						if(session.getAttribute("loginMemberId") == null) { // 로그인전
 				%>
-							<a class="nav-link" href="<%=request.getContextPath()%>/customer/loginAction.jsp">
+							<a class="nav-link" href="<%=request.getContextPath()%>/customer/myPage.jsp">
 								Login
 							</a>
 				<%

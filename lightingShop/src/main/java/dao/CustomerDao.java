@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import util.DBUtil;
 import vo.Address;
+import vo.Cart;
 import vo.Customer;
 import vo.IdList;
 import vo.PwHistory;
@@ -694,5 +695,103 @@ public class CustomerDao {
 			checkPw = true;
 		}
 		return checkPw;
+	}
+	
+	//--------------------------d.cart 관련--------------------------------------
+	
+	// 1) cart 추가
+	public int addCart(Cart cart) throws Exception {
+		int row = 0;
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "INSERT INTO cart("
+				+ " product_no"
+				+ ", id"
+				+ ", cart_cnt"
+				+ ", createdate"
+				+ ") VALUES (?, ?, ?, NOW())";
+		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+		stmt.setInt(1, cart.getProductNo() );
+		stmt.setString(2, cart.getId() );
+		stmt.setInt(3, cart.getCartCnt() );
+		row = stmt.executeUpdate();
+		return row;
+	}
+	
+	// 1-1) cart 중복체크
+	public boolean cartListCk(Cart cart) throws Exception {
+		boolean cartListCk = false;
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "SELECT product_no"
+					+ " FROM cart"
+					+ " WHERE product_no = ? AND id = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, cart.getCartNo() );
+		stmt.setString(2, cart.getId() );
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) { // 중복 장바구니상품일경우, true반환
+			cartListCk = true;
+		}
+		
+		return cartListCk;
+	}
+	
+	// 1-2) cartOne (1개의 물품 수량정보)
+	public int cartOneQty(Cart cart) throws Exception {
+		int cartOneQty = 0;
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "SELECT cart_cnt FROM cart"
+					+ " WHERE product_no = ? AND id = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1,  cart.getCartNo());
+		stmt.setString(2, cart.getId());
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) {
+			cartOneQty = rs.getInt("cart_cnt");
+		}
+		
+		return cartOneQty;
+	}
+	
+	// 1-3) cart update
+	public int modifyCart(int cartCnt, int productNo, String id) throws Exception {
+		int row = 0;
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "UPDATE cart SET cart_cnt = ? WHERE product_no = ? AND id = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, cartCnt);
+		stmt.setInt(2, productNo);
+		stmt.setString(3, id);
+		row = stmt.executeUpdate();
+		return row;
+	}
+	
+	// 1-4) id별 cart 수량체크
+	public int ttlCntCart(String id) throws Exception {
+		int ttlCntCart = 0;
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "SELECT COUNT(*) from cart WHERE id = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, id);
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) {
+			ttlCntCart = rs.getInt("COUNT(*)");
+		}
+		
+		return ttlCntCart;
 	}
 }
