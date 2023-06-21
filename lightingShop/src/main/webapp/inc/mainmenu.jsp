@@ -1,5 +1,17 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.*"%>
+   
+        <!-- Mobile Nav (max width 767px)-->
+        <div class="mobile-nav">
+            <!-- Navbar Brand -->
+            <div class="amado-navbar-brand">
+                <a href="<%=request.getContextPath()%>/home.jsp"><img src="<%=request.getContextPath()%>/resources/img/core-img/logo.png" alt=""></a>
+            </div>
+            <!-- Navbar Toggler -->
+            <div class="amado-navbar-toggler">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
         <!-- [시작] 왼쪽 메뉴바 -->
         <header class="header-area clearfix">
             <!-- Close Icon -->
@@ -14,9 +26,10 @@
             <nav class="amado-nav">
                 <ul>
                     <li ><a href="<%=request.getContextPath()%>/home.jsp">Home</a></li>
+                    <!-- 임시로 HOME -->
                     <li>
-                    <!-- 비로그인 : 로그인 버튼 / 로그인 : 마이페이지 버튼-->
-   			<%		//비로그인 : 회원가입
+                    <!-- 비로그인 : 회원가입 버튼 / 로그인 : 로그아웃 버튼-->
+			<%//비로그인 : 회원가입
 						if(session.getAttribute("loginMemberId") == null) {//로그인 전
 			%>
 							<a class="nav-link" href="<%=request.getContextPath()%>/customer/addCustomer.jsp">
@@ -32,29 +45,27 @@
 			<%
 						}
 			%>
-					</li>
+                    </li>
                     <li>
                     <!-- 비로그인 : 로그인 버튼 / 로그인 : 마이페이지 버튼-->
-			<%		//비로그인 : 로그인
+				<%	//비로그인 : 로그인
 						if(session.getAttribute("loginMemberId") == null) { // 로그인전
-			%>
+				%>
 							<a class="nav-link" href="<%=request.getContextPath()%>/customer/loginAction.jsp">
 								Login
 							</a>
-			<%
+				<%
 						//로그인시 : 마이페이지
 						}else{
-			%>
+				%>
 							<a class="nav-link" href="<%=request.getContextPath()%>/customer/myPage.jsp">
 								My Page
 							</a>
-			<%
+				<%
 						}
-			%>
+				%>
                     </li>
                     <li><a href="<%=request.getContextPath()%>/cart/cartList.jsp">Cart</a></li>
-                    <!-- 결제창 -->
-                    <li><a href="checkout.html">Checkout</a></li>
              	<%
 					// 고객 - 로그인했다면 아래 내역
 					if(session.getAttribute("loginIdListId") != null) {
@@ -84,11 +95,8 @@
             <!-- Cart Menu -->
             <div class="cart-fav-search mb-100">
                 <a href="<%=request.getContextPath()%>/cart/cartList.jsp" class="cart-nav"><img src="<%=request.getContextPath()%>/resources/img/core-img/cart.png" alt=""> Cart <span>(0)</span></a>
-                <a href="#" class="fav-nav"><img src="<%=request.getContextPath()%>/resources/img/core-img/favorites.png" alt=""> Favourite</a>
                 <a href="#" class="search-nav"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""> Search</a>
             </div>
+
         </header>
         <!-- [끝] 왼쪽 메뉴바 -->
-        
-        
-        

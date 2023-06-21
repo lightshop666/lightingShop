@@ -7,14 +7,6 @@
 	request.setCharacterEncoding("utf-8");	
 
 	// 1. 유효성 검사
-	// 카테고리를 선택하지 않으면 카테고리별 상품 리스트 페이지에 올 수 없다
-	if(request.getParameter("categoryName") == null
-			|| request.getParameter("categoryName").equals("")) {
-		response.sendRedirect(request.getContextPath() + "/home.jsp");
-		return;
-	}
-	String categoryName = request.getParameter("categoryName");
-
 	int currentPage = 1;
 	if(request.getParameter("currentPage") != null) {
 		currentPage = Integer.parseInt(request.getParameter("currentPage"));
@@ -27,7 +19,11 @@
 	if(request.getParameter("orderBy") != null) {
 		orderBy = request.getParameter("orderBy");
 	}
-	System.out.println(orderBy);
+	String categoryName = ""; // 전체조회
+	if(request.getParameter("categoryName") != null) {
+		categoryName = request.getParameter("categoryName");
+	}
+	
 	// 2. 모델값
 	// 2-1. 데이터 출력부
 	int beginRow = (currentPage - 1) * rowPerPage;

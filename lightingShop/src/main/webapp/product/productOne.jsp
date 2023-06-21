@@ -185,7 +185,7 @@
 	<h1><%=productNo%>번 상품의 상세 정보</h1>
 	<!-- 상품 카테고리 -->
 	> 카테고리 > 조명 > <%=product.getCategoryName()%>
-	<form action="<%=request.getContextPath()%>/cart/cartList.jsp" method="post">
+	<form action="<%=request.getContextPath()%>/cart/cartListAction.jsp" method="post">
 	<!-- cartList로 넘기는 값 -->
 	<input type="hidden" name="productNo" value="<%=product.getProductNo()%>">
 	<input type="hidden" name="quantity" value=""> <!-- 동적으로 값 변경 -->

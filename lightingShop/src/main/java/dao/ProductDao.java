@@ -33,16 +33,24 @@ public class ProductDao {
 				product p
 				LEFT JOIN product_img i ON p.product_no = i.product_no
 				LEFT JOIN discount d ON p.product_no = d.product_no
-			WHERE p.category_name = ?
+			WHERE 1=1;
 			
-			1) 신상품순
+			1) 카테고리별 조회
+				AND p.category_name = ?
+			2) 정렬 선택 조회
+			2-1) 신상품순
 				ORDER BY createdate DESC LIMIT ?,?
-			2) 낮은 가격순
+			2-2) 낮은 가격순
 				ORDER BY discountRate ASC LIMIT ?,?
-			3) 높은 가격순
+			2-3) 높은 가격순
 				ORDER BY discountRate DESC LIMIT ?,?
 		*/
-		String sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ?";
+		String sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE 1=1";
+		// 1) 카테고리별 조회
+		if(!categoryName.equals("")) {
+			sql += " AND p.category_name = ?";
+		}
+		// 2) 정렬 선택 조회
 		switch(orderBy) {
 			case "newItem": // 1) 신상품순
 				sql += " ORDER BY createdate DESC LIMIT ?,?";
@@ -59,9 +67,14 @@ public class ProductDao {
 				break;
 		}
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, categoryName);
-		stmt.setInt(2, beginRow);
-		stmt.setInt(3, rowPerPage);
+		int parameterIndex = 1; // 물음표 인덱스
+		// 1)
+		if(!categoryName.equals("")) {
+			stmt.setString(parameterIndex++, categoryName);
+		}
+		// 2)
+		stmt.setInt(parameterIndex++, beginRow);
+		stmt.setInt(parameterIndex++, rowPerPage);
 		
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
