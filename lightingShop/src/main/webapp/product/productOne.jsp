@@ -5,12 +5,15 @@
 <%
 	// 1. 유효성 검사
 	// productNo
+	/*
 	if(request.getParameter("productNo") == null
 			|| request.getParameter("productNo").equals("")) {
 		response.sendRedirect(request.getContextPath() + "/product/productList.jsp");
 		return;
 	}
 	int productNo = Integer.parseInt(request.getParameter("productNo"));
+	*/
+	int productNo = 47;
 	
 	// reviewCurrentPage, reviewRowPerPage
 	int reviewCurrentPage = 1;
@@ -83,43 +86,54 @@
 	// 2-3. 해당 상품의 문의
 	ArrayList<Question> questionList = dao.selectProductQuestionListByPage(questionBeginRow, questionRowPerPage, productNo);
 %>
-
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>productOne</title>
-<style>
-	div {
-		display:table;
-		float:left;
-	}
-	p {
-		display:table-cell;
-	}
-	.font-bold {
-		font-weight:bold;
-	}
-	.font-orange {
-		color:#FF5E00;
-	}
-	.line-through {
-	  text-decoration: line-through;
-	}
-	.tab-container {
-      clear: both;
-      padding-top: 20px;
-    }
-    .tab-menu {
-      display: inline-block;
-      margin-right: 10px;
-      cursor: pointer;
-    }
-    .tab-content {
-      display: none;
-      padding-top: 10px;
-    }
-</style>
+   <meta charset="UTF-8">
+   <!-- 웹페이지와 호환되는 Internet Explorer의 버전을 지정합니다. -->
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <!-- 다양한 기기에서 더 나은 반응성을 위해 뷰포트 설정을 구성합니다. -->
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+   
+   <!-- Title  -->
+   <title>조명 가게 | 상품 상세</title>
+   
+   <style>
+		.font-bold {
+			font-weight:bold;
+		}
+		.font-orange {
+			color:#FF5E00;
+		}
+		.line-through {
+		  text-decoration: line-through;
+		}
+		.tab-container {
+	      clear: both;
+	      padding-top: 20px;
+	    }
+	    .tab-menu {
+	      display: inline-block;
+	      margin-right: 10px;
+	      cursor: pointer;
+	    }
+	    .tab-content {
+	      display: none;
+	      padding-top: 10px;
+	    }
+	</style>
+	
+   <!-- BootStrap5 -->
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+   
+   <!-- Favicon  -->
+   <link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
+   
+   <!-- Core Style CSS -->
+   <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
+   <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
 <script> 
 	// 단일구매 경로
 	function submit2(frm) { 
@@ -132,7 +146,7 @@
 	function count(type) {
 		// 수량 동적으로 변경
 		const quantityElement = document.getElementById('quantity'); // 수량Element 가져오기
-		let quantity = parseInt(quantityElement.innerText); // 수량의 값 가져오기
+		let quantity = parseInt(quantityElement.value); // 수량의 값 가져오기
 		const maxQuantity = <%=product.getProductStock()%>; // 상품의 최대 수량(재고량) 가져오기
 		
 		if (type === 'plus') { // '+' 버튼을 클릭한 경우
@@ -145,7 +159,7 @@
 		  }
 		}
 		
-		quantityElement.innerText = quantity; // 변경된 수량 출력
+		quantityElement.value = quantity; // 변경된 수량 출력
 		
 		// 동적으로 바뀌는 quantity 값을 hidden input에 설정
 		const hiddenInput = document.getElementsByName('quantity')[0];
@@ -181,179 +195,229 @@
 </script> 
 </head>
 <body>
-	<!------------- 1) 상품 상세 --------------->
-	<h1><%=productNo%>번 상품의 상세 정보</h1>
-	<!-- 상품 카테고리 -->
-	> 카테고리 > 조명 > <%=product.getCategoryName()%>
-	<form action="<%=request.getContextPath()%>/cart/cartListAction.jsp" method="post">
-	<!-- cartList로 넘기는 값 -->
-	<input type="hidden" name="productNo" value="<%=product.getProductNo()%>">
-	<input type="hidden" name="quantity" value=""> <!-- 동적으로 값 변경 -->
-	<input type="hidden" name="discountedPrice" value="<%=discountedPrice%>">
-	<!-- orderProduct로 넘기는 값 -->
-	<input type="hidden" name="productCnt" value=""> <!-- 동적으로 값 변경 -->
-		<table>
-			<tr> <!-- 상품 이미지, 상품 이름 -->
-				<td rowspan="5">
-					<%
-						// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
-						if(productImg.getProductSaveFilename() == null) {
-					%>
-							<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
-					<%
-						} else {
-					%>
-							<img src="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>">
-					<%	
-						}
-					%>
-				</td>
-				<td>
-					<%=product.getProductName()%>
-				</td>
-			</tr>
-			<tr> <!-- 상품 가격 + 할인율 -> 우정님DAO 사용 -->
-				<td>
-					<%
-						if(product.getProductPrice() == discountedPrice) {
-					%>
-							<p class="font-bold">
-								<%=discountedPrice%>원
-							</p>
-					<%
-						} else {
-					%>
-							<div>
-								<p class="font-bold">
-									<%=discountedPrice%>원
-								</p>
-								<p class="line-through">
-									<%=(int)product.getProductPrice()%>원
-								</p>
-								<p class="font-bold font-orange">
-									<%=discount.getDiscountRate() * 100%>%
-								</p>
-							</div>
-					<%
-						}
-					%>
-				</td>
-			</tr>
-			<!-- 등급별 포인트 적립 고지 문구 출력예정 -->
-			<tr> <!-- 상품 상태, 상품 재고량 -->
-				<td>
-					[<%=product.getProductStatus()%>] 재고 : <%=product.getProductStock()%>개
-				</td>
-			</tr>
-			<tr><!-- 수량, 수량에 따른 총 결제금액 표시 -->
-			  <td>
-			    수량 :
-			    <input type='button' onclick='count("plus")' value='+'/>
-			    <span id='quantity'>0</span>
-			    <input type='button' onclick='count("minus")' value='-'/>
-			    <br> 총 결제 금액 : <span id="totalAmount">0</span>
-			  </td>
-			</tr>
-			<tr> <!-- 결제 / 장바구니 버튼 -->
-				<td>
-					<button type="submit">장바구니</button>
-					<button type="submit" onclick='return submit2(this.form);'>결제하기</button>
-				</td>
-			</tr>
-		</table>
-	</form>
-	<span> <!-- 상품설명 -->
-		<%=product.getProductInfo()%>
-	</span>
-	<!-- tab 메뉴바 표시 -->
-	<div class="tab-container">
-    	<div id="menu-review" class="tab-menu active" onclick="showTab('review')">리뷰 목록(총 <%=reviewTotalRow%>건)</div>
-    	<div id="menu-question" class="tab-menu" onclick="showTab('question')">문의 목록(총 <%=questionTotalRow%>건)</div>
+	<!-- Search Wrapper Area Start -->
+	<div class="search-wrapper section-padding-100">
+	   <div class="search-close">
+	      <i class="fa fa-close" aria-hidden="true"></i>
+	   </div>
+	   <div class="container">
+	      <div class="row">
+	         <div class="col-12">
+	            <div class="search-content">
+	               <form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
+	                  <input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
+	                  <button type="submit"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""></button>
+	               </form>
+	            </div>
+	         </div>
+	      </div>
+	   </div>
 	</div>
-	
-	<!------------- 2) 해당 상품의 리뷰 --------------->
-	<div id="review" class="tab-content" style="display: block;">
-		<h1>리뷰 목록</h1>
-		<span>총 <%=reviewTotalRow%>건</span>
-		<span>
+
+   <!-- ##### Main Content Wrapper Start ##### -->
+	<div class="main-content-wrapper d-flex clearfix">
+       <!-- menu 좌측 bar -->
+		<div>
+			<jsp:include page="/inc/menu.jsp"></jsp:include>
+		</div>
+
+        <!-- Product Details Area Start -->
+        <div class="single-product-area section-padding-100 clearfix">
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-12">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mt-50">
+                                <li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/home.jsp">Home</a></li>
+                                <li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/product/productList.jsp">PRODUCT</a></li>
+                                <li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/product/productList.jsp?categoryName=<%=product.getCategoryName()%>"><%=product.getCategoryName()%></a></li>
+                                <li class="breadcrumb-item active" aria-current="page"><%=product.getProductName()%></li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-7"> <!-- 상품 이미지 -->
+                        <div class="single_product_thumb">
+                        	<div class="carousel-inner">
+								<div class="carousel-item active">
+                             		<%
+										// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+										if(productImg.getProductSaveFilename() == null) {
+									%>
+											<a class="gallery_img" href="<%=request.getContextPath()%>/productImg/no_image.jpg">
+												<img class="d-block w-100" src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+											</a>
+									<%
+										} else {
+									%>
+											<a class="gallery_img" href="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>">
+												<img class="d-block w-100" src="<%=request.getContextPath()%>/<%=productImg.getProductPath()%>/<%=productImg.getProductSaveFilename()%>">
+											</a>
+									<%	
+										}
+									%>
+                                 </div>
+                        	</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        <div class="single_product_desc">
+                            <!-- Product Meta Data -->
+                            <div class="product-meta-data">
+                                <div class="line"></div>
+                               	<%
+									if(product.getProductPrice() == discountedPrice) {
+								%>
+										<span class="product-price">
+											₩<%=discountedPrice%>
+										</span>
+								<%
+									} else {
+								%>
+										<div>
+											<span class="product-price">
+												₩<%=discountedPrice%>
+											</span>
+											<span class="line-through">
+												₩<%=(int)product.getProductPrice()%>
+											</span>
+											<span class="font-bold font-orange">
+												<%=discount.getDiscountRate() * 100%>%
+											</span>
+										</div>
+								<%
+									}
+								%>
+                                <h6><%=product.getProductName()%></h6>
+                                <!-- Avaiable -->
+                                <p class="avaibility"><i class="fa fa-circle"></i> [<%=product.getProductStatus()%>] 재고 : <%=product.getProductStock()%>개</p>
+                            </div>
+
+                            <div class="short_overview my-5">
+                                <p><%=product.getProductInfo()%></p>
+                            </div>
+
+                            <!-- Add to Cart Form -->
+                            <form action="<%=request.getContextPath()%>/cart/cartListAction.jsp" method="post" class="cart clearfix">
+							<input type="hidden" name="productNo" value="<%=product.getProductNo()%>">
+							<input type="hidden" name="productCnt" value=""> <!-- 동적으로 값 변경 -->
+							<input type="hidden" name="discountedPrice" value="<%=discountedPrice%>">
+                                <div class="cart-btn d-flex mb-50">
+                                    <p>수량</p>
+                                    <div class="quantity">
+                                        <span class="qty-minus" onclick="count('minus')"><i class="fa fa-caret-down" aria-hidden="true"></i></span>
+                                        <input type="number" class="qty-text" id="quantity" step="1" min="0" max="<%=product.getProductStock()%>" name="quantity" value="0">
+                                        <span class="qty-plus" onclick="count('plus')"><i class="fa fa-caret-up" aria-hidden="true"></i></span>
+                                    </div>
+                                </div>
+                                <div class="product-meta-data text-center">
+	                                <span class="product-price">₩<span id="totalAmount">0</span></span>
+	                            </div>
+                                <button type="submit" class="btn amado-btn">Add to cart</button>
+								<button type="submit" onclick='return submit2(this.form);' class="btn amado-btn">Checkout</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- tab 메뉴바 표시 -->
+		<div class="tab-container nav nav-pills justify-content-center">
+	    	<div id="menu-review" class="tab-menu active btn amado-btn" onclick="showTab('review')">Review</div>
+	    	<div id="menu-question" class="tab-menu btn amado-btn" onclick="showTab('question')">Question</div>
+		</div>
+      
+		<!------------- 2) 해당 상품의 리뷰 --------------->
+		<div id="review" class="tab-content" style="display: block;">
+			<h1>Review</h1>
 			<form action="<%=request.getContextPath()%>/product/productOne.jsp" method="post">
-				리뷰 키워드 : <input type="text" name="searchWord">
-				<button type="submit">검색</button>
+				<div style="float:left;">
+					총 <%=reviewTotalRow%>건
+				</div>
+				<div style="float:right;">
+					<input type="text" name="searchWord" placeholder="키워드를 입력하세요">
+					<button type="submit" class="btn btn-warning">Search</button>
+				</div>
 			</form>
-		</span>
-		<table>
+			<table>
+				<%
+					for(HashMap<String, Object> m : reviewList) {
+				%>
+					<tr>
+						<td><!-- 리뷰제목 -->
+							<%=m.get("reviewTitle")%> <br>
+							<!-- 리뷰내용 -->
+							<%=m.get("reviewContent")%> <br>
+							<!-- 리뷰사진 -->
+							<img src="<%=request.getContextPath()%>/<%=m.get("reviewPath")%>/<%=m.get("reviewSaveFilename")%>">
+						</td>
+						<td>
+							<!-- 수정일자 -->
+							<%=m.get("reviewCreatedate") %>
+							<!-- 작성자 -->
+							<%=m.get("id")%>
+						</td>
+					</tr>
+				<%
+					}
+				%>
+			</table>
 			<%
-				for(HashMap<String, Object> m : reviewList) {
+				if(reviewTotalRow == 0) {
 			%>
-				<tr>
-					<td><!-- 리뷰제목 -->
-						<%=m.get("reviewTitle")%> <br>
-						<!-- 리뷰내용 -->
-						<%=m.get("reviewContent")%> <br>
-						<!-- 리뷰사진 -->
-						<img src="<%=request.getContextPath()%>/<%=m.get("reviewPath")%>/<%=m.get("reviewSaveFilename")%>">
-					</td>
-					<td>
-						<!-- 수정일자 -->
-						<%=m.get("reviewCreatedate") %>
-						<!-- 작성자 -->
-						<%=m.get("id")%>
-					</td>
-				</tr>
+					리뷰가 아직 없습니다
 			<%
 				}
 			%>
-		</table>
-		<%
-			if(reviewTotalRow == 0) {
-		%>
-				리뷰가 아직 없습니다
-		<%
-			}
-		%>
-		<!-- 페이지 출력부 -->
-		<%
-			// 이전은 1페이지에서는 출력되면 안 된다
-			if(reviewBeginPage != 1) {
-		%>
-				<a href="<%=request.getContextPath()%>/product/productList.jsp?reviewCurrentPage=<%=reviewBeginPage - 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
-					&laquo;
-				</a>
-		<%
-			}
-		
-			for(int i = reviewBeginPage; i <= reviewEndPage; i++) {
-				if(i == reviewCurrentPage) { // 현재페이지에서는 a태그 없이 출력
-		%>
-					<span><%=i%></span>&nbsp;
-		<%
-				} else {
-		%>
-					<a href="<%=request.getContextPath()%>/product/productList.jsp?reviewCurrentPage=<%=i%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
-						<%=i%>
-					</a>&nbsp;
-		<%
+			<!-- 페이지 출력부 -->
+			<%
+				// 이전은 1페이지에서는 출력되면 안 된다
+				if(reviewBeginPage != 1) {
+			%>
+					<a href="<%=request.getContextPath()%>/product/productList.jsp?reviewCurrentPage=<%=reviewBeginPage - 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
+						&laquo;
+					</a>
+			<%
 				}
-			}
-			// 다음은 마지막 페이지에서는 출력되면 안 된다
-			if(reviewEndPage != reviewLastPage) {
-		%>
-				<a href="<%=request.getContextPath()%>/product/productList.jsp?reviewCurrentPage=<%=reviewEndPage + 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
-					&raquo;
-				</a>
-		<%
-			}
-		%>
+			
+				for(int i = reviewBeginPage; i <= reviewEndPage; i++) {
+					if(i == reviewCurrentPage) { // 현재페이지에서는 a태그 없이 출력
+			%>
+						<span><%=i%></span>&nbsp;
+			<%
+					} else {
+			%>
+						<a href="<%=request.getContextPath()%>/product/productList.jsp?reviewCurrentPage=<%=i%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
+							<%=i%>
+						</a>&nbsp;
+			<%
+					}
+				}
+				// 다음은 마지막 페이지에서는 출력되면 안 된다
+				if(reviewEndPage != reviewLastPage) {
+			%>
+					<a href="<%=request.getContextPath()%>/product/productList.jsp?reviewCurrentPage=<%=reviewEndPage + 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
+						&raquo;
+					</a>
+			<%
+				}
+			%>
 	</div>
 	
 	<!------------- 3) 해당 상품의 문의 --------------->
 	<div div id="question" class="tab-content">
-		<h1>문의 목록</h1>
-		총 <%=questionTotalRow %>건
-		<!-- 해당 제품의 문의글 작성, productNo 값 넘기기 -->
-		<a href="<%=request.getContextPath()%>/board/addQuestion.jsp?productNo=<%=productNo%>">
+		<h1>Question</h1>
+		<div style="float:left;">
+			총 <%=questionTotalRow %>건
+		</div>
+		<div style="float:right;">
+			<!-- 해당 제품의 문의글 작성, productNo 값 넘기기 -->
+			<a class="btn btn-warning" href="<%=request.getContextPath()%>/board/addQuestion.jsp?productNo=<%=productNo%>">
 			문의하기
-		</a>
+			</a>
+		</div>
 		<table>
 			<tr>
 				<th>문의유형</th>
@@ -443,9 +507,27 @@
 		<%
 			}
 		%>
+		 </div>
+        <!-- Product Details Area End -->
 	</div>
+</div>
+<!-- ##### Main Content Wrapper End ##### -->
+
+<!-- ##### Footer Area Start ##### -->
+    <div>
+      <jsp:include page="/inc/copyright.jsp"></jsp:include>
+   </div>
+<!-- ##### Footer Area End ##### -->
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <script src="<%=request.getContextPath()%>/resources/js/jquery/jquery-2.2.4.min.js"></script>
+    <!-- Popper js -->
+    <script src="<%=request.getContextPath()%>/resources/js/popper.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+    <!-- Plugins js -->
+    <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
+    <!-- Active js -->
+    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
 </body>
-<script>
-    showTab('review'); // 기본적으로 리뷰 탭 컨텐츠 표시
-</script>
 </html>
