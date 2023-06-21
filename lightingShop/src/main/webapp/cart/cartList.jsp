@@ -50,12 +50,12 @@
                 <tbody>
                     <%
                         // 장바구니에 담긴 각 상품에 대한 정보를 표시
-                        double totalPrice = 0.0; // 총 가격을 누적하기 위한 변수
+                        int totalPrice = 0; // 총 가격을 누적하기 위한 변수
                         for (String productNos : cart.keySet()) {
                             HashMap<String, Object> cartProduct = (HashMap<String, Object>) cart.get(productNos);
                             System.out.println("productNo: " + (Integer)cartProduct.get("productNo"));//디버깅
-                            double discountedPrice = (double)cartProduct.get("price");
-                            double productTotalPrice = (Integer)cartProduct.get("quantity") *discountedPrice;
+                            int discountedPrice = (Integer)cartProduct.get("price");
+                            int productTotalPrice = ((Integer)cartProduct.get("quantity") *discountedPrice);
                     %>
                             <tr>
                                 <td>
@@ -78,7 +78,7 @@
                                 
                                 </td>
                                 <td><%= cartProduct.get("productName") %></td>
-                                <td><%= cartProduct.get("price") %></td>
+                                <td><%= discountedPrice %>원</td>
                                 <td>
                                     <button onclick="increaseQuantity('<%= productNos %>')">+</button>
                                     <span id="quantity_<%= productNos %>"><%= cartProduct.get("quantity") %></span>
@@ -116,7 +116,7 @@
                 }
             </script>
 
-            <h3>총 가격: <%= totalPrice %></h3>
+            <h3>총 가격: <%= totalPrice %>원</h3>
 
        
             <a role="button" href= "<%=request.getContextPath()%>/customer/mypage.jsp">로그인</a>
@@ -149,12 +149,12 @@
                 <tbody>
                     <%
                         // 장바구니에 담긴 각 상품에 대한 정보를 표시
-                        double totalPrice = 0.0; // 총 가격을 누적하기 위한 변수                      
+                        int totalPrice = 0; // 총 가격을 누적하기 위한 변수                      
                         for (HashMap<String, Object> cartProduct : cartList) {
                         
-                         String productNo = (String) cartProduct.get("productNo"); // 각 상품의 productNo 가져오기
-                       	 double productTotalPrice =  (Integer)cartProduct.get("quantity") * (double)cartProduct.get("price") ;
-						 double quantity =  (Integer)cartProduct.get("quantity");                  
+                         int productNo = (Integer) cartProduct.get("productNo"); // 각 상품의 productNo 가져오기
+                       	 int productTotalPrice =  (Integer)cartProduct.get("quantity") * (Integer)cartProduct.get("price") ;
+						 int quantity =  (Integer)cartProduct.get("quantity");                  
                    	%>
                             <tr>
                                 <td>
@@ -176,16 +176,16 @@
 					%>	                                
                                 </td>
                                 <td><%= cartProduct.get("productName") %></td>
-                                <td><%= cartProduct.get("price") %></td>
+                                <td><%= cartProduct.get("price") %>원</td>
 			                    <td>
 								<td>
-								 	<button onclick="increaseQuantity('<%= productNo %>')">+</button>
+								 	<button type="button" onclick="increaseQuantity('<%= productNo %>')">+</button>
                                     <span id="quantity_<%= productNo %>"><%= cartProduct.get("quantity") %></span>
-                                    <button onclick="decreaseQuantity('<%= productNo %>')">-</button>
+                                    <button type="button" onclick="decreaseQuantity('<%= productNo %>')">-</button>
 								</td>
-			                    </td>
+			                    
 		                        <td>
-		                            <input type="hidden" name="productCnt[]" value="<%= quantity %>">
+		                            <input type="hidden" name="productCnt[]" value="<%= cartProduct.get("quantity") %>">
 		                            <!-- 숨겨진 input 태그를 이용하여 수량을 배열로 전달 -->
 		                        </td>
                                 
@@ -217,8 +217,10 @@
 	                }
 	            }
 	        </script>	
+	        
+	        
 
-            <h3>총 가격: <%= totalPrice %></h3>
+            <h3>총 가격: <%= totalPrice %>원</h3>
 
              <button type="button" onclick="submitOrder()">선택 상품 주문</button>
             
@@ -237,6 +239,7 @@
 function submitOrder() {
     // 클릭시 페이지 이동
     window.location.href = "<%=request.getContextPath()%>/orders/orderProduct.jsp";
+    
 }
 </script>
 			

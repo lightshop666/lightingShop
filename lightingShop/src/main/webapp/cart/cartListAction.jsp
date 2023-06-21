@@ -20,12 +20,12 @@
 	//값초기화
 	int productNo = 0;
 	int quantity = 0;
-	double discountedPrice = 0;
+	int discountedPrice = 0;
 	
 	if (productNoStr != null && quantityStr != null && discountedPriceStr != null) {
 		 productNo = Integer.parseInt(productNoStr);
 		 quantity = Integer.parseInt(quantityStr);
-		 discountedPrice = Double.parseDouble(discountedPriceStr);
+		 discountedPrice = Integer.parseInt(discountedPriceStr);
 	}	
 	 // selectProductOne 메서드를 호출하여 상품 정보 가져오기
 	 CartDao cartDao = new CartDao();
@@ -33,7 +33,7 @@
 	
 	 // 받아온 정보를 사용하여 개별 변수에 저장
 	 String productName = (String) product.get("productName");
-	 double price = discountedPrice;
+	 int price = discountedPrice;
 	 String productPath = (String) product.get("productPath");
 	 String productOriFilename = (String) product.get("oriFilename");
 	 String productSaveFilename = (String) product.get("saveFilename");

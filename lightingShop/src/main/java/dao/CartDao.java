@@ -16,7 +16,7 @@ public class CartDao {
         Connection conn = dbUtil.getConnection();
 
         String sql = "SELECT c.cart_no, c.product_no, c.id, c.cart_cnt, c.createdate, c.updatedate, " +
-                "p.product_name, pi.product_path, pi.product_ori_filename, pi.product_save_filename, pi.product_filetype " +
+                "p.product_price,p.product_name, pi.product_path, pi.product_ori_filename, pi.product_save_filename, pi.product_filetype " +
                 "FROM cart c " +
                 "JOIN product p ON c.product_no = p.product_no " +
                 "LEFT JOIN product_img pi ON c.product_no = pi.product_no " +
@@ -26,6 +26,16 @@ public class CartDao {
         ResultSet rs = stmt.executeQuery();
 
         while (rs.next()) {
+            String discountSql = "SELECT discount_rate from discount where product_no=? and  CURRENT_DATE BETWEEN discount_start AND discount_end";
+            PreparedStatement discountStmt = conn.prepareStatement(discountSql);
+            discountStmt.setInt(1,  rs.getInt("c.product_no"));
+          
+            ResultSet discountRs = discountStmt.executeQuery();
+            int price = rs.getInt("p.product_price");
+            if (discountRs.next()) {
+                double discountRate = discountRs.getDouble("discount_rate");
+                price = (int) (price - (price * discountRate));
+            }
             HashMap<String, Object> cart = new HashMap<>();
             cart.put("cartNo", rs.getInt("c.cart_no"));
             cart.put("productNo", rs.getInt("c.product_no"));
@@ -38,6 +48,8 @@ public class CartDao {
             cart.put("productOriFilename", rs.getString("pi.product_ori_filename"));
             cart.put("productSaveFilename", rs.getString("pi.product_save_filename"));
             cart.put("productFileType", rs.getString("pi.product_filetype"));
+            
+            cart.put("price", price);
 
             cartList.add(cart);
         }
@@ -100,16 +112,16 @@ public class CartDao {
 	 public int insertCartProduct(HashMap<String, Object> cartProduct) throws Exception {
 	        DBUtil dbUtil = new DBUtil();
 	        Connection conn = dbUtil.getConnection();
-			String cartCkSql ="Select cart_no, product_cnt from cart Where id=? and product_no=?";			
+			String cartCkSql ="Select cart_no, cart_cnt from cart Where id=? and product_no=?";			
 			PreparedStatement cartCkStmt = conn.prepareStatement(cartCkSql);
 			cartCkStmt.setString(1,(String)cartProduct.get("id")); 
 			cartCkStmt.setInt(2,(Integer)cartProduct.get("productNo")); 
 			ResultSet ckCartRs = cartCkStmt.executeQuery();
 			if(ckCartRs.next()) { //동일한 product No, id를 가진 카트 데이터가 있으면 
 				// 해당 카트 데이터의 수량을 바꾸어준다 (기존 수량+새롭게 담은 동일상품 수량)
-				String updateCartSql =" Update cart SET product_cnt=? where product_no=? and id=?";
+				String updateCartSql =" Update cart SET cart_cnt=? where product_no=? and id=?";
 				PreparedStatement updateCartStmt = conn.prepareStatement(updateCartSql);
-				updateCartStmt.setInt(1,ckCartRs.getInt("product_cnt")+(Integer)cartProduct.get("productCnt")); 
+				updateCartStmt.setInt(1,ckCartRs.getInt("cart_cnt")+(Integer)cartProduct.get("productCnt")); 
 				updateCartStmt.setInt(2,(Integer)cartProduct.get("productNo")); 
 				updateCartStmt.setString(3,(String)cartProduct.get("id")); 
 				int updateCartRow= updateCartStmt.executeUpdate();
