@@ -33,11 +33,15 @@
 	
 	 // 받아온 정보를 사용하여 개별 변수에 저장
 	 String productName = (String) product.get("productName");
-	 int price = discountedPrice;
+	 int price = (Integer) product.get("productPrice");
+	 if (discountedPriceStr != null) {
+		 price = Integer.parseInt(discountedPriceStr);	 
+	}
 	 String productPath = (String) product.get("productPath");
 	 String productOriFilename = (String) product.get("oriFilename");
 	 String productSaveFilename = (String) product.get("saveFilename");
 	 String productFileType = (String) product.get("fileType");
+	 int productPrice = (Integer)product.get("productPrice"); 
 
 	// 세션 검사 후 로그인 상태일 경우에는 장바구니에 담은 품목 데이터 추가 후, 최신 데이터 정보 가져오기
 	int insertCartRow = 0;

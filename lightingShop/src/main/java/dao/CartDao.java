@@ -78,7 +78,7 @@ public class CartDao {
 			product = new HashMap<>();
 			product.put("productNo",productOneRs.getInt("product_no"));
 			product.put("productName",productOneRs.getString("product_name"));
-			product.put("productPrice",productOneRs.getDouble("product_price"));
+			product.put("productPrice",productOneRs.getInt("product_price"));
 			product.put("productPath",productOneRs.getString("product_path"));
 			product.put("createdate",productOneRs.getString("createdate"));
 			product.put("updatedate",productOneRs.getString("updatedate"));		
