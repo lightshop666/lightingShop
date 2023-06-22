@@ -102,7 +102,7 @@
 		    // 배송 상태가 주문확인중이 아니라면 체크박스를 체크할 수 없도록 처리
 			boolean disableCheckbox = !o.getDeliveryStatus().equals("주문확인중");
 	%>
-			<input type="checkbox" name="selectedProducts[]" value="<%=(int) o.getOrderProductNo()%>" data-price="<%= discountedPrice * o.getProductCnt() %>" <%= disableCheckbox ? "disabled" : "" %>>
+			<input type="checkbox" id ="selectedProducts[]" name="selectedProducts[]" value="<%=(int) o.getOrderProductNo()%>" data-price="<%= discountedPrice * o.getProductCnt() %>" <%= disableCheckbox ? "disabled" : "" %>>
 			<div>
 				<p>
 					<!-- 상품이미지 -->
@@ -137,6 +137,7 @@
 	let checkboxes = document.querySelectorAll('input[type="checkbox"][name="selectedProducts[]"]');
 	let submitButton = document.querySelector('#cancelButton');
 	
+	//취소신청 버튼 값 변화
 	function updateSubmitButtonText() {
 		let checkedCount = Array.prototype.filter.call(checkboxes, function(checkbox) {
 			return checkbox.checked;
@@ -152,6 +153,8 @@
 	function calculateTotalPrice() {
 		//체크박스 전부 가져오기
 		let checkboxes = document.querySelectorAll('input[type="checkbox"][name="selectedProducts[]"]');
+		console.log(checkboxes +'<--checkboxes 체크박스 전부 가져오기 orderCancel.jsp JS');
+
 		//총 가격 초기화
 		let totalPrice = 0;
 		//선택되지 않은 상품 가격 초기화

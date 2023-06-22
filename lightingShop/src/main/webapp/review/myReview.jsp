@@ -75,30 +75,6 @@
 	<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
 	<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
 </head>
-<style>
-	/*이미지 사이즈, 클릭시 풀스크린*/
-	.thumbnail {
-    max-width: 200px;
-    cursor: pointer;
-  	}
-	.fullscreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  	}
-	.fullscreen img {
-    max-width: 80%;
-    max-height: 80%;
-	}
-</style>
-</head>
 <body>
 <!-- Search Wrapper Area Start -->
 <div class="search-wrapper section-padding-100">

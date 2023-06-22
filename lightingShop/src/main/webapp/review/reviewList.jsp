@@ -182,10 +182,7 @@
                         <div class="single-product-wrapper">
 <!-- 리뷰 이미지 -->
                             <div class="product-img">
-								<img class="thumbnail" src="<%= request.getContextPath() %>/<%= (String) m.get("reviewPath") %>/<%= (String) m.get("reviewSaveFilename") %>" alt="Review Image">
-<!--호버(마우스 위에 올렸을 경우)시 상품 이미지-->
-                                <img class="hover-img" src="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>" alt="Product Image">
-                            </div>
+								<img class="product-img" src="<%= request.getContextPath() %>/<%= (String) m.get("reviewPath") %>/<%= (String) m.get("reviewSaveFilename") %>" alt="Review Image">
 
 <!-- 리뷰 타이틀 -->
                             <div class="product-description d-flex align-items-center justify-content-between">
@@ -253,6 +250,8 @@
                             </ul>
                         </nav>
                     </div>
+                    
+                    
                 </div>
             </div>
         </div>
@@ -288,90 +287,4 @@
 	document.body.appendChild(img);
 });
 </script>
-</html>
-
-
-
-
-	<div>	<!-- 
-			템플릿 적용 후 수정 사항
-			모든 리뷰 출력, 글 누르면 상품페이지로
-			사진 누르면 사진 확대
-		 -->
-	<%
-		for (HashMap<String, Object> m : AllReviewList) {
-	%>
-			<h4>리뷰</h4>
-			<p>Order Product No: <%= m.get("orderProductNo") %></p>
-			<p>Review Title: <%= m.get("reviewTitle") %></p>
-			<p>
-				<a href="<%=request.getContextPath()%>/review/reviewOne.jsp?orderProductNo=<%=m.get("orderProductNo")%>">Review Content: <%= m.get("reviewContent") %></a>			
-			</p>
-			<p>Create Date: <%= m.get("createdate") %></p>
-			<p>Update Date: <%= m.get("updatedate") %></p>
-			<p>
-				<img class="thumbnail" src="<%= request.getContextPath() %>/<%= (String) m.get("reviewPath") %>/<%= (String) m.get("reviewSaveFilename") %>" alt="Review Image">
-			</p>
-			<script>
-				// 이미지 클릭 시 확대/축소
-				document.querySelector('.thumbnail').addEventListener('click', function() {
-					var img = document.createElement('img');
-					img.src = this.src;
-					img.classList.add('fullscreen');
-					img.addEventListener('click', function() {
-						document.body.removeChild(this);
-					});
-					document.body.appendChild(img);
-				});
-			</script>
-			<p>Review File Type: <%= m.get("reviewFiletype") %></p>
-			<p>Product No: <%= m.get("productNo") %></p>
-			<p>Product Name: <%= m.get("productName") %></p>
-			<p>Product Info: <%= m.get("productInfo") %></p>
-			<p>Product Status: <%= m.get("productStatus") %></p>
-			<p>Order No: <%= m.get("orderNo") %></p>
-			<p>Delivery: <%= m.get("delivery") %></p>
-			<p>Order Date: <%= m.get("orderDate") %></p>
-			<p>Product Save Filename: <%= m.get("productSaveFilename") %></p>
-			<p>Product File Type: <%= m.get("productFileType") %></p>
-			<hr>
-	<%
-	    }
-	%>
-
-
-	</div>
-	<div class="center" >
-	<%
-		//1번 페이지보다 작은데 나오면 음수로 가버린다
-		if (minPage > 1) {
-	%>
-			<a href="<%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=minPage-pageRange%>">이전</a>
-	
-	<%	
-		}
-		for(int i=minPage; i <= maxPage; i=i+1){
-			if ( i == currentPage){		
-	%>
-				<span><%=i %></span>
-	<%
-			}else{
-	%>
-				<a href="<%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=i%>"><%=i %></a>
-	<%
-			}
-		}
-	
-		//maxPage와 lastPage가 같지 않으면 여분임으로 마지막 페이지목록일거다.
-		if(maxPage != lastPage ){
-	%>
-			<!-- maxPage+1해도 동일하다 -->
-			<a href="<%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=minPage+pageRange%>">다음</a>
-	<%
-		}
-	%>
-	
-	</div>
-</div>
-</body>
 </html>
