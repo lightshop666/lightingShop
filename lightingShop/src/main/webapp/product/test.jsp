@@ -1,5 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import = "vo.*" %>
 <%@ page import = "dao.*" %>
 <%@ page import = "java.util.*" %>
 <%
@@ -15,13 +14,25 @@
 	if(request.getParameter("rowPerPage") != null) {
 		rowPerPage = Integer.parseInt(request.getParameter("rowPerPage"));
 	}
+	String searchWord = "";
+	if(request.getParameter("searchWord") != null) {
+		searchWord = request.getParameter("searchWord");
+	}
+	String categoryName = "";
+	if(request.getParameter("categoryName") != null) {
+		categoryName = request.getParameter("categoryName");
+	}
+	int searchPrice1 = 0;
+	if(request.getParameter("searchPrice1") != null && !request.getParameter("searchPrice1").equals("")) {
+		searchPrice1 = Integer.parseInt(request.getParameter("searchPrice1"));
+	}
+	int searchPrice2 = 0;
+	if(request.getParameter("searchPrice2") != null && !request.getParameter("searchPrice2").equals("")) {
+		searchPrice2 = Integer.parseInt(request.getParameter("searchPrice2"));
+	}
 	String orderBy = "";
 	if(request.getParameter("orderBy") != null) {
 		orderBy = request.getParameter("orderBy");
-	}
-	String categoryName = ""; // 전체조회
-	if(request.getParameter("categoryName") != null) {
-		categoryName = request.getParameter("categoryName");
 	}
 	
 	// 2. 모델값
@@ -30,19 +41,17 @@
 	// 메서드 호출
 	ProductDao dao = new ProductDao();
 	CategoryDao dao2 = new CategoryDao();
-	// 해당 카테고리의 특가할인 상품 상위 n개 조회 메서드 호출
-	int n = 2; // 몇개 조회할지 선택
-	ArrayList<HashMap<String, Object>> discountProductTop = dao.selectDiscountProductTop(categoryName, n);	
-	// 카테고리별 상품 리스트 조회 메서드 호출
-	ArrayList<HashMap<String, Object>> list = dao.selectProductListByPage(categoryName, orderBy, beginRow, rowPerPage);
+	// 상품 검색
+	ArrayList<HashMap<String, Object>> list = dao.searchResultListByPage(searchWord, categoryName, searchPrice1, searchPrice2, orderBy, beginRow, rowPerPage);
 	// 카테고리 조회
 	List<String> categoryList = dao2.getCategoryList();
+	
 	// 2-2. 페이지 출력부
 	int pagePerPage = 5;
 	int beginPage = (((currentPage - 1) / pagePerPage) * pagePerPage) + 1;
 	int endPage = beginPage + (pagePerPage - 1);
-	// 카테고리별 상품 수 메서드 호출
-	int totalRow = dao.selectProductCnt(categoryName);
+	// 검색 결과 상품 수 메서드 호출
+	int totalRow = dao.searchResultCnt(searchWord, categoryName, searchPrice1, searchPrice2);
 	int lastPage = totalRow / rowPerPage;
 	if(totalRow % rowPerPage != 0) {
 		lastPage = lastPage + 1;
@@ -54,28 +63,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-   <meta charset="UTF-8">
-   <!-- 웹페이지와 호환되는 Internet Explorer의 버전을 지정합니다. -->
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <!-- 다양한 기기에서 더 나은 반응성을 위해 뷰포트 설정을 구성합니다. -->
-   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-   <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-   
-   <!-- Title  -->
-   <title>조명 가게 | 상품 목록</title>
-   
-	<style>
-		.font-bold {
-			font-weight:bold;
-		}
-		.font-orange {
-			color:#FF5E00;
-		}
-		.line-through {
-		  text-decoration: line-through;
-		}
-	</style>
+	<meta charset="UTF-8">
+	<!-- 웹페이지와 호환되는 Internet Explorer의 버전을 지정합니다. -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- 다양한 기기에서 더 나은 반응성을 위해 뷰포트 설정을 구성합니다. -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 	
+	<!-- Title  -->
+	<title>조명 가게 | 검색 결과</title>
+<style>
+	.font-bold {
+		font-weight:bold;
+	}
+	.font-orange {
+		color:#FF5E00;
+	}
+	.line-through {
+	  text-decoration: line-through;
+	}
+</style>
 	<!-- BootStrap5 -->
    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -86,141 +93,77 @@
    <!-- Core Style CSS -->
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
-   
 </head>
 <body>
-	<!-- Search Wrapper Area Start -->
-	<div class="search-wrapper section-padding-100">
-	   <div class="search-close">
-	      <i class="fa fa-close" aria-hidden="true"></i>
-	   </div>
-	   <div class="container">
-	      <div class="row">
-	         <div class="col-12">
-	            <div class="search-content">
-	               <form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
-	                  <input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
-	                  <button type="submit"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""></button>
-	               </form>
-	            </div>
-	         </div>
-	      </div>
-	   </div>
-	</div>
-
+    <!-- Search Wrapper Area Start -->
+    <div class="search-wrapper section-padding-100">
+        <div class="search-close">
+            <i class="fa fa-close" aria-hidden="true"></i>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="search-content">
+                        <form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
+                            <input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
+                            <button type="submit"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Search Wrapper Area End -->
    <!-- ##### Main Content Wrapper Start ##### -->
 	<div class="main-content-wrapper d-flex clearfix">
        <!-- menu 좌측 bar -->
 		<div>
 			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
 		</div>
-		
-		<div class="shop_sidebar_area">
-            <!-- ##### Single Widget ##### -->
-            <div class="widget catagory mb-50">
-                <!-- Widget Title -->
-                <h6 class="widget-title mb-30">Catagories</h6>
-                <!--  Catagories  -->
-                <div class="catagories-menu">
-                    <ul>
-                        <li <%if(categoryName.equals("")) {%> class="active" <%} %> ><a href="<%=request.getContextPath()%>/product/productList.jsp">All</a></li>
-                        <%
-							for(String s : categoryList) {
-								if(!s.equals("관리자") && !(s.equals("파격세일"))) { // 관리자,파격세일 카테고리는 출력하지 않는다
-						%>
-								<li <%if(categoryName.equals(s)) {%> class="active" <%} %> ><a href="<%=request.getContextPath()%>/product/productList.jsp?categoryName=<%=s%>"><%=s%></a></li>
-						<%
-							
-								}
-							}
-						%>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
+	
         <div class="amado_product_area section-padding-100">
             <div class="container-fluid">
-				<!-- 해당 카테고리의 특가할인 상품 상위 n개 출력 -->
-				<h1>SALE</h1>
-				<h6>최저가 구매를 놓치지 마세요!</h6>
-				<div class="row">
-					<!-- (자바스크립트) 자동 슬라이드 효과 예정 -->
-					<%
-						for(HashMap<String, Object> m : discountProductTop) {
-							// 할인율이 적용된 최종 가격과 비교해야 할인 날짜까지 고려가능
-							if((int)m.get("productPrice") != (int)m.get("discountedPrice")) {
-					%>
-								<!-- Single Product Area -->
-			                    <div class="col-12 col-sm-6 col-md-12 col-xl-6">
-			                        <div class="single-product-wrapper">
-			                            <!-- Product Image -->
-			                            <div class="product-img">
-											<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
-											<%
-												// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
-												if(m.get("productImgSaveFilename") == null) {
-											%>
-													<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
-											<%
-												} else {
-											%>
-													<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
-											<%	
-												}
-											%>
-										</a>
-									</div>
-									<!-- Product Description -->
-		                            <div class="product-description d-flex align-items-center justify-content-between">
-		                                <!-- Product Meta Data -->
-		                                <div class="product-meta-data">
-		                                    <div class="line"></div>
-		                                    <div>
-												<span class="product-price"> <!-- 할인 가격 굵게 출력 -->
-													₩<%=m.get("discountedPrice")%>
-												</span>
-												<span class="line-through"> <!-- 원가 취소선 출력 -->
-													₩<%=m.get("productPrice")%>
-												</span>
-												<span class="font-bold font-orange"> <!-- 할인율 -->
-													<%=(Double)m.get("discountRate") * 100%>%
-												</span>
-											</div>
-											<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
-				                                        <h6><%=m.get("productName")%>[<%=m.get("productStatus")%>]</h6>
-				                                    </a>
-				                                    <div class="cart text-right"> <!-- List에서 Cart로 넘길 때 listAction = 1 -->
-				                                    	<a href="<%=request.getContextPath()%>/cart/cartListAction.jsp?productNo=<%=m.get("productNo")%>&productCnt=1&discountedPrice=<%=m.get("discountedPrice")%>&listAction=1" data-toggle="tooltip" data-placement="left" title="Add to Cart"><img src="<%=request.getContextPath()%>/resources/img/core-img/cart.png"></a>
-				                                   	</div>
-				                                </div>
-				                            </div>
-				                        </div>
-				                    </div>
-		                <%
-								}
-							}
-		                %>
-		        	</div>
-		        	<div class="row">
-	                    <div class="col-12">
-	                        <nav aria-label="breadcrumb">
-	                            <ol class="breadcrumb mt-50">
-	                                <li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/home.jsp">Home</a></li>
-	                                <li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/product/productList.jsp">Shop</a></li>
-	                                <%
-	                                	if(!categoryName.equals("")) {
-	                                %>
-	                                		<li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/product/productList.jsp?categoryName=<%=categoryName%>"><%=categoryName%></a></li>
-	                            	<%
-	                                	}
-	                            	%>
-	                            </ol>
-	                        </nav>
-	                    </div>
-	                </div>
                 <div class="row">
                     <div class="col-12">
+                    	<div class="checkout_details_area mt-50 clearfix">
+                    	
+                    		<div class="cart-title">
+                                <h2>Search</h2>
+                            </div>
+                            
+                            <form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
+                            	<div class="row">
+                            		<div class="col-12 mb-3">
+	                            		<input type="text" class="form-control" name="searchWord" value="<%=searchWord%>" placeholder="키워드를 입력하세요">
+	                            	</div>
+	                            	<div class="col-12 mb-3">
+		                            	<select class="w-100">
+		                            		<option value="">Category</option>
+		                            		<!-- CategoryDao 사용해서 버튼 출력, categoryName -->
+											<%
+												for(String s : categoryList) {
+													if(!s.equals("관리자") && !s.equals("파격세일")) { // 관리자 카테고리는 출력하지 않는다
+											%>
+														<option value="<%=s%>" <%if(categoryName.equals(s)) {%> selected <%}%>><%=s%></option>
+											<%
+												
+													}
+												}
+											%>
+		                                </select>
+		                            </div>
+	                                <div class="col-md-6 mb-3">
+	                            		<input type="number" class="form-control" name="searchPrice1" value="<%=searchPrice1%>" placeholder="최소금액">
+	                            	</div>
+	                                <div class="col-md-6 mb-3">
+	                            		<input type="number" class="form-control" name="searchPrice2" value="<%=searchPrice2%>" placeholder="최대금액">
+	                            	</div>
+	                                 <div class="col-12 mb-3">
+										<button type="submit" class="btn amado-btn w-100">Search</button>
+									</div>
+								</div>
+                            </form>
+                    	</div>
                         <div class="product-topbar d-xl-flex align-items-end justify-content-between">
                             <!-- Total Products -->
                             <div class="total-products">
@@ -231,7 +174,7 @@
                                 <div class="sort-by-date d-flex align-items-center mr-15">
                                     <p>Sort by</p>
                                     <!-- 정렬 선택 -->
-									<form action="<%=request.getContextPath()%>/product/productList.jsp" method="post">
+									
 									<input type="hidden" name="categoryName" value="<%=categoryName%>">
 										<select name="orderBy" onchange="this.form.submit()" id="sortBydate">
 											<option value="newItem" <%if(orderBy.equals("newItem")) {%> selected <%}%>>Newest</option>
@@ -342,7 +285,7 @@
 									if(beginPage != 1) {
 								%>
 										<li class="page-item">
-											<a href="<%=request.getContextPath()%>/product/productList.jsp?currentPage=<%=beginPage - 1%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>" class="page-link">
+											<a href="<%=request.getContextPath()%>/product/SearchResult.jsp?currentPage=<%=beginPage - 1%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>&searchPrice1=<%=searchPrice1%>&searchPrice2=<%=searchPrice2%>&searchWord=<%=searchWord%>" class="page-link">
 												&laquo;
 											</a>
 										</li>
@@ -361,7 +304,7 @@
 										} else {
 								%>
 											<li class="page-item">
-												<a href="<%=request.getContextPath()%>/product/productList.jsp?currentPage=<%=i%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>" class="page-link">
+												<a href="<%=request.getContextPath()%>/product/SearchResult.jsp?currentPage=<%=i%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>&searchPrice1=<%=searchPrice1%>&searchPrice2=<%=searchPrice2%>&searchWord=<%=searchWord%>" class="page-link">
 													<%=i%>
 												</a>
 											</li>
@@ -372,7 +315,7 @@
 									if(endPage != lastPage) {
 								%>
 										<li class="page-item">
-											<a href="<%=request.getContextPath()%>/product/productList.jsp?currentPage=<%=endPage + 1%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>" class="page-link">
+											<a href="<%=request.getContextPath()%>/product/SearchResult.jsp?currentPage=<%=endPage + 1%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>&searchPrice1=<%=searchPrice1%>&searchPrice2=<%=searchPrice2%>&searchWord=<%=searchWord%>" class="page-link">
 												&raquo;
 											</a>
 										</li>
@@ -404,6 +347,5 @@
     <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
     <!-- Active js -->
     <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
-
 </body>
 </html>

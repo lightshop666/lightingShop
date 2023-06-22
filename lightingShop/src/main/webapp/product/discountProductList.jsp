@@ -30,7 +30,7 @@
 	ProductDao dao = new ProductDao();
 	CategoryDao dao2 = new CategoryDao();
 	// 할인 상품 상위 n개 조회 메서드 호출
-	int n = 5; // 몇개 조회할지 선택
+	int n = 2; // 몇개 조회할지 선택
 	ArrayList<HashMap<String, Object>> discountProductTop = dao.selectDiscountProductTop(categoryName, n);	
 	// 파격할인 상품 리스트 조회
 	double dRate = 0.1; // 할인율 몇퍼센트 이상의 제품부터 조회할지 선택
@@ -55,8 +55,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>discountProductList</title>
+	<meta charset="UTF-8">
+	<!-- 웹페이지와 호환되는 Internet Explorer의 버전을 지정합니다. -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- 다양한 기기에서 더 나은 반응성을 위해 뷰포트 설정을 구성합니다. -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	
+	<!-- Title  -->
+	<title>조명 가게 | 파격세일 목록</title>
 <style>
 	.font-bold {
 		font-weight:bold;
@@ -68,152 +75,316 @@
 	  text-decoration: line-through;
 	}
 </style>
+	<!-- BootStrap5 -->
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+   
+   <!-- Favicon  -->
+   <link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
+   
+   <!-- Core Style CSS -->
+   <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
+   <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
 </head>
 <body>
-	<h1>파격할인 상품 리스트</h1>
-	<h1>배너 이미지 출력예정</h1>
-	<!-- 해당 카테고리의 특가할인 상품 상위 n개 출력 -->
-	<h1>특가 상품</h1>
-	<!-- (자바스크립트) 자동 슬라이드 효과 예정 -->
-	<%
-		for(HashMap<String, Object> m : discountProductTop) {
-			// 할인율이 적용된 최종 가격과 비교해야 할인 날짜까지 고려가능
-			if((int)m.get("productPrice") != (int)m.get("discountedPrice")) {
-	%>
-				<div>
-					<!-- 상품 이미지 or 이름 클릭시 상품 상세로 이동 -->
-					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
-						<!-- 상품 이미지 -->
-						<%
-							// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
-							if(m.get("productImgSaveFilename") == null) {
+	<!-- Search Wrapper Area Start -->
+	<div class="search-wrapper section-padding-100">
+	   <div class="search-close">
+	      <i class="fa fa-close" aria-hidden="true"></i>
+	   </div>
+	   <div class="container">
+	      <div class="row">
+	         <div class="col-12">
+	            <div class="search-content">
+	               <form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
+	                  <input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
+	                  <button type="submit"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""></button>
+	               </form>
+	            </div>
+	         </div>
+	      </div>
+	   </div>
+	</div>
+	<!-- Search Wrapper Area End -->
+   <!-- ##### Main Content Wrapper Start ##### -->
+	<div class="main-content-wrapper d-flex clearfix">
+       <!-- menu 좌측 bar -->
+		<div>
+			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
+		</div>
+		
+		<div class="shop_sidebar_area">
+            <!-- ##### Single Widget ##### -->
+            <div class="widget catagory mb-50">
+                <!-- Widget Title -->
+                <h6 class="widget-title mb-30">Catagories</h6>
+                <!--  Catagories  -->
+                <div class="catagories-menu">
+                    <ul>
+                        <li <%if(categoryName.equals("")) {%> class="active" <%} %> ><a href="<%=request.getContextPath()%>/product/discountProductList.jsp">All</a></li>
+                        <%
+							for(String s : categoryList) {
+								if(!s.equals("관리자") && !(s.equals("파격세일"))) { // 관리자,파격세일 카테고리는 출력하지 않는다
 						%>
-								<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+								<li <%if(categoryName.equals(s)) {%> class="active" <%} %> ><a href="<%=request.getContextPath()%>/product/discountProductList.jsp?categoryName=<%=s%>"><%=s%></a></li>
 						<%
-							} else {
-						%>
-								<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
-						<%	
+							
+								}
 							}
 						%>
-						<!-- 상품 이름 --><br>
-						<%=m.get("productName")%>[<%=m.get("productStatus")%>]
-					</a>
-					<!-- 할인이 적용된 최종 가격 표시 -->
-					<!-- 할인 가격 굵게 출력 -->
-					<p class="font-bold">
-						<%=m.get("discountedPrice")%>원
-					</p>
-					<!-- 원가 취소선 출력 -->
-					<p class="line-through">
-						<%=m.get("productPrice")%>원
-					</p>
-					<!-- 할인율 -->
-					<p class="font-bold font-orange">
-						<%=(Double)m.get("discountRate") * 100%>%
-					</p>
-				</div>
-	<%
-			}
-		}
-	%>
-	<!-- 해당 카테고리의 상품 리스트 출력 -->
-	<h1>특가 상품 리스트</h1>
-	총 <%=totalRow%>개의 상품
-	<!-- 카테고리 및 정렬 선택 -->
-	<form action="<%=request.getContextPath()%>/product/discountProductList.jsp" method="post">
-		<!-- CategoryDao 사용해서 버튼 출력, categoryName -->
-		<%
-			for(String s : categoryList) {
-				if(!s.equals("관리자")) { // 관리자 카테고리는 출력하지 않는다
-		%>
-				<input type="radio" name="categoryName" value="<%=s%>" <%if(categoryName.equals(s)) {%> checked <%}%> onchange="this.form.submit()"><%=s%>
-		<%
-			
-				}
-			}
-		%>
-		<select name="orderBy" onchange="this.form.submit()">
-			<option value="newItem" <%if(orderBy.equals("newItem")) {%> selected <%}%>>신상품순</option>
-			<option value="lowPrice" <%if(orderBy.equals("lowPrice")) {%> selected <%}%>>낮은 가격순</option>
-			<option value="highPrice" <%if(orderBy.equals("highPrice")) {%> selected <%}%>>높은 가격순</option>
-		</select>
-	</form>
-	<!-- 상품 리스트 -->
-	<%
-		for(HashMap<String, Object> m : list) {
-			// 할인율이 적용된 최종 가격과 비교해야 할인 날짜까지 고려가능
-			if((int)m.get("productPrice") != (int)m.get("discountedPrice")) {
-	%>
-				<div>
-					<!-- 상품 이미지 or 이름 클릭시 상품 상세로 이동 -->
-					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
-						<!-- 상품 이미지 -->
-						<%
-							// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
-							if(m.get("productImgSaveFilename") == null) {
-						%>
-								<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
-						<%
-							} else {
-						%>
-								<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
-						<%	
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="amado_product_area section-padding-100">
+            <div class="container-fluid">
+				<!-- 해당 카테고리의 특가할인 상품 상위 n개 출력 -->
+				<h1>BIG SALE</h1>
+				<h6>특가 할인 상품에 주목하세요!</h6>
+				<div class="row">
+					<%
+						for(HashMap<String, Object> m : discountProductTop) {
+							// 할인율이 적용된 최종 가격과 비교해야 할인 날짜까지 고려가능
+							if((int)m.get("productPrice") != (int)m.get("discountedPrice")) {
+					%>
+								<!-- Single Product Area -->
+			                    <div class="col-12 col-sm-6 col-md-12 col-xl-6">
+			                        <div class="single-product-wrapper">
+			                            <!-- Product Image -->
+			                            <div class="product-img">
+											<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
+											<%
+												// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+												if(m.get("productImgSaveFilename") == null) {
+											%>
+													<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+											<%
+												} else {
+											%>
+													<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
+											<%	
+												}
+											%>
+										</a>
+									</div>
+									<!-- Product Description -->
+		                            <div class="product-description d-flex align-items-center justify-content-between">
+		                                <!-- Product Meta Data -->
+		                                <div class="product-meta-data">
+		                                    <div class="line"></div>
+		                                    <div>
+												<span class="product-price"> <!-- 할인 가격 굵게 출력 -->
+													₩<%=m.get("discountedPrice")%>
+												</span>
+												<span class="line-through"> <!-- 원가 취소선 출력 -->
+													₩<%=m.get("productPrice")%>
+												</span>
+												<span class="font-bold font-orange"> <!-- 할인율 -->
+													<%=(Double)m.get("discountRate") * 100%>%
+												</span>
+											</div>
+											<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
+		                                        <h6><%=m.get("productName")%>[<%=m.get("productStatus")%>]</h6>
+		                                    </a>
+		                                    <div class="cart text-right"> <!-- List에서 Cart로 넘길 때 listAction = 1 -->
+		                                    	<a href="<%=request.getContextPath()%>/cart/cartListAction.jsp?productNo=<%=m.get("productNo")%>&productCnt=1&discountedPrice=<%=m.get("discountedPrice")%>&listAction=1" data-toggle="tooltip" data-placement="left" title="Add to Cart"><img src="<%=request.getContextPath()%>/resources/img/core-img/cart.png"></a>
+		                                   	</div>
+		                                </div>
+		                            </div>
+		                        </div>
+		                    </div>
+                <%
+						}
+					}
+                %>
+	        	</div>
+	        	<div class="row">
+                    <div class="col-12">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mt-50">
+                                <li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/home.jsp">Home</a></li>
+                                <li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/product/discountProductList.jsp">Discount</a></li>
+                                <%
+                                	if(!categoryName.equals("")) {
+                                %>
+                                		<li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/product/productList.jsp?categoryName=<%=categoryName%>"><%=categoryName%></a></li>
+                            	<%
+                                	}
+                            	%>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="product-topbar d-xl-flex align-items-end justify-content-between">
+                            <!-- Total Products -->
+                            <div class="total-products">
+                                <p>총 <%=totalRow%>개의 상품</p>
+                            </div>
+                            <!-- Sorting -->
+                            <div class="product-sorting d-flex">
+                                <div class="sort-by-date d-flex align-items-center mr-15">
+                                    <p>Sort by</p>
+                                    <!-- 정렬 선택 -->
+									<form action="<%=request.getContextPath()%>/product/discountProductList.jsp" method="post">
+									<input type="hidden" name="categoryName" value="<%=categoryName%>">
+										<select name="orderBy" onchange="this.form.submit()" id="sortBydate">
+											<option value="newItem" <%if(orderBy.equals("newItem")) {%> selected <%}%>>Newest</option>
+											<option value="lowPrice" <%if(orderBy.equals("lowPrice")) {%> selected <%}%>>LowPrice</option>
+											<option value="highPrice" <%if(orderBy.equals("highPrice")) {%> selected <%}%>>HighPrice</option>
+										</select>
+                                </div>
+                                <div class="view-product d-flex align-items-center">
+                                    <p>View</p>
+                                    <input type="hidden" name="categoryName" value="<%=categoryName%>">
+                                        <select name="rowPerPage" id="viewProduct" onchange="this.form.submit()">
+	                                        <%
+												for (int i = 5; i <= 50; i = i + 5) {
+											%>
+													<option value="<%=i%>" <%if (rowPerPage == i) {%> selected <%}%>>
+														<%=i%>
+													</option>
+											<%
+												}
+											%>
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+					<%
+						for(HashMap<String, Object> m : list) {
+							// 할인율이 적용된 최종 가격과 비교해야 할인 날짜까지 고려가능
+							if(!m.get("categoryName").equals("관리자") && (int)m.get("productPrice") != (int)m.get("discountedPrice")) { 
+					%>
+			                    <!-- Single Product Area -->
+			                    <div class="col-12 col-sm-6 col-md-12 col-xl-6">
+			                        <div class="single-product-wrapper">
+			                            <!-- Product Image -->
+			                            <div class="product-img">
+											<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
+			                                <!-- 상품 이미지 or 이름 클릭시 상품 상세로 이동 -->
+												<%
+													// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+													if(m.get("productImgSaveFilename") == null) {
+												%>
+														<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+												<%
+													} else {
+												%>
+														<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
+												<%	
+													}
+												%>
+											</a>
+			                            </div>
+			                            <!-- Product Description -->
+			                            <div class="product-description d-flex align-items-center justify-content-between">
+			                                <!-- Product Meta Data -->
+			                                <div class="product-meta-data">
+			                                    <div class="line"></div>
+												<div>
+													<span class="product-price"> <!-- 할인 가격 굵게 출력 -->
+														₩<%=m.get("discountedPrice")%>
+													</span>
+													<span class="line-through"> <!-- 원가 취소선 출력 -->
+														₩<%=m.get("productPrice")%>
+													</span>
+													<span class="font-bold font-orange"> <!-- 할인율 -->
+														<%=(Double)m.get("discountRate") * 100%>%
+													</span>
+			                                    </div>
+				                                <a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
+			                                        <h6><%=m.get("productName")%>[<%=m.get("productStatus")%>]</h6>
+			                                    </a>
+			                                    <div class="cart text-right"> <!-- List에서 Cart로 넘길 때 listAction = 1 -->
+			                                    	<a href="<%=request.getContextPath()%>/cart/cartListAction.jsp?productNo=<%=m.get("productNo")%>&productCnt=1&discountedPrice=<%=m.get("discountedPrice")%>&listAction=1" data-toggle="tooltip" data-placement="left" title="Add to Cart"><img src="<%=request.getContextPath()%>/resources/img/core-img/cart.png"></a>
+			                                   	</div>
+			                                </div>
+			                            </div>
+			                        </div>
+			                    </div>
+	                <%
 							}
-						%>
-						<!-- 상품 이름 --><br>
-						<%=m.get("productName")%>[<%=m.get("productStatus")%>]
-					</a>
-					<!-- 할인이 적용된 최종 가격 표시 -->
-					<!-- 할인 가격 굵게 출력 -->
-					<p class="font-bold">
-						<%=m.get("discountedPrice")%>원
-					</p>
-					<!-- 원가 취소선 출력 -->
-					<p class="line-through">
-						<%=m.get("productPrice")%>원
-					</p>
-					<!-- 할인율 -->
-					<p class="font-bold font-orange">
-						<%=(Double)m.get("discountRate") * 100%>%
-					</p>
-				</div>
-	<%
-			}
-		}
-	%>
-	<!------------------ 페이지 출력부 ------------------>
-	<%
-		// 이전은 1페이지에서는 출력되면 안 된다
-		if(beginPage != 1) {
-	%>
-			<a href="<%=request.getContextPath()%>/product/discountProductList.jsp?currentPage=<%=beginPage - 1%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>">
-				&laquo;
-			</a>
-	<%
-		}
-	
-		for(int i = beginPage; i <= endPage; i++) {
-			if(i == currentPage) { // 현재페이지에서는 a태그 없이 출력
-	%>
-				<span><%=i%></span>&nbsp;
-	<%
-			} else {
-	%>
-				<a href="<%=request.getContextPath()%>/product/discountProductList.jsp?currentPage=<%=i%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>">
-					<%=i%>
-				</a>&nbsp;
-	<%
-			}
-		}
-		// 다음은 마지막 페이지에서는 출력되면 안 된다
-		if(endPage != lastPage) {
-	%>
-			<a href="<%=request.getContextPath()%>/product/discountProductList.jsp?currentPage=<%=endPage + 1%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>">
-				&raquo;
-			</a>
-	<%
-		}
-	%>
+						}
+	                %>
+	            <!------------------ 페이지 출력부 ------------------>
+                <div class="row">
+                    <div class="col-12">
+                    	<nav aria-label="navigation">
+                            <ul class="pagination justify-content-end mt-50">
+				                <%
+									// 이전은 1페이지에서는 출력되면 안 된다
+									if(beginPage != 1) {
+								%>
+										<li class="page-item">
+											<a href="<%=request.getContextPath()%>/product/discountProductList.jsp?currentPage=<%=beginPage - 1%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>" class="page-link">
+												&laquo;
+											</a>
+										</li>
+								<%
+									}
+								
+									for(int i = beginPage; i <= endPage; i++) {
+										if(i == currentPage) { // 현재페이지에서는 a태그 링크 없이 출력
+								%>
+											<li class="page-item active">
+												<a href="#" class="page-link">
+													<%=i%>
+												</a>
+											</li>
+								<%
+										} else {
+								%>
+											<li class="page-item">
+												<a href="<%=request.getContextPath()%>/product/discountProductList.jsp?currentPage=<%=i%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>" class="page-link">
+													<%=i%>
+												</a>
+											</li>
+								<%
+										}
+									}
+									// 다음은 마지막 페이지에서는 출력되면 안 된다
+									if(endPage != lastPage) {
+								%>
+										<li class="page-item">
+											<a href="<%=request.getContextPath()%>/product/discountProductList.jsp?currentPage=<%=endPage + 1%>&rowPerPage=<%=rowPerPage%>&categoryName=<%=categoryName%>&orderBy=<%=orderBy%>" class="page-link">
+												&raquo;
+											</a>
+										</li>
+								<%
+									}
+								%>
+							</ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	</div>
+    <!-- ##### Main Content Wrapper End ##### -->
+<!-- ##### Footer Area Start ##### -->
+    <div>
+      <jsp:include page="/inc/copyright.jsp"></jsp:include>
+   </div>
+<!-- ##### Footer Area End ##### -->
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <script src="<%=request.getContextPath()%>/resources/js/jquery/jquery-2.2.4.min.js"></script>
+    <!-- Popper js -->
+    <script src="<%=request.getContextPath()%>/resources/js/popper.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+    <!-- Plugins js -->
+    <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
+    <!-- Active js -->
+    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
 </body>
 </html>
