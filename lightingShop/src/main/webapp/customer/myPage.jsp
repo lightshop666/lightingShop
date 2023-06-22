@@ -127,7 +127,6 @@
 					             </tr>
 					           </thead>
 					           <tbody>
-								 <tr>
 									<!-- 
 											템플릿 적용 후 수정 사항
 											모든 리뷰 출력, 글 누르면 상품페이지로
@@ -139,7 +138,7 @@
 											int orderNo = o.getOrderNo();
 											System.out.println(orderNo+"<--getOrderNo-- orderProductList.jsp");
 									%>
-								
+										 <tr>
 											<td>
 												<a href="<%=request.getContextPath()%>/orders/orderProductOne.jsp?orderNo=<%= orderNo %>">
 												주문 번호 : <%= orderNo %>
@@ -147,6 +146,7 @@
 											</td>
 											<td>주문일: <%= o.getCreatedate() %></td>
 											<td>주문 금액: <%=o.getOrderPrice() %></td>
+										</tr>
 									<%
 											orderByOrderProduct = orderProductDao.selectOrderNoByOrderProductNo(orderNo);
 											for (HashMap<String, Object> m : orderByOrderProduct) {
@@ -162,6 +162,7 @@
 												Product product = (Product) productMap.get("product");
 												ProductImg productImg = (ProductImg) productMap.get("productImg");
 									%>
+										<tr>
 												<td>상품 이미지
 													<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= productNo%>">
 											<%
@@ -216,6 +217,7 @@
 													<% } %>
 													</p>
 												</td>	
+										</tr>
 									<%
 											}
 									%>
