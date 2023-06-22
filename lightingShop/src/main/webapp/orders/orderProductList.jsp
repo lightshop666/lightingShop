@@ -80,6 +80,19 @@
 	.order-info span {
 	    margin-right: 10px;
 	}
+	.custom-cancel-button {
+	  display: inline-block;
+	  min-width: 160px;
+	  height: 55px;
+	  color: #ffffff;
+	  border: none;
+	  border-radius: 0;
+	  padding: 0 7px;
+	  font-size: 18px;
+	  line-height: 56px;
+	  background-color: black;
+	  font-weight: 400; }
+	  
 </style>
 
 <body>
@@ -175,12 +188,11 @@
                                                 <%
                                                     }
                                                 %>
-                                            </a>
                                         </td>
                                         <td class="cart_product_desc">
                                             <h5>
                                             	<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= productNo%>">                                            
-                                            	<%= product.getProductName() %>
+                                            	<%= product.getProductName() %></a>
                                             </h5>
                                         </td>
                                         <td class="price">
@@ -214,7 +226,7 @@
                                                 <button type="submit" class="btn amado-btn w-100">상품평</button>
                                               </form>
                                             <% } else if (deliveryStatus.equals("취소완료")) { %>
-                                              <button disabled class="btn amado-btn w-100">취소완료</button>
+                                              <button disabled class="custom-cancel-button">취소완료</button>
                                             <% } %>
                                         </td>
                                     </tr>

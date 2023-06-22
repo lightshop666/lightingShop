@@ -2,6 +2,8 @@
 <%@ page import="dao.*"%>
 <%@ page import="vo.*" %>
 <%@ page import="java.util.*"%>
+<%@ page import="java.text.DecimalFormat" %>
+
 <%
 //주문취소 액션	
 	request.setCharacterEncoding("utf-8");	
@@ -29,107 +31,163 @@
 	
 	List<OrderProduct> orderProducts = (List<OrderProduct>) map.get("orderProducts");
 	
-
+	//숫자 쉼표를 위한 선언
+	DecimalFormat decimalFormat = new DecimalFormat("###,###,###");
+	
 %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>주문 취소 선택</title>
-<!-- Latest compiled and minified CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Latest compiled JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-<style>
-	a{
-		/* 링크의 라인 없애기  */
-		text-decoration: none;
-	}
-	.p2 {/* 본문 폰트 좌정렬*/
-		font-family: "Lucida Console", "Courier New", monospace;
-		text-align: left;
-	}
-	}
-	h1{	/*제목 폰트*/
-		font-family: 'Black Han Sans', sans-serif;
-		text-align: center;
-	}
+	<meta charset="UTF-8">
+	<!-- 웹페이지와 호환되는 Internet Explorer의 버전을 지정합니다. -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- 다양한 기기에서 더 나은 반응성을 위해 뷰포트 설정을 구성합니다. -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 	
-	/*이미지 사이즈, 클릭시 풀스크린*/
-	.thumbnail {
-    max-width: 200px;
-    cursor: pointer;
-  	}
-	.fullscreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
-    background-color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  	}
-	.fullscreen img {
-    max-width: 80%;
-    max-height: 80%;
-	}
-</style>
+	<!-- Title  -->
+	<title>주문 상세 페이지 | Order Details</title>
+	
+	<!-- Favicon  -->
+	<link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
+	
+	<!-- Core Style CSS -->
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
 </head>
+<style>
+	.custom-button {
+	  background-color: #f1bb41;
+	 border: none;
+	  color: white;
+	  padding: 10px 20px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  font-size: 8px;
+	  margin: 4px 2px;
+	  cursor: pointer;
+	  transition: background-color 0.3s; /* 색상 변화에 0.3초의 트랜지션 효과 적용 */
+	}
+	.custom-button:hover {
+	  background-color: black; /* 마우스를 올렸을 때 버튼 배경색을 회색으로 설정 */
+	}
+
+</style>
 <body>
-<div class="container">	
-	<form action="<%= request.getContextPath() %>/orders/orderCancelAction.jsp" method="post" enctype="application/x-www-form-urlencoded">
-	<%
-		int orderProductNo = 0;
-		for(OrderProduct o : orderProducts){
-			orderNo =(int)orders.getOrderNo();
-			orderProductNo = o.getOrderProductNo();
-			System.out.println(orderNo + "<--(int)orders.getOrderNo()--orderCancel.jsp");
+<!-- ##### Main Content Wrapper Start ##### -->
+<div class="main-content-wrapper d-flex clearfix">
 
-			
-			HashMap<String, Object> productInfo =  productDao.selectProductAndImg(o.getProductNo());
-			// 상품 정보와 이미지 가져오기
-			Product product = (Product) productInfo.get("product");
-			ProductImg productImg = (ProductImg) productInfo.get("productImg");
-						
-			// 할인된 가격 계산
-			int discountedPrice = 0;
-			discountedPrice = orderProductDao.discountedByOrders(product.getProductNo(), orders.getCreatedate());
-			
+	<!-- Mobile Nav (max width 767px)-->
+	<div class="mobile-nav">
+		<!-- Navbar Brand -->
+		<div class="amado-navbar-brand">
+				<a href="<%=request.getContextPath()%>/resources/<%=request.getContextPath()%>/home.jsp"><img src="<%=request.getContextPath()%>/resources/img/core-img/logo.png" alt=""></a>
+		</div>
+		<!-- Navbar Toggler -->
+		<div class="amado-navbar-toggler">
+			<span></span><span></span><span></span>
+		</div>
+	</div>
 
-		    // 배송 상태가 주문확인중이 아니라면 체크박스를 체크할 수 없도록 처리
-			boolean disableCheckbox = !o.getDeliveryStatus().equals("주문확인중");
-	%>
-			<input type="checkbox" id ="selectedProducts[]" name="selectedProducts[]" value="<%=(int) o.getOrderProductNo()%>" data-price="<%= discountedPrice * o.getProductCnt() %>" <%= disableCheckbox ? "disabled" : "" %>>
-			<div>
-				<p>
-					<!-- 상품이미지 -->
-					<!-- 체크박스 (name 속성에 []를 추가하여 배열로 설정) -->
-					<img class="thumbnail" src="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>" alt="Product Image">
-				</p>
-				<p onclick="location.href='<%= request.getContextPath() %>/product/productOne.jsp?productNo=' + <%= product.getProductNo()%>;">
-					<!-- 상품이름 -->
-					상품 이름: <%= product.getProductName() %>
-				</p>
-				<p>상품 금액 : <%=discountedPrice * o.getProductCnt()  %></p>
-				<p>상품 수량 : <%= o.getProductCnt() %></p>
-				<!-- 액션에서 처리할 값 -->
-				<input type="hidden" name="productCnt[]" value="<%=o.getProductCnt()%>">		
-				<hr>
-			</div>
-		
-	<%
-		}
-	%>
-		<input type="hidden" name="orderNo" value="<%= orders.getOrderNo() %>">
-		<input type="hidden" name="totalPriceInput" id="totalPriceInput" value="">
-		<!-- 취소 버튼 -->
-		<input type="submit" id="cancelButton" value="취소 신청">		
-		
-	</form>
+	<!-- menu 좌측 bar -->
+	<!-- Header Area Start -->
+	<div>
+		<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
+	</div>
+	<!-- Header Area End -->
+
+
+<div class="amado_product_area section-padding-100">
+    <div class="container-fluid">
+        <form action="<%= request.getContextPath() %>/orders/orderCancelAction.jsp" method="post" enctype="application/x-www-form-urlencoded">
+            <div class="product-topbar d-xl-flex align-items-end justify-content-between">
+                <h2>주문 취소 선택</h2>
+            </div>
+            <div class="row">
+                <% int orderProductNo = 0;
+                for(OrderProduct o : orderProducts){
+                    orderNo =(int)orders.getOrderNo();
+                    orderProductNo = o.getOrderProductNo();
+                    System.out.println(orderNo + "<--(int)orders.getOrderNo()--orderCancel.jsp");
+
+                    HashMap<String, Object> productInfo =  productDao.selectProductAndImg(o.getProductNo());
+                    // 상품 정보와 이미지 가져오기
+                    Product product = (Product) productInfo.get("product");
+                    ProductImg productImg = (ProductImg) productInfo.get("productImg");
+
+                    // 할인된 가격 계산
+                    int discountedPrice = 0;
+                    discountedPrice = orderProductDao.discountedByOrders(product.getProductNo(), orders.getCreatedate());
+
+                    // 배송 상태가 주문확인중이 아니라면 체크박스를 체크할 수 없도록 처리
+                    boolean disableCheckbox = !o.getDeliveryStatus().equals("주문확인중");
+                %>
+                <div class="col-12 col-sm-6 col-md-12 col-xl-6">
+                    <div class="single-product-wrapper">
+                        <input type="checkbox" id="selectedProducts[]" name="selectedProducts[]" value="<%=(int) o.getOrderProductNo()%>" data-price="<%= discountedPrice * o.getProductCnt() %>" <%= disableCheckbox ? "disabled" : "" %>>
+                        <div class="product-img">
+                            <% if(productImg.getProductSaveFilename() == null) { %>
+                            <a class="gallery_img" href="<%=request.getContextPath()%>/productImg/no_image.jpg">
+                                <img class="d-block w-100" src="<%=request.getContextPath()%>/productImg/no_image.jpg" alt="No Image">
+                            </a>
+                            <% } else { %>
+                            <a class="gallery_img" href="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>">
+                                <img class="d-block w-100" src="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>" alt="Product Image">
+                            </a>
+                            <% } %>
+                        </div>
+                        <div class="product-description d-flex align-items-center justify-content-between">
+                            <div class="product-meta-data">
+                                <div class="line"></div>
+                                <p class="product-price"><%=decimalFormat.format( discountedPrice * o.getProductCnt() ) %> 원</p>
+                                <a href="<%= request.getContextPath() %>/product/productOne.jsp?productNo=<%= product.getProductNo() %>">
+                                    <h6><%= product.getProductName() %></h6>
+                                </a>
+                            </div>
+							<div class="ratings-cart text-right">
+							    <div class="ratings d-flex align-items-center">
+							        <span class="mr-1"><%= o.getProductCnt() %></span>
+							        <span>개</span>
+							    </div>
+							    <div></div>
+							</div>
+                        </div>
+                        <input type="hidden" name="productCnt[]" value="<%=o.getProductCnt()%>">
+                    </div>
+                </div>
+                <% } %>
+            </div>
+            <input type="hidden" name="orderNo" value="<%= orders.getOrderNo() %>">
+            <input type="hidden" name="totalPriceInput" id="totalPriceInput" value="">
+            <input type="submit" class="btn amado-btn w-100" id="cancelButton" value="취소 신청">
+        </form>
+    </div>
 </div>
+</div></
+
+
+
+<!-- ##### Footer Area Start ##### -->
+    <div>
+		<jsp:include page="/inc/copyright.jsp"></jsp:include>
+	</div>
+<!-- ##### Footer Area End ##### -->
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <div>    
+    <script src="<%=request.getContextPath()%>/resources/js/jquery/jquery-2.2.4.min.js"></script>
+    <!-- Popper js -->
+    <script src="<%=request.getContextPath()%>/resources/js/popper.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+    <!-- Plugins js -->
+    <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
+    <!-- Active js -->
+    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
+    </div>
 </body>
 <script>
 
