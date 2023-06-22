@@ -28,7 +28,7 @@
                     <li ><a href="<%=request.getContextPath()%>/home.jsp">Home</a></li>
                     <!-- 임시로 HOME -->
                     <li><a href="<%=request.getContextPath()%>/home.jsp">Shop</a></li>
-                    <li><a href="<%=request.getContextPath()%>/orders/orderProductList.jsp">Product</a></li>
+                    <li><a href="<%=request.getContextPath()%>/product/productList.jsp">Product</a></li>
                     <li><a href="<%=request.getContextPath()%>/cart/cartList.jsp">Cart</a></li>
                     <!-- 결제창 -->
                     <li><a href="checkout.html">Checkout</a></li>

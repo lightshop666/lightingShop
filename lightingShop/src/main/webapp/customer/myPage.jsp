@@ -135,21 +135,22 @@
 				%>
 			 
 			<!-- [시작] 고객등급확인 및 이미지 출력 -->
-		    <section class="newsletter-area section-padding-100-0">
+		    <section class="section-padding-100-0 border" style='margin-bottom: 50px;'>
 		        <div class="container">
 		            <div class="row align-items-center">
 		                <!-- Newsletter Text -->
 		                <div class="col-12 col-lg-6 col-xl-7">
 		                    <div class="newsletter-text mb-100">
-		                        <h2>고객님의 등급은 <span><%=customerOne.get("c.cstm_rank") %>회원등급</span><br>입니다.</h2>
+		                        <h3>고객님의 등급은 <span><%=customerOne.get("c.cstm_rank") %>회원등급</span>&nbsp;입니다.</h3>
 		                    </div>
 		                </div>
 		                <!-- Newsletter Form -->
 		                <div class="col-12 col-lg-6 col-xl-5">
 		                    <div class="newsletter-form mb-100">
 	                        	<!-- 아이콘 or 이미지 -->
-	                           <i class="fa fa-address-book-o" aria-hidden="true">배송지</i> 
-	                            <i class="fa fa-money" aria-hidden="true">포인트</i>
+	                           <div><i class="fa fa-address-book-o" aria-hidden="true">&nbsp;배송지</i> </div>
+	                           <div> <i class="fa fa-money" aria-hidden="true">&nbsp;포인트</i></div>
+	                           <div> <i class="fa fa-heart-o" aria-hidden="true">&nbsp;찜리스트</i></div>
 		                    </div>
 		                </div>
 		            </div>
@@ -158,41 +159,122 @@
 		    <!-- [끝] 고객등급확인 및 이미지 출력 -->
 			 
 			 
-			<%--  
+			
 			<!-- [시작] 진행중인 주문 확인 -->
-			 <section class="newsletter-area section-padding-100-0">
+			 <section class=" section-padding-100-0 border">
 		        <div class="container">
 		            <div class="row align-items-center">
 		                <!-- Newsletter Text -->
-		                <div class="col-12 col-lg-6 col-xl-10">
+		                <div class="col-12 col-lg-6 col-xl-9">
 		                    <div class="newsletter-text mb-100">
-		                    	<h2>주문확인중</h2>
+		                    	<h3>주문확인중/배송중/배송시작/배송완료/구매확정</h3>
 		                    	<%
-		                    	for (HashMap<String, Object> m : customerDelList) {
-								%>
-									<%=m.get("op.delivery_status")%>
-									<%=m.get("cnt")%>
-								<%
-		                    	}
+		                    		for(HashMap<String, Object> m : customerDelList) {
+		                    			 if(m.get("op.delivery_status").equals("주문확인중")) { 
 		                    	%>
-		                        
-		                        
+										<%=m.get("cnt") %> 건
+								<%
+		                    			 }
+		                    		}
+								%>
+								
+								<%
+		                    		for(HashMap<String, Object> m : customerDelList) {
+		                    			 if(m.get("op.delivery_status").equals("배송중")) { 
+		                    	%>
+										<%=m.get("cnt") %> 건
+								<%
+		                    			 }
+		                    		}
+								%>
+								
+								<%
+		                    		for(HashMap<String, Object> m : customerDelList) {
+		                    			 if(m.get("op.delivery_status").equals("배송시작")) { 
+		                    	%>
+										<%=m.get("cnt") %> 건
+								<%
+		                    			 }
+		                    		}
+								%>
+								
+								<%
+		                    		for(HashMap<String, Object> m : customerDelList) {
+		                    			 if(m.get("op.delivery_status").equals("배송완료")) { 
+		                    	%>
+										<%=m.get("cnt") %> 건
+								<%
+		                    			 }
+		                    		}
+								%>
+								
+								<%
+		                    		for(HashMap<String, Object> m : customerDelList) {
+		                    			 if(m.get("op.delivery_status").equals("구매확정")) { 
+		                    	%>
+										<%=m.get("cnt") %> 건
+								<%
+		                    			 }
+		                    		}
+								%>
+											
 		                    </div>
 		                </div>
 		                <!-- Newsletter Form -->
-		                <div class="col-12 col-lg-6 col-xl-2">
+		                <div class="col-12 col-lg-6 col-xl-3">
 		                    <div class="newsletter-form mb-100">
-		                        <form action="#" method="post">
-		                           <i class="fa fa-address-book-o" aria-hidden="true">배송지</i>
-		                            <i class="fa fa-money" aria-hidden="true">포인트</i>
-		                        </form>
+		                    	<h3>취소완료/교환중</h3>
+		                    	
+		                    	<%
+		                    		int totalCancelledOrExchanged = 0;
+		                    		for(HashMap<String, Object> m : customerDelList) {
+		                    			 if(m.get("op.delivery_status").equals("취소완료") 
+		                    					 || m.get("op.delivery_status").equals("교환중")) { 
+		                    				 		totalCancelledOrExchanged += (int)m.get("cnt");
+		                    			 }
+		                    		}
+								%>
+		                    		<%=totalCancelledOrExchanged %> 건
 		                    </div>
 		                </div>
 		            </div>
 		        </div>
 		    </section>
 			<!-- [끝] 진행중인 주문 확인 -->  
-			--%>
+			
+			
+			<!-- // 세션으로부터 고객별 묶어놓은 데이터 가져오기
+               	HashMap<String, Object> delData = (HashMap)session.getAttribute("customerDelivery");
+               	
+               	for (String key : delData.keySet()) {
+               		if(key.equals(id)) {
+               			
+								out.println("<br><br>");
+                     			out.println("<table style='width:100%'>");   
+                     			
+                     			for(Map.Entry m : ((HashMap<String,Integer>)delData.get(key)).entrySet()){    
+                            Integer value=(Integer)m.getValue();
+                            switch((String)m.getKey()){
+                                case "주문확인중":
+                                    out.print("<tr><td width='14%' style='text-align:left;'>주문확인중</td>");
+                                    break;
+                                case "배송중":
+                                    out.print("<tr><td width='14%' style='text-align:left;'>배송중</td>");
+                                     break;
+                                case "배송시작":
+                                	out.print("<tr><td width='14%' style='text-align:left;'>배송시작</td>");
+                                     break;
+                                case "배송완료":
+                                	out.print("<tr><td width='14%' style='text-align:left;'>배송완료</td>");
+                                     break;
+                                case "구매확정":
+                                	out.print("<tr><td width='14%' style='text-align:left;'>구매확정</td>");
+                                     break;
+                            }
+                     	}
+                     			out.println("</table>");   
+               		}
+               	} -->
 			
 			 
 			 

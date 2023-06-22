@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.security.auth.message.callback.PrivateKeyCallback.Request;
+import javax.servlet.http.HttpSession;
+import javax.websocket.Session;
+
 import util.DBUtil;
 import vo.Address;
 import vo.Cart;
@@ -297,22 +301,23 @@ public class CustomerDao {
 	FROM orders o
 	INNER JOIN order_product op ON o.order_no = op.order_no
 	WHERE o.id = ?
-	GROUP BY o.id, op.delivery_status;
+	GROUP BY op.delivery_status;
 	*/
 	public ArrayList<HashMap<String, Object>> selectCustomerDelCnt(Customer customer) throws Exception {
-		
+
 		ArrayList<HashMap<String, Object>> customerDelList = new ArrayList<HashMap<String, Object>>();
-		
-		
+
+
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
-		
+
 		String sql = "SELECT o.id, op.delivery_status, COUNT(*) AS cnt"
 					 + " FROM orders o"
 					 + " INNER JOIN order_product op ON o.order_no = op.order_no"
 					 + " WHERE o.id = ?"
-					 + " GROUP BY o.id, op.delivery_status";
+					 + " GROUP BY op.delivery_status";
 		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, customer.getId());
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			HashMap<String, Object> m = new HashMap<>();
@@ -322,6 +327,32 @@ public class CustomerDao {
 		}
 		return customerDelList;
 	}
+	
+	/*
+	 * public HashMap<String, Integer> selectCustomerDelCnt(Customer customer)
+	 * throws Exception {
+	 * 
+	 * HashMap<String, Integer> customerDelMap = new HashMap<>();
+	 * 
+	 * 
+	 * DBUtil dbutil = new DBUtil(); Connection conn = dbutil.getConnection();
+	 * 
+	 * String sql = "SELECT o.id, op.delivery_status, COUNT(*) AS cnt" +
+	 * " FROM orders o" + " INNER JOIN order_product op ON o.order_no = op.order_no"
+	 * + " WHERE o.id = ?" + " GROUP BY op.delivery_status"; PreparedStatement stmt
+	 * = conn.prepareStatement(sql); stmt.setString(1, customer.getId()); ResultSet
+	 * rs = stmt.executeQuery(); while(rs.next()) { String deliveryStatus =
+	 * rs.getString("op.delivery_status"); int count = rs.getInt("cnt");
+	 * 
+	 * // 해당 고객 ID의 맵 객체에서 배송상태별 건수 값을 추가합니다. switch(deliveryStatus) { case "주문확인중":
+	 * customerDelMap.put("orderConfirm",count); break; case "배송중":
+	 * customerDelMap.put("shipping",count); break; case "배송시작":
+	 * customerDelMap.put("startDel",count); break; case "배송완료":
+	 * customerDelMap.put("endDel",count); break; case "취소완료":
+	 * customerDelMap.put("cancelDel",count); break; case "교환중":
+	 * customerDelMap.put("exchangeDel",count); break; case "구매확정":
+	 * customerDelMap.put("purchaseDel",count); break; } } return customerDelMap; }
+	 */
 	
 	// -------------------b.address 관련---------------------
 	// 1) 회원주소목록 (내주소)
