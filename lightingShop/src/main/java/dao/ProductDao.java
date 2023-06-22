@@ -102,9 +102,14 @@ public class ProductDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT COUNT(*) FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE p.category_name = ?";
+		String sql = "SELECT COUNT(*) FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE 1=1";
+		if(!categoryName.equals("")) {
+			sql += " AND p.category_name = ?";
+		}
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, categoryName);
+		if(!categoryName.equals("")) {
+			stmt.setString(1, categoryName);
+		}
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
 			totalRow = rs.getInt(1);
@@ -186,6 +191,7 @@ public class ProductDao {
 		/*
  			SELECT
 			    p.product_no productNo, -- 상품번호
+			    p.category_name categoryName, -- 상품 카테고리명
 			    p.product_name productName, -- 상품이름
 			    p.product_price productPrice, -- 상품가격(원가)
 			    p.product_status productStatus, -- 상품상태 (예약판매/판매중/품절)
@@ -215,7 +221,7 @@ public class ProductDao {
 			2-3) 높은 가격순
 				ORDER BY discountRate DESC LIMIT ?,?
 		*/
-		String sql = "SELECT p.product_no productNo, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, COALESCE(d.discount_rate, 0) discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE d.discount_rate >= ?";
+		String sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, COALESCE(d.discount_rate, 0) discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE d.discount_rate >= ?";
 		// 1) 카테고리별 조회
 		if(!categoryName.equals("")) {
 			sql += " AND p.category_name = ?";
@@ -253,6 +259,7 @@ public class ProductDao {
 		while(rs.next()) {
 			HashMap<String, Object> m = new HashMap<>();
 			m.put("productNo", rs.getInt("productNo"));
+			m.put("categoryName", rs.getString("categoryName"));
 			m.put("productName", rs.getString("productName"));
 			m.put("productPrice", rs.getInt("productPrice"));
 			m.put("productStatus", rs.getString("productStatus"));

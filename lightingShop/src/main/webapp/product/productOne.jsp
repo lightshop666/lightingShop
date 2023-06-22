@@ -5,15 +5,12 @@
 <%
 	// 1. 유효성 검사
 	// productNo
-	/*
 	if(request.getParameter("productNo") == null
 			|| request.getParameter("productNo").equals("")) {
 		response.sendRedirect(request.getContextPath() + "/product/productList.jsp");
 		return;
 	}
 	int productNo = Integer.parseInt(request.getParameter("productNo"));
-	*/
-	int productNo = 47;
 	
 	// reviewCurrentPage, reviewRowPerPage
 	int reviewCurrentPage = 1;
@@ -162,10 +159,8 @@
 		quantityElement.value = quantity; // 변경된 수량 출력
 		
 		// 동적으로 바뀌는 quantity 값을 hidden input에 설정
-		const hiddenInput = document.getElementsByName('quantity')[0];
-		const hiddenInput2 = document.getElementsByName('productCnt')[0];
+		const hiddenInput = document.getElementsByName('productCnt')[0];
 		hiddenInput.value = quantity;
-		hiddenInput2.value = quantity;
 		
 		// 총 결제 금액 계산
 		const totalElement = document.getElementById('totalAmount'); // 총 가격Element 가져오기
@@ -218,7 +213,7 @@
 	<div class="main-content-wrapper d-flex clearfix">
        <!-- menu 좌측 bar -->
 		<div>
-			<jsp:include page="/inc/menu.jsp"></jsp:include>
+			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
 		</div>
 
         <!-- Product Details Area Start -->
@@ -230,7 +225,7 @@
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mt-50">
                                 <li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/home.jsp">Home</a></li>
-                                <li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/product/productList.jsp">PRODUCT</a></li>
+                                <li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/product/productList.jsp">Shop</a></li>
                                 <li class="breadcrumb-item"><a href="<%=request.getContextPath()%>/product/productList.jsp?categoryName=<%=product.getCategoryName()%>"><%=product.getCategoryName()%></a></li>
                                 <li class="breadcrumb-item active" aria-current="page"><%=product.getProductName()%></li>
                             </ol>
@@ -313,8 +308,8 @@
                                         <span class="qty-plus" onclick="count('plus')"><i class="fa fa-caret-up" aria-hidden="true"></i></span>
                                     </div>
                                 </div>
-                                <div class="product-meta-data text-center">
-	                                <span class="product-price">₩<span id="totalAmount">0</span></span>
+                                <div class="product-meta-data">
+	                                <span class="product-price">Total Price ₩<span id="totalAmount">0</span></span>
 	                            </div>
                                 <button type="submit" class="btn amado-btn">Add to cart</button>
 								<button type="submit" onclick='return submit2(this.form);' class="btn amado-btn">Checkout</button>
