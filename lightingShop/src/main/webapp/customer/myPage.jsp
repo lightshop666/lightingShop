@@ -38,6 +38,8 @@
 	CustomerDao cDao = new CustomerDao();
 	HashMap<String, Object> loginIdList = cDao.loginMethod(idList);
 	HashMap<String, Object> customerOne = cDao.selectCustomerOne(customer);
+	// id별 주문상태 출력할 모델
+	ArrayList<HashMap<String, Object>> customerDelList = cDao.selectCustomerDelCnt(customer);
 	
 	//모델 호출
 	OrderDao orderDao = new OrderDao();
@@ -66,6 +68,7 @@
 	ArrayList<Orders> orderList  = orderDao.justOrders(beginRow, rowPerPage, loginMemberId);   
 	ArrayList<HashMap<String, Object>> orderByOrderProduct = new ArrayList<HashMap<String, Object>>();
 	
+	
 %>
 
 <!DOCTYPE html>
@@ -90,15 +93,36 @@
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 	
+	<!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
+
+<!-- Search Wrapper Area Start -->
+<div class="search-wrapper section-padding-100">
+	<div class="search-close">
+		<i class="fa fa-close" aria-hidden="true"></i>
+	</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<div class="search-content">
+					<form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
+						<input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
+						<button type="submit"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""></button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
 	<!-- ##### Main Content Wrapper Start ##### -->
     <div class="main-content-wrapper d-flex clearfix">
     
     	<!-- menu 좌측 bar -->
 	    <div>
-			<jsp:include page="/inc/menu.jsp"></jsp:include>
+			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
 		</div>
 
         <!-- Product Catagories Area Start -->
@@ -110,165 +134,71 @@
 					if(session.getAttribute("loginIdListId") != null) {
 				%>
 			 
-			 <!-- [시작] 주문정보 표시 -->
-			 <section class="section-padding-100-0">
+			<!-- [시작] 고객등급확인 및 이미지 출력 -->
+		    <section class="newsletter-area section-padding-100-0">
 		        <div class="container">
 		            <div class="row align-items-center">
-		                <div class="col-12">
-		                    <table class = "table " style="table-layout: auto; width: 100%; table-layout: fixed;">
-					           <thead>
-					              <tr>
-					                  <th>주문번호</th>
-					                  <th>주문일자</th>
-					                  <th>주문가격</th>
-					                  <th>이미지</th>
-					                  <th>상품이름</th>
-					                  <th>배송상태</th>
-					             </tr>
-					           </thead>
-					           <tbody>
-									<!-- 
-											템플릿 적용 후 수정 사항
-											모든 리뷰 출력, 글 누르면 상품페이지로
-											사진 누르면 사진 확대
-									-->
-									<%
-									System.out.println(orderList.size()+"<--orderList.size()-- orderProductList.jsp");
-										for (Orders o : orderList) {
-											int orderNo = o.getOrderNo();
-											System.out.println(orderNo+"<--getOrderNo-- orderProductList.jsp");
-									%>
-										 <tr>
-											<td>
-												<a href="<%=request.getContextPath()%>/orders/orderProductOne.jsp?orderNo=<%= orderNo %>">
-												주문 번호 : <%= orderNo %>
-												</a>
-											</td>
-											<td>주문일: <%= o.getCreatedate() %></td>
-											<td>주문 금액: <%=o.getOrderPrice() %></td>
-										</tr>
-									<%
-											orderByOrderProduct = orderProductDao.selectOrderNoByOrderProductNo(orderNo);
-											for (HashMap<String, Object> m : orderByOrderProduct) {
-												int productNo = (int) m.get("productNo");
-												String deliveryStatus = (String) m.get("deliveryStatus");
-												String reviewWritten = (String) m.get("reviewWritten");
-												int orderProductNo =(int)m.get("orderProductNo"); 
-												System.out.println(orderProductNo+"<--orderProductNo-- orderProductList.jsp");
-												System.out.println(m.get("orderNo")+"<--orderNo-- orderProductList.jsp");
-												
-												// 상품 정보 및 이미지를 가져옵니다.
-												HashMap<String, Object> productMap = productDao.selectProductAndImgOne(productNo);
-												Product product = (Product) productMap.get("product");
-												ProductImg productImg = (ProductImg) productMap.get("productImg");
-									%>
-										<tr>
-												<td>상품 이미지
-													<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= productNo%>">
-											<%
-														// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
-														if(productImg.getProductSaveFilename() == null) {
-											%>
-															<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
-											<%
-														}else {
-											%>
-															<img class="thumbnail" src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image">
-											<%
-														}
-											%>			
-													</a>
-												</td>
-												<td>상품 이름
-													<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= productNo%>">
-														<%= product.getProductName() %>
-													</a>
-												</td>
-												<td>
-													배송 상태: <%= deliveryStatus %>
-													<p><!-- 버튼 분기 -->
-													<% if (deliveryStatus.equals("주문확인중")) { %>
-													  <form action="<%= request.getContextPath() %>/orders/orderCancel.jsp" method="GET">
-													    <input type="hidden" name="orderNo" value="<%= orderNo %>">
-													    <button type="submit">주문취소</button>
-													  </form>
-													<% } else if (deliveryStatus.equals("배송중") || deliveryStatus.equals("배송시작") || deliveryStatus.equals("교환중")) { %>
-													  <form action="<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp" method="GET">
-													    <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
-													    <button type="submit">수취확인</button>
-													  </form>
-													<% } else if (deliveryStatus.equals("배송완료")) { %>
-													  <form action="<%= request.getContextPath() %>/orders/orderPurchase.jsp" method="GET">
-													    <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
-													    <button type="submit">구매확정</button>
-													  </form>
-													<% } else if (deliveryStatus.equals("취소중")) { %>
-													  <form action="<%= request.getContextPath() %>/orders/orderCancelWithdraw.jsp" method="GET">
-													    <input type="hidden" name="orderNo" value="<%= orderNo %>">
-													    <button type="submit">취소철회</button>
-													  </form>
-													<% } else if (deliveryStatus.equals("구매확정") && reviewWritten.equals("N")) { %>
-													  <form action="<%= request.getContextPath() %>/review/addReview.jsp" method="GET">
-													    <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
-													    <button type="submit">상품평</button>
-													  </form>
-													<% } else if (deliveryStatus.equals("취소완료")) { %>
-													  <button disabled>취소완료</button>
-													<% } %>
-													</p>
-												</td>	
-										</tr>
-									<%
-											}
-									%>
-										<hr>
-									<%
-										}
-									%>
-								 </tr>
-							   </tbody>
-					        </table>
-					        <div class="oneMusic-pagination-area" >
-								<ul class="pagination">
-									<%
-										//1번 페이지보다 작은데 나오면 음수로 가버린다
-										if (minPage > 1) {
-									%>
-											<li class="page-item">
-											<a class="page-link" href="<%=request.getContextPath()%>/orders/orderProductList.jsp?currentPage=<%=minPage-pageRange%>">이전</a>
-											</li>
-									
-									<%	
-										}
-										for(int i=minPage; i <= maxPage; i=i+1){
-											if ( i == currentPage){		
-									%>
-												<li class="page-item"><span class="page-link"><%=i %></span></li>
-									<%
-											}else{
-									%>
-												<li class="page-item">
-												<a class="page-link" href="<%=request.getContextPath()%>/orders/orderProductList.jsp?currentPage=<%=i%>"><%=i %></a>
-												</li>
-									<%
-											}
-										}
-									
-										//maxPage와 lastPage가 같지 않으면 여분임으로 마지막 페이지목록일거다.
-										if(maxPage != lastPage ){
-									%>
-											<li class="page-item">
-											<a class="page-link" href="<%=request.getContextPath()%>/orders/orderProductList.jsp?currentPage=<%=minPage+pageRange%>">다음</a>
-											</li>
-									<%
-										}
-									%>
-								</ul>
-							</div>
-	                	</div>
-					</div>
-				</div>
-			</section>	<!-- [끝] 주문정보 표시 -->
+		                <!-- Newsletter Text -->
+		                <div class="col-12 col-lg-6 col-xl-7">
+		                    <div class="newsletter-text mb-100">
+		                        <h2>고객님의 등급은 <span><%=customerOne.get("c.cstm_rank") %>회원등급</span><br>입니다.</h2>
+		                    </div>
+		                </div>
+		                <!-- Newsletter Form -->
+		                <div class="col-12 col-lg-6 col-xl-5">
+		                    <div class="newsletter-form mb-100">
+	                        	<!-- 아이콘 or 이미지 -->
+	                           <i class="fa fa-address-book-o" aria-hidden="true">배송지</i> 
+	                            <i class="fa fa-money" aria-hidden="true">포인트</i>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </section>
+		    <!-- [끝] 고객등급확인 및 이미지 출력 -->
+			 
+			 
+			<%--  
+			<!-- [시작] 진행중인 주문 확인 -->
+			 <section class="newsletter-area section-padding-100-0">
+		        <div class="container">
+		            <div class="row align-items-center">
+		                <!-- Newsletter Text -->
+		                <div class="col-12 col-lg-6 col-xl-10">
+		                    <div class="newsletter-text mb-100">
+		                    	<h2>주문확인중</h2>
+		                    	<%
+		                    	for (HashMap<String, Object> m : customerDelList) {
+								%>
+									<%=m.get("op.delivery_status")%>
+									<%=m.get("cnt")%>
+								<%
+		                    	}
+		                    	%>
+		                        
+		                        
+		                    </div>
+		                </div>
+		                <!-- Newsletter Form -->
+		                <div class="col-12 col-lg-6 col-xl-2">
+		                    <div class="newsletter-form mb-100">
+		                        <form action="#" method="post">
+		                           <i class="fa fa-address-book-o" aria-hidden="true">배송지</i>
+		                            <i class="fa fa-money" aria-hidden="true">포인트</i>
+		                        </form>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </section>
+			<!-- [끝] 진행중인 주문 확인 -->  
+			--%>
+			
+			 
+			 
+			<!-- [시작] 주문정보 표시 -->
+			<!-- 주문정보 표시 -->
+			<!-- [끝] 주문정보 표시 -->
 		                    
 			 
 								<%

@@ -55,7 +55,7 @@
 </div>
 
 	<!-- ##### Main Content Wrapper Start ##### -->
-    <div class="main-content-wrapper d-flex clearfix">
+    <div class="main-content-wrapper d-flex clearfix" style='margin-bottom: 350px;'>
     
     	<!-- menu 좌측 bar -->
 	    <div>

@@ -67,20 +67,44 @@
 			for(String productNos : cart.keySet()) {
 				// 해당 상품정보가 담긴 HashMap 객체를 가져오기 위함
 				HashMap<String,Object> cartProduct = (HashMap<String,Object>)cart.get(productNos);
+				
 				System.out.println("productNo :"+ (int)cartProduct.get("productNo")); // 넘버확인
 				System.out.println("quantity :"+ (int)cartProduct.get("quantity")); // 수량확인
 				
 				// 카트 객체생성
 				Cart cartVo = new Cart();
 				cartVo.setId((String)session.getAttribute("loginIdListId")); 
-				cartVo.setProductNo((int)cartProduct.get("productNo"));
-				cartVo.setCartCnt((int)cartProduct.get("quantity"));
-				int row = cDao.addCart(cartVo);
-				if(row == 0) {
-					System.out.println("비회원 장바구니 -> 회원 장바구니 실패");
+				
+				// 기존 회원장바구니에 중복된 품목인지 확인 -> 중복일경우 수량 추가
+				int thisProductNo = (int)cartProduct.get("productNo");
+				System.out.println(thisProductNo+"번 품목 중복검사 실행중");
+				cartVo.setProductNo((Integer)cartProduct.get("productNo"));
+				
+				// 제품 중복검사
+				boolean cartProductCk = cDao.cartListCk(cartVo); 
+				System.out.println(cartProductCk+" true이면 중복");
+				
+				if(cartProductCk) {
+					System.out.println("중복된 품목 -> 수량조절");
+					int addQuantity = (Integer)cartProduct.get("quantity"); // 비회원이 추가한 품목의 개수
+					int oldQuantity = cDao.cartOneQty(cartVo); // 기존 DB에 저장된 해당 품목의 개수
+					int newQuantity = addQuantity + oldQuantity; // 총 수량
+					System.out.println("addQuantity/oldQuantity/newQuantity"+addQuantity+"/"+oldQuantity+"/"+newQuantity);
+					// 카트의 수량을 변경
+					int modifyQuantity = cDao.modifyCart(newQuantity, thisProductNo, id);
+					if(modifyQuantity == 1) {
+						System.out.println("중복된 품목 수량 추가");
+					} 
+				} else {
+					System.out.println("중복된 품목이 아니므로 기존 장바구니에 추가");
+					cartVo.setCartCnt((int)cartProduct.get("quantity"));
+					int row = cDao.addCart(cartVo); // 카트추가
+					if(row == 1) {
+						System.out.println(thisProductNo+"번 품목이 장바구니에 추가되었습니다.");
+					}
 				}
-				System.out.println("비회원 장바구니 -> 회원 장바구니 이동성공"); 
-				// 세션에 저장된 내용을 삭제한다.
+				
+				// 비회원 세션 삭제
 				session.removeAttribute("cart"); 
 			}
 		}

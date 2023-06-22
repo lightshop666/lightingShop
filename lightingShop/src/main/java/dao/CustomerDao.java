@@ -291,6 +291,38 @@ public class CustomerDao {
 		return row;
 	}
 	
+	// 7) myPage에서 id별 배송상태 개수 구하는 메서드
+	/*
+	SELECT o.id, op.delivery_status, COUNT(*) AS cnt
+	FROM orders o
+	INNER JOIN order_product op ON o.order_no = op.order_no
+	WHERE o.id = ?
+	GROUP BY o.id, op.delivery_status;
+	*/
+	public ArrayList<HashMap<String, Object>> selectCustomerDelCnt(Customer customer) throws Exception {
+		
+		ArrayList<HashMap<String, Object>> customerDelList = new ArrayList<HashMap<String, Object>>();
+		
+		
+		DBUtil dbutil = new DBUtil();
+		Connection conn = dbutil.getConnection();
+		
+		String sql = "SELECT o.id, op.delivery_status, COUNT(*) AS cnt"
+					 + " FROM orders o"
+					 + " INNER JOIN order_product op ON o.order_no = op.order_no"
+					 + " WHERE o.id = ?"
+					 + " GROUP BY o.id, op.delivery_status";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			HashMap<String, Object> m = new HashMap<>();
+			m.put("op.delivery_status", rs.getString("op.delivery_status"));
+			m.put("cnt", rs.getInt("cnt"));
+			customerDelList.add(m);
+		}
+		return customerDelList;
+	}
+	
 	// -------------------b.address 관련---------------------
 	// 1) 회원주소목록 (내주소)
 	public ArrayList<Address> myAddressList(Address address) throws Exception {
@@ -732,7 +764,7 @@ public class CustomerDao {
 					+ " FROM cart"
 					+ " WHERE product_no = ? AND id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setInt(1, cart.getCartNo() );
+		stmt.setInt(1, cart.getProductNo() );
 		stmt.setString(2, cart.getId() );
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) { // 중복 장바구니상품일경우, true반환
@@ -752,7 +784,7 @@ public class CustomerDao {
 		String sql = "SELECT cart_cnt FROM cart"
 					+ " WHERE product_no = ? AND id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setInt(1,  cart.getCartNo());
+		stmt.setInt(1,  cart.getProductNo() );
 		stmt.setString(2, cart.getId());
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {

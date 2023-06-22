@@ -41,12 +41,31 @@
 </head>
 <body>
 
+<!-- Search Wrapper Area Start -->
+<div class="search-wrapper section-padding-100">
+	<div class="search-close">
+		<i class="fa fa-close" aria-hidden="true"></i>
+	</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<div class="search-content">
+					<form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
+						<input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
+						<button type="submit"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""></button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 	<!-- ##### Main Content Wrapper Start ##### -->
     <div class="main-content-wrapper d-flex clearfix">
     
     	<!-- menu 좌측 bar -->
 	    <div>
-			<jsp:include page="/inc/menu.jsp"></jsp:include>
+			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
 		</div>
 
         <!-- Product Catagories Area Start -->
@@ -199,7 +218,7 @@
     
     <!-- footer 하단 bar -->
     <div>
-		<jsp:include page="/inc/footer.jsp"></jsp:include>
+		<jsp:include page="/inc/copyright.jsp"></jsp:include>
 	</div>
 
     <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
