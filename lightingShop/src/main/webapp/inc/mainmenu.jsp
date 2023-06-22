@@ -65,7 +65,9 @@
 						}
 				%>
                     </li>
-                    <li><a href="<%=request.getContextPath()%>/cart/cartList.jsp">Cart</a></li>
+                    <li><a href="<%=request.getContextPath()%>/product/productList.jsp">Shop</a></li>
+                    <li><a href="<%=request.getContextPath()%>/review/reviewList.jsp">Review</a></li>
+                    <li><a href="<%=request.getContextPath()%>/board/questionBoardList.jsp">Question</a></li>
              	<%
 					// 고객 - 로그인했다면 아래 내역
 					if(session.getAttribute("loginIdListId") != null) {
@@ -92,6 +94,11 @@
 					
                 </ul>
             </nav>
+            <!-- Button Group -->
+            <div class="amado-btn-group mt-30 mb-100">
+                <a href="<%=request.getContextPath()%>/product/discountProductList.jsp" class="btn amado-btn mb-15">%Discount%</a>
+                <a href="#" class="btn amado-btn active">New this week</a> <!-- 할지말지고민.. -->
+            </div>
             <!-- Cart Menu -->
             <div class="cart-fav-search mb-100">
                 <a href="<%=request.getContextPath()%>/cart/cartList.jsp" class="cart-nav"><img src="<%=request.getContextPath()%>/resources/img/core-img/cart.png" alt=""> Cart <span>(0)</span></a>
