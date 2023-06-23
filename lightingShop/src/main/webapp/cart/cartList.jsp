@@ -305,7 +305,15 @@
 		                        <li><span>total:</span> <span><%= totalPrice %>원</span></li>
 		                    </ul>
 		                    <div class="cart-btn mt-100">
-		                   	<!-- 수정된 submitOrder() 함수 -->
+		                    <!-- 주문서 제출을 위한 form -->
+							<form id="orderForm" method="post" action="<%=request.getContextPath()%>/orders/orderProduct.jsp">
+							       <input type="hidden" name="productNo[]" value="">
+    							   <input type="hidden" name="productCnt[]" value=""> 
+							   <div class="cart-btn mt-100">
+							      <button type="button" class="btn amado-btn w-100" onclick="submitOrder()">선택 상품 주문</button>
+							   </div>
+							</form>
+		                   	<!-- submitOrder() 함수 -->
 							<script>
 							function submitOrder() {
 								   var checkboxes = document.getElementsByName("selectedProducts");
@@ -330,16 +338,8 @@
 								   }
 
 								   form.submit();
-								}
+							}
 							</script>
-							
-							<!-- 주문서 제출을 위한 form -->
-							<form id="orderForm" method="post" action="<%=request.getContextPath()%>/orders/orderProduct.jsp">
-							   <input type="hidden" name="productCnt[]" value=""> <!-- 이전에 숨겨진 input 태그 삭제 -->
-							   <div class="cart-btn mt-100">
-							      <button type="button" class="btn amado-btn w-100" onclick="submitOrder()">선택 상품 주문</button>
-							   </div>
-							</form>
 							
 		                    </div>
 		                </div>

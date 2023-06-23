@@ -12,6 +12,7 @@
 	String productNoStr = request.getParameter("productNo");
 	String quantityStr = request.getParameter("productCnt");
 	String discountedPriceStr = request.getParameter("discountedPrice");
+	String listAction = request.getParameter("listAction");
 	
 	System.out.println("productNoStr: " + productNoStr);
 	System.out.println("quantityStr: " + quantityStr);
@@ -105,6 +106,10 @@
 	String msg = null;
 	if(insertCartRow== 1){
 		msg = URLEncoder.encode("장바구니에 상품이 담겼습니다.", "UTF-8");
+		if(listAction!=null){
+			response.sendRedirect(request.getContextPath() + "/product/productList.jsp?msg="+msg+"&productNo="+productNo);	
+	    	return;	
+		}
 		response.sendRedirect(request.getContextPath() + "/product/productOne.jsp?msg="+msg+"&productNo="+productNo);	
     	return;
 	}
