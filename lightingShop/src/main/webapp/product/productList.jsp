@@ -241,7 +241,6 @@
                                 </div>
                                 <div class="view-product d-flex align-items-center">
                                     <p>View</p>
-                                    <input type="hidden" name="categoryName" value="<%=categoryName%>">
                                         <select name="rowPerPage" id="viewProduct" onchange="this.form.submit()">
 	                                        <%
 												for (int i = 5; i <= 50; i = i + 5) {
@@ -386,8 +385,8 @@
             </div>
         </div>
     </div>
-	</div>
-    <!-- ##### Main Content Wrapper End ##### -->
+</div>
+<!-- ##### Main Content Wrapper End ##### -->
 <!-- ##### Footer Area Start ##### -->
     <div>
       <jsp:include page="/inc/copyright.jsp"></jsp:include>
