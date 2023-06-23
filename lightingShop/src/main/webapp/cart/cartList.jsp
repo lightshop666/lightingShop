@@ -38,330 +38,174 @@
     <!-- Core Style CSS -->
     <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
+<style>
+
+
+td button {
+  width: 30px;
+  height: 30px;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+td button:hover {
+  background-color: #e0e0e0;
+}
+
+td span {
+  font-weight: bold;
+}
+
+    </style>
 </head>
 <body>
-<!-- menu 좌측 bar -->
+<jsp:include page="/inc/header.jsp"></jsp:include>
+
 <!-- ##### Main Content Wrapper Start ##### -->
-<div class="main-content-wrapper d-flex clearfix">
-    
-<div>
-		<jsp:include page="/inc/menu.jsp"></jsp:include>
-</div>
-<div class="cart-table-area section-padding-100">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12 col-lg-8">
-                <div class="cart-title mt-50">
-                    <h2>Shopping Cart</h2>
-                </div>
+
+<div class="main-content-wrapper d-flex clearfix">  
+	<!-- menu 좌측 bar -->
+	<div>
+			<jsp:include page="/inc/menu.jsp"></jsp:include>
+			
+	</div>
+	<div class="cart-table-area section-padding-100">
+	    <div class="container-fluid">
+	        <div class="row">
+	            <div class="col-12 col-lg-8">
+	                <div class="cart-title mt-50">
+	                    <h2>Shopping Cart</h2>
+	                </div>
 
 
-<%
-    // 로그인 여부를 확인
-    if (session.getAttribute("loginIdListId") == null) {
-        // 로그인되지 않은 경우 세션 카트 정보를 표시
-        HashMap<String, Object> cart = (HashMap<String, Object>) session.getAttribute("cart");
-%>
-        <div class="cart-table clearfix">
-        <table class="table table-responsive">
-         <thead>
-            <tr>
-                <th>check</th>
-                <th>product</th>
-                <th></th>
-                <th>price</th>
-                <th>quantity</th>
-                <th></th>
-            </tr>
-        </thead>
-<%
-		int totalPrice = 0; // 총 가격을 누적하기 위한 변수
-        if (cart != null && cart.size() > 0) {
-        	
-            // 장바구니에 담긴 상품 목록을 표시
-%>
-
-                <tbody>
-                    <%
-                        // 장바구니에 담긴 각 상품에 대한 정보를 표시
-                        
-                        for (String productNos : cart.keySet()) {
-                            HashMap<String, Object> cartProduct = (HashMap<String, Object>) cart.get(productNos);
-                            System.out.println("productNo: " + (Integer)cartProduct.get("productNo"));//디버깅
-                            int discountedPrice = (Integer)cartProduct.get("price");
-                            int productTotalPrice = ((Integer)cartProduct.get("quantity") *discountedPrice);
-                    %>
-                            <tr>
-                               <td >
-                                   <input type="checkbox" name="selectedProducts" value="<%= cartProduct.get("productNo") %>" onchange="updateTotalPrice()">                            
-                               </td>
-                               <td> 
-                               
-                               <%                           	                                    
-                                        // 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
-                                        if(cartProduct.get("productSaveFilename") == null) {
-                                    %>
-                                            <img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
-                                    <%
-                                        } else {
-                                    %>
-                                        <%
-                                            String productImagePath = request.getContextPath() + "/" + cartProduct.get("productPath") + "/" + cartProduct.get("productSaveFilename");
-                                        %>
-                                        <img src="<%= productImagePath %>" alt="<%= cartProduct.get("productOriFilename") %>">
-                                    <%  
-                                        }
-                                    %>  
-                                </td>
-                                <td class="cart_product_desc"> <%= cartProduct.get("productName") %></td>
-                                <td class="price"><%= discountedPrice %>원</td>
-                                <td class="qty">
-	                                <div>
-		                                <div>
-		                                    <button onclick="increaseQuantity('<%= productNos %>')">+</button>
-		                                    <span id="quantity_<%= productNos %>"><%= cartProduct.get("quantity") %></span>
-		                                    <button onclick="decreaseQuantity('<%= productNos %>')">-</button>
-		              
-		                                </div> 
-		                            </div>
-	                            </td> 
-	                            <td>
-	                            	<a role="button" href="<%=request.getContextPath()%>/cart/removeCartAction.jsp?productNo=<%= (Integer)cartProduct.get("productNo") %>&action=deleteSession">X</a>
-	                            </td>   
-                            </tr>
-                    <%
-                        }
-                    %>
-                </tbody>
-                        <%
-           } else {
-        %>
-        	
-        	<tbody>
-                <tr>
-                	<td colspan="5">cart is empty.</td>
-                </tr>
-            </tbody>    
-        <%
-           }
-    
-    	 %>  
-           </table>
-            <script>
-                function increaseQuantity(productNo) {
-                    var quantityElement = document.getElementById("quantity_" + productNo);
-                    var quantity = parseInt(quantityElement.innerHTML);
-                    quantity += 1;
-                    quantityElement.innerHTML = quantity;
-                    
-                    updateTotalPrice(); // 수량이 변경될 때마다 총 가격 업데이트
-                }
-            
-                function decreaseQuantity(productNo) {
-                    var quantityElement = document.getElementById("quantity_" + productNo);
-                    var quantity = parseInt(quantityElement.innerHTML);
-                    if (quantity > 1) {
-                        quantity -= 1;
-                        quantityElement.innerHTML = quantity;
-                    }
-                    updateTotalPrice(); // 수량이 변경될 때마다 총 가격 업데이트
-                }
-            </script>
-            </div>
-           </div>
-           <div class="col-12 col-lg-4">
-                <div class="cart-summary">
-                    <h5>Cart Total</h5>
-                    <ul class="summary-table">
-                        <li><span>delivery:</span> <span>Free</span></li>
-                        <li><span>total:</span> <span class="total-price"><%= totalPrice %>원</span></li>
-                    </ul>
-                    <div class="cart-btn mt-100">
-                        <a href="<%=request.getContextPath()%>/customer/myPage.jsp" class="btn amado-btn w-100">Login</a>
-                    </div>
-                </div>
-            </div>
-       </div>
-	   <script>
-	   function updateTotalPrice() {
-	        var checkboxes = document.getElementsByName("selectedProducts");
-	        var subPriceElement = document.querySelector(".sub-price"); // 클래스로 요소 선택
-	        var totalPriceElement = document.querySelector(".total-price"); // 클래스로 요소 선택
-
-	        var totalPrice = 0;
-	        for (var i = 0; i < checkboxes.length; i++) {
-	            if (checkboxes[i].checked) {
-	                var quantityElement = document.getElementById("quantity_" + checkboxes[i].value);
-	                var quantity = parseInt(quantityElement.innerHTML);
-	                var priceElement = checkboxes[i].closest("tr").querySelector(".price");
-	                var price = parseFloat(priceElement.innerText); // 문자열에서 가격 값을 추출
-	                totalPrice += quantity * price;
-	            }
-	        }
-
-	        subPriceElement.innerHTML = totalPrice + "원";
-	        totalPriceElement.innerHTML = totalPrice + "원";
-	    }   
-	   </script>
-<% 
-		} else {
-            // 로그인된 사용자일 경우, 실제 데이터베이스에서 장바구니 정보를 가져와 출력
-            // 장바구니에 담긴 각 상품에 대한 정보를 표시         
-            int totalPrice = 0; // 총 가격을 누적하기 위한 변수 
-            if (cartList != null && cartList.size() > 0) {
-                // 장바구니 정보를 표시하는 코드
-%>
-        
-        	<div>
-               	<input type="hidden" name="cartOrder" value="cartOrder">
-           	</div>
-		   <div class="cart-table clearfix">
-		        <table class="table table-responsive">
-		                <thead>
-		                    <tr>
-		                        <th>check</th>
-				                <th>product</th>
-				                <th></th>
-				                <th>price</th>
-				                <th>quantity</th>
-				                <th></th>
-		                    </tr>
-		                </thead>
-		                <tbody>
-		                    <%
-		                                      
-		                        for (HashMap<String, Object> cartProduct : cartList) {
-		                        
-		                         int productNo = (Integer) cartProduct.get("productNo"); // 각 상품의 productNo 가져오기
-		                       	                  
-		                   	%>
-		                            <tr>
-		                                <td>
-		                                    <input type="checkbox" name="selectedProducts" value="<%= cartProduct.get("productNo") %>" onchange="updateTotalPrice()">
-						 				</td>
-						 				<td>
-						 					<%
-												// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
-												if(cartProduct.get("productSaveFilename") == null) {
-											%>
-													<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
-											<%
-												} else {
-											%>
-												<% 
-											        String productImagePath = request.getContextPath() + "/" + cartProduct.get("productPath") + "/" + cartProduct.get("productSaveFilename");
-											    %>
-											    <img src="<%= productImagePath %>" alt="<%= cartProduct.get("productOriFilename") %>">
-											<%	
-												}
-							%>	                                
-		                                </td>
-		                                <td><%= cartProduct.get("productName") %></td>
-		                                <td class="price"><%= cartProduct.get("price") %>원</td>
-									    <td class="qty">
-										 	<button type="button" onclick="increaseQuantity('<%= productNo %>')">+</button>
-		                                    <span id="quantity_<%= productNo %>"><%= cartProduct.get("quantity") %></span>
-		                                    <button type="button" onclick="decreaseQuantity('<%= productNo %>')">-</button>
-										</td>
+					<%
+					    // 로그인 여부를 확인
+					    if (session.getAttribute("loginIdListId") == null) {
+					        // 로그인되지 않은 경우 세션 카트 정보를 표시
+					        HashMap<String, Object> cart = (HashMap<String, Object>) session.getAttribute("cart");
+					%>
+					       <div class="cart-table clearfix">
+					        <table class="table table-responsive">
+					         <thead>
+					            <tr>
+					                <th>check</th>
+					                <th>product</th>
+					                <th>price</th>
+					                <th>quantity</th>
+					            </tr>
+					        </thead>
+					<%
+							int totalPrice = 0; // 총 가격을 누적하기 위한 변수
+					        if (cart != null && cart.size() > 0) {
+					        	
+					            // 장바구니에 담긴 상품 목록을 표시
+					%>
+					
+					                <tbody>
+					                    <%
+					                        // 장바구니에 담긴 각 상품에 대한 정보를 표시
+					                        
+					                        for (String productNos : cart.keySet()) {
+					                            HashMap<String, Object> cartProduct = (HashMap<String, Object>) cart.get(productNos);
+					                            System.out.println("productNo: " + (Integer)cartProduct.get("productNo"));//디버깅
+					                            int discountedPrice = (Integer)cartProduct.get("price");
+					                            int productTotalPrice = ((Integer)cartProduct.get("quantity") *discountedPrice);
+					                    %>
+					                            <tr>
+					                               <td width="20" >
+					                                   <input type="checkbox" name="selectedProducts" value="<%= cartProduct.get("productNo") %>" onchange="updateTotalPrice()">                            
+					                               </td>
+					                               <td width="50" colspan="2"  class="cart_product_img" style="text-align: left;">                        
+					                               
+					                               <%                           	                                    
+					                                        // 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+					                                        if(cartProduct.get("productSaveFilename") == null) {
+					                                    %>
+					                                            <img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+					                                    <%
+					                                        } else {
+					                                    %>
+					                                        <%
+					                                            String productImagePath = request.getContextPath() + "/" + cartProduct.get("productPath") + "/" + cartProduct.get("productSaveFilename");
+					                                        %>
+					                                        <img src="<%= productImagePath %>" alt="<%= cartProduct.get("productOriFilename") %>">
+					                                    <%  
+					                                        }
+					                                    %>  
+					                                
+					                			 		<a style="color: blue;" href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= cartProduct.get("productNo") %>"><%= cartProduct.get("productName") %></a>                			 
+					                			 	</td>
+					                                <td class="price"><span><%= discountedPrice %>원</span></td>
+					                                <td>
+					                                       <div>	                              
+					                                            <div>
+								                                    <button onclick="increaseQuantity('<%= productNos %>')">+</button>
+								                                    <span id="quantity_<%= productNos %>"><%= cartProduct.get("quantity") %></span>
+								                                    <button onclick="decreaseQuantity('<%= productNos %>')">-</button>
+								              						<a style="color: red;" role="button" href="<%=request.getContextPath()%>/cart/removeCartAction.jsp?productNo=<%= (Integer)cartProduct.get("productNo") %>&action=deleteSession">X</a>
+							                               		</div>
+							                                </div> 	                            
+						                            </td> 
+					                            </tr>
+					                    <%
+					                        }
+					                    %>
+					                </tbody>
+					                        <%
+					           } else {
+					        %>
+					        	
+					        	<tbody>
+					                <tr>
+					                	<td colspan="5">cart is empty.</td>
+					                </tr>
+					            </tbody>    
+					        <%
+					           }
+					    
+					    	 %>  
+					           </table>
+					            <script>
+					                function increaseQuantity(productNo) {
+					                    var quantityElement = document.getElementById("quantity_" + productNo);
+					                    var quantity = parseInt(quantityElement.innerHTML);
+					                    quantity += 1;
+					                    quantityElement.innerHTML = quantity;
 					                    
-					                    
-				                        <td>
-				                            <input type="hidden" name="productCnt" value="<%= cartProduct.get("quantity") %>">
-				                            <!-- 숨겨진 input 태그를 이용하여 수량을 배열로 전달 -->
-				                        </td>
-		                                
-		                                <td>
-		           							 <a href="<%=request.getContextPath()%>/cart/removeCartAction.jsp?productNo=<%= cartProduct.get("productNo") %>&action=deleteData">X</a>
-		                                </td>
-		                            </tr>
-		                            
-		        <%
-		                     int quantity =  (Integer)cartProduct.get("quantity");
-		                    
-		                   	}
-		           		} else {
-		        %>
-		                <tr>
-		                	<td colspan="5">cart is empty.</td>
-		                </tr>
-		        <%
-		            }	
-		        %>   
-		        	
-		         	</tbody>
-		        </table>
-		       </div> 
-					<script>
-					   function updateTotalPrice() {
-					        var checkboxes = document.getElementsByName("selectedProducts");
-					        var subPriceElement = document.querySelector(".sub-price"); // 클래스로 요소 선택
-					        var totalPriceElement = document.querySelector(".total-price"); // 클래스로 요소 선택
-
-					        var totalPrice = 0;
-					        for (var i = 0; i < checkboxes.length; i++) {
-					            if (checkboxes[i].checked) {
-					                var quantityElement = document.getElementById("quantity_" + checkboxes[i].value);
-					                var quantity = parseInt(quantityElement.innerHTML);
-					                var priceElement = checkboxes[i].closest("tr").querySelector(".price");
-					                var price = parseFloat(priceElement.innerText); // 문자열에서 가격 값을 추출
-					                totalPrice += quantity * price;
-					                subPrice += quantity * price;
-					            }
-					        }
-
-					        subPriceElement.innerHTML = totalPrice + "원";
-					        totalPriceElement.innerHTML = totalPrice + "원";
-					    } 
-			        </script>	
-			           
-		           </div>
-		           <div class="col-12 col-lg-4">
-		                <div class="cart-summary">
-		                    <h5>Cart Total</h5>
-		                    <ul class="summary-table">
-		                        <li><span>delivery:</span> <span>Free</span></li>
-		                        <li><span>total:</span>  <span class="total-price"><%= totalPrice %>원</span></li>
-		                    </ul>
-		                    <div class="cart-btn mt-100">
-		                    <!-- 주문서 제출을 위한 form -->
-							<form id="orderForm" method="post" action="<%=request.getContextPath()%>/orders/orderProduct.jsp">
-							       <input type="hidden" name="productNo" value="">
-    							   <input type="hidden" name="productCnt" value=""> 
-							   <div class="cart-btn mt-100">
-							      <button type="button" class="btn amado-btn w-100" onclick="submitOrder()">Check Out</button>
-							   </div>
-							</form>
-		                   	<!-- submitOrder() 함수 -->
-							<script>
-							function submitOrder() {
-								   var checkboxes = document.getElementsByName("selectedProducts");
-								   var quantityInputs = document.getElementsByName("productCnt");
-								   var form = document.getElementById("orderForm");
-
-								   for (var i = 0; i < checkboxes.length; i++) {
-								       if (checkboxes[i].checked) {
-								           var productNoInput = document.createElement("input");
-								           productNoInput.setAttribute("type", "hidden");
-								           productNoInput.setAttribute("name", "productNo");
-								           productNoInput.setAttribute("value", checkboxes[i].value);
-								           form.appendChild(productNoInput);
-
-								           
-								           var productCntInput = document.createElement("input");
-								           productCntInput.setAttribute("type", "hidden");
-								           productCntInput.setAttribute("name", "productCnt");
-								           productCntInput.setAttribute("value", quantityInputs[i].value);
-								           form.appendChild(productCntInput);
-								       }
-								   }
-
-								   form.submit();
-							}
-							
-						    function updateTotalPrice() {
+					                    updateTotalPrice(); // 수량이 변경될 때마다 총 가격 업데이트
+					                }
+					            
+					                function decreaseQuantity(productNo) {
+					                    var quantityElement = document.getElementById("quantity_" + productNo);
+					                    var quantity = parseInt(quantityElement.innerHTML);
+					                    if (quantity > 1) {
+					                        quantity -= 1;
+					                        quantityElement.innerHTML = quantity;
+					                    }
+					                    updateTotalPrice(); // 수량이 변경될 때마다 총 가격 업데이트
+					                }
+					            </script>
+					            </div>
+					           </div>
+					           <div class="col-12 col-lg-4">
+					                <div class="cart-summary">
+					                    <h5>Cart Total</h5>
+					                    <ul class="summary-table">
+					                        <li><span>delivery:</span> <span>Free</span></li>
+					                        <li><span>total:</span> <span class="total-price"><%= totalPrice %>원</span></li>
+					                    </ul>
+					                    <div class="cart-btn mt-100">
+					                        <a href="<%=request.getContextPath()%>/customer/myPage.jsp" class="btn amado-btn w-100">Login</a>
+					                    </div>
+					                </div>
+					            </div>
+					       </div>
+						   <script>
+						   function updateTotalPrice() {
 						        var checkboxes = document.getElementsByName("selectedProducts");
 						        var totalPriceElement = document.querySelector(".total-price"); // 클래스로 요소 선택
-
+					
 						        var totalPrice = 0;
 						        for (var i = 0; i < checkboxes.length; i++) {
 						            if (checkboxes[i].checked) {
@@ -372,25 +216,195 @@
 						                totalPrice += quantity * price;
 						            }
 						        }
-
+					
 						        totalPriceElement.innerHTML = totalPrice + "원";
-						    }
-							</script>
-							
-		                    </div>
-		                </div>
-		            </div>
-		          </div>	
-		                     
-		<%       
-		    } 
-		%>	
-	</div>
-    <!-- ##### Main Content Wrapper End ##### -->
+						    }   
+						   </script>
+					<% 
+							} else {
+					            // 로그인된 사용자일 경우, 실제 데이터베이스에서 장바구니 정보를 가져와 출력
+					            // 장바구니에 담긴 각 상품에 대한 정보를 표시         
+					            int totalPrice = 0; // 총 가격을 누적하기 위한 변수 
+					            if (cartList != null && cartList.size() > 0) {
+					                // 장바구니 정보를 표시하는 코드
+					%>
+					        
+					        	<div>
+					               	<input type="hidden" name="cartOrder" value="cartOrder">
+					           	</div>
+							   <div class="cart-table clearfix">
+							        <table class="table table-responsive">
+							                <thead>
+							                    <tr>
+							                        <th>check</th>
+									                <th>product</th>
+									                <th>price</th>
+									                <th>quantity</th>
+					
+							                    </tr>
+							                </thead>
+							                <tbody>
+							                    <%
+							                                      
+							                        for (HashMap<String, Object> cartProduct : cartList) {
+							                        
+							                         int productNo = (Integer) cartProduct.get("productNo"); // 각 상품의 productNo 가져오기
+							                       	                  
+							                   	%>
+							                            <tr>
+							                                <td>
+							                                    <input type="checkbox" name="selectedProducts" value="<%= cartProduct.get("productNo") %>" onchange="updateTotalPrice()">
+											 				</td>
+											 			    <td class="cart_product_desc"> 
+											 					<%
+																	// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+																	if(cartProduct.get("productSaveFilename") == null) {
+																%>
+																		<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+																<%
+																	} else {
+																%>
+																	<% 
+																        String productImagePath = request.getContextPath() + "/" + cartProduct.get("productPath") + "/" + cartProduct.get("productSaveFilename");
+																    %>
+																    <img src="<%= productImagePath %>" alt="<%= cartProduct.get("productOriFilename") %>">
+																<%	
+																	}
+																%>	         	                       
+							                                	<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>"><%= cartProduct.get("productName") %></a>
+							                                </td>
+							                                <td class="price"><%= cartProduct.get("price") %>원</td>
+														    <td colspan="2" class="qty">
+															 	<button type="button" onclick="increaseQuantity('<%= productNo %>')">+</button>
+							                                    <span id="quantity_<%= productNo %>"><%= cartProduct.get("quantity") %></span>
+							                                    <button type="button" onclick="decreaseQuantity('<%= productNo %>')">-</button>
+																
+																<input type="hidden" name="productCnt[]" value="<%= cartProduct.get("quantity") %>">
+									                            <!-- 숨겨진 input 태그를 이용하여 수량을 배열로 전달 -->																
+															
+							           							 <a role="button" href="<%=request.getContextPath()%>/cart/removeCartAction.jsp?productNo=<%= cartProduct.get("productNo") %>&action=deleteData">X</a>
+							                                </td>
+					
+										                   
+							                            </tr>
+							                            
+							        <%
+							                     int quantity =  (Integer)cartProduct.get("quantity");
+							                    
+							                   	}
+							           		} else {
+							        %>
+							                <tr>
+							                	<td colspan="5">cart is empty.</td>
+							                </tr>
+							        <%
+							            }	
+							        %>   
+							        	
+							         	</tbody>
+							        </table>
+							       </div> 
+										<script>
+							            function increaseQuantity(productNo) {
+							                var quantityElement = document.getElementById("quantity_" + productNo);
+							                var quantity = parseInt(quantityElement.innerHTML);
+							                quantity += 1;
+							                quantityElement.innerHTML = quantity;
+							                
+							                updateTotalPrice(); // 수량이 변경될 때마다 총 가격 업데이트
+							            }
+							        
+							            function decreaseQuantity(productNo) {
+							                var quantityElement = document.getElementById("quantity_" + productNo);
+							                var quantity = parseInt(quantityElement.innerHTML);
+							                if (quantity > 1) {
+							                    quantity -= 1;
+							                    quantityElement.innerHTML = quantity;
+							                    
+							                    
+							                }
+							                
+							                updateTotalPrice(); // 수량이 변경될 때마다 총 가격 업데이트
+							            }
+								        </script>	
+								           
+							          </div>
+							          <div class="col-12 col-lg-4">
+							                <div class="cart-summary">
+							                    <h5>Cart Total</h5>
+							                    <ul class="summary-table">
+							                        <li><span>delivery:</span> <span>Free</span></li>
+							                        <li><span>total:</span>  <span class="total-price"><%= totalPrice %>원</span></li>
+							                    </ul>
+							                    
+							                    <!-- 주문서 제출을 위한 form -->
+												<form id="orderForm" method="post" action="<%=request.getContextPath()%>/orders/orderProduct.jsp">
+												       <input type="hidden" name="productNo" value="">
+					    							   <input type="hidden" name="productCnt" value=""> 
+												   <div class="cart-btn mt-100">
+												      <button type="button" class="btn amado-btn w-100" onclick="submitOrder()">Check Out</button>
+												   </div>
+												</form>
+										 	</div>
+                    					</div>		
+							                   	<!-- submitOrder() 함수 -->
+												<script>
+												function submitOrder() {
+													   var checkboxes = document.getElementsByName("selectedProducts");
+													   var quantityInputs = document.getElementsByName("productCnt[]");
+													   var form = document.getElementById("orderForm");
+					
+													   for (var i = 0; i < checkboxes.length; i++) {
+													       if (checkboxes[i].checked) {
+													           var productNoInput = document.createElement("input");
+													           productNoInput.setAttribute("type", "hidden");
+													           productNoInput.setAttribute("name", "productNo[]");
+													           productNoInput.setAttribute("value", checkboxes[i].value);
+													           form.appendChild(productNoInput);
+					
+													           
+													           var productCntInput = document.createElement("input");
+													           productCntInput.setAttribute("type", "hidden");
+													           productCntInput.setAttribute("name", "productCnt[]");
+													           productCntInput.setAttribute("value", quantityInputs[i].value);
+													           form.appendChild(productCntInput);
+													       }
+													   }
+					
+													   form.submit();
+												}
+												
+											    function updateTotalPrice() {
+											        var checkboxes = document.getElementsByName("selectedProducts");
+											        var totalPriceElement = document.querySelector(".total-price"); // 클래스로 요소 선택
+					
+											        var totalPrice = 0;
+											        for (var i = 0; i < checkboxes.length; i++) {
+											            if (checkboxes[i].checked) {
+											                var quantityElement = document.getElementById("quantity_" + checkboxes[i].value);
+											                var quantity = parseInt(quantityElement.innerHTML);
+											                var priceElement = checkboxes[i].closest("tr").querySelector(".price");
+											                var price = parseFloat(priceElement.innerText); // 문자열에서 가격 값을 추출
+											                totalPrice += quantity * price;
+											            }
+											        }
+					
+											        totalPriceElement.innerHTML = totalPrice + "원";
+											    }
+												</script>					      						                     
+							<%       
+							    }//로그인했을경우 끝 
+							%>	
+	                
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- ##### Main Content Wrapper End ##### -->
 <!-- ##### Footer Area Start ##### -->
     <div>
-      <jsp:include page="/inc/copyright.jsp"></jsp:include>
-   </div>
+		<jsp:include page="/inc/copyright.jsp"></jsp:include>
+	</div>
 <!-- ##### Footer Area End ##### -->
 
     <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
@@ -402,6 +416,4 @@
     <!-- Plugins js -->
     <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
     <!-- Active js -->
-    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>			
-</body>
-</html>
+    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
