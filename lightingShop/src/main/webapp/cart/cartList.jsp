@@ -266,7 +266,7 @@
 					                    
 					                    
 				                        <td>
-				                            <input type="hidden" name="productCnt[]" value="<%= cartProduct.get("quantity") %>">
+				                            <input type="hidden" name="productCnt" value="<%= cartProduct.get("quantity") %>">
 				                            <!-- 숨겨진 input 태그를 이용하여 수량을 배열로 전달 -->
 				                        </td>
 		                                
@@ -325,8 +325,8 @@
 		                    <div class="cart-btn mt-100">
 		                    <!-- 주문서 제출을 위한 form -->
 							<form id="orderForm" method="post" action="<%=request.getContextPath()%>/orders/orderProduct.jsp">
-							       <input type="hidden" name="productNo[]" value="">
-    							   <input type="hidden" name="productCnt[]" value=""> 
+							       <input type="hidden" name="productNo" value="">
+    							   <input type="hidden" name="productCnt" value=""> 
 							   <div class="cart-btn mt-100">
 							      <button type="button" class="btn amado-btn w-100" onclick="submitOrder()">Check Out</button>
 							   </div>
@@ -335,21 +335,21 @@
 							<script>
 							function submitOrder() {
 								   var checkboxes = document.getElementsByName("selectedProducts");
-								   var quantityInputs = document.getElementsByName("productCnt[]");
+								   var quantityInputs = document.getElementsByName("productCnt");
 								   var form = document.getElementById("orderForm");
 
 								   for (var i = 0; i < checkboxes.length; i++) {
 								       if (checkboxes[i].checked) {
 								           var productNoInput = document.createElement("input");
 								           productNoInput.setAttribute("type", "hidden");
-								           productNoInput.setAttribute("name", "productNo[]");
+								           productNoInput.setAttribute("name", "productNo");
 								           productNoInput.setAttribute("value", checkboxes[i].value);
 								           form.appendChild(productNoInput);
 
 								           
 								           var productCntInput = document.createElement("input");
 								           productCntInput.setAttribute("type", "hidden");
-								           productCntInput.setAttribute("name", "productCnt[]");
+								           productCntInput.setAttribute("name", "productCnt");
 								           productCntInput.setAttribute("value", quantityInputs[i].value);
 								           form.appendChild(productCntInput);
 								       }

@@ -4,9 +4,14 @@
 <%@ page import="java.util.*"%>
 <%
 	//세션 로그인 확인
-	String loginMemberId = "user1";
-	if(session.getAttribute("loginMemberId") != null) {
-		loginMemberId = (String)session.getAttribute("loginMemberId");
+	String loginIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loginIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 orderConfirmDelivery.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- orderConfirmDelivery.jsp");
+		return;
 	}
 	//모델 호출
 	OrderDao orderDao = new OrderDao();
@@ -27,7 +32,7 @@
 	int beginRow = (currentPage-1) * rowPerPage + 1;
 	
 	//총 행을 구하기 위한 메소드
-	int totalRow = orderProductDao.customerOrderListCnt(loginMemberId);
+	int totalRow = orderProductDao.customerOrderListCnt(loginIdListId  );
 	
 	//마지막 페이지
 	int lastPage = totalRow / rowPerPage;
@@ -44,7 +49,7 @@
 		maxPage = lastPage;
 	}
 	//order모델 소환
-	ArrayList<Orders> orderList  = orderDao.justOrders(beginRow, rowPerPage, loginMemberId);   
+	ArrayList<Orders> orderList  = orderDao.justOrders(beginRow, rowPerPage, loginIdListId);   
 	ArrayList<HashMap<String, Object>> orderByOrderProduct = new ArrayList<HashMap<String, Object>>();
 %>
 <!DOCTYPE html>

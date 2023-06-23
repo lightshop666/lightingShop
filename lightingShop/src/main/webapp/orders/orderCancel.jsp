@@ -8,6 +8,16 @@
 //주문취소 액션	
 	request.setCharacterEncoding("utf-8");	
 
+	String loginIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loginIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 orderConfirmDelivery.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- orderConfirmDelivery.jsp");
+		return;
+	}
+
 	//유효성 검사. 주문취소를 위해 orderNo가 없으면 안되니까 리다이렉트
 	int orderNo = 0;
 	if(request.getParameter("orderNo")!=null){
@@ -230,12 +240,18 @@
 			} 
 		});
 		
-		//총 가격과 선택되지 않은 가격 html에 뿌려준다.
+		//선택된 총 가격 html에 뿌려준다.
 		document.querySelector('#totalPriceInput').value = totalPrice;
-		console.log(totalPrice);
-		console.log(totalPrice.toFixed(2));
+		console.log(totalPrice+'<--totalPrice-- orderCancel JS');
 
 	}
+	
+	// 체크박스 상태 변화 시 총 가격 다시 계산
+	Array.prototype.forEach.call(checkboxes, function(checkbox) {
+	  checkbox.addEventListener('change', function() {
+	    calculateTotalPrice();
+	  });
+	});
 	
 
     // 폼 전송 시 값을 설정하는 함수 호출

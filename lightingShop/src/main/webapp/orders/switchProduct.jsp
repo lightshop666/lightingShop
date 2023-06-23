@@ -6,6 +6,16 @@
 //교환 페이지	
 	request.setCharacterEncoding("utf-8");	
 
+	String loginIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loginIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 switchProduct.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- switchProduct.jsp");
+		return;
+	}
+
 	//유효성 검사. 교환을 위해 orderProductNo가 없으면 안되니까 리다이렉트
 	String orderProductNoParam = request.getParameter("orderProductNo");
 	int orderProductNo = 0;

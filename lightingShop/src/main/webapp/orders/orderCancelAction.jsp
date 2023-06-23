@@ -17,6 +17,16 @@
 	완료된 행의 배송상태를 취소완료로 바꿔준다.
    */
 	   // 유효성 검사
+	   
+	String loginIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loginIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 orderConfirmDelivery.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- orderConfirmDelivery.jsp");
+		return;
+	}
 	String orderNoParam = request.getParameter("orderNo");
 	int orderNo = 0;
 	if (orderNoParam == null || orderNoParam.isEmpty()) {
@@ -101,7 +111,7 @@
     System.out.println(totalPrice + "<--totalPrice--총 주문금액 orderCancelAction.jsp");
 
 	//주문서 금액에서 선택된 상품 가격을 빼면 선택되지 않은 상품들 가격
-	int unselectedTotalPrice = totalPrice - selectedPrice;
+	int unselectedTotalPrice =totalPrice - selectedPrice;
     System.out.println(unselectedTotalPrice + "<--unselectedTotalPrice--선택되지 않은 상품 금액 orderCancelAction.jsp");
 	//환불해줄 금액
 	int refundAmount = 0;
@@ -154,7 +164,7 @@
 			System.out.println(pointCancelP + "<--pointCancelP-- 주문취소하지 않은 상품 총액만큼 포인트계산  orderCancelAction.jsp");
 			
 			//customer 테이블의 point 총합 업데이트
-			int pointResult2 = pointHistoryDao.cstmPointUpdate(pointCancelM);
+			int pointResult2 = pointHistoryDao.cstmPointUpdate(-pointCancelM);
 			int pointResult3 = pointHistoryDao.cstmPointUpdate(pointCancelP);
 		    System.out.println(pointResult2 + "<--pointResult2--customer테이블 업데이트PK orderCancelAction.jsp");
 		    System.out.println(pointResult3 + "<--pointResult3--customer테이블 업데이트PK orderCancelAction.jsp");

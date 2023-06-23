@@ -6,9 +6,14 @@
 
 <%
 	//세션 로그인 검사
-	String loginMemberId ="user1";
-	if(session.getAttribute("loginMemberId") != null) {
-		loginMemberId = (String)session.getAttribute("loginMemberId");
+	String loingIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loingIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loingIdListId+"<--새로 들어온 아이디 orderConfirmDelivery.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- orderConfirmDelivery.jsp");
+		return;
 	}
 	
 	//주문번호 유효성 검사
@@ -280,7 +285,7 @@
 							||deleveryStatus.equals("배송완료"))) { 
 						%>   
 								<p><!-- 반품신청 -->
-									<button onclick="location.href='<%= request.getContextPath() %>/orders/returnProduct.jsp?orderProductNo=' + <%=orderProductNo %>">반품신청</button>
+									<button class="custom-button" onclick="location.href='<%= request.getContextPath() %>/orders/returnProduct.jsp?orderProductNo=' + <%=orderProductNo %>">반품신청</button>
 								</p>
 						<%
 							}
@@ -290,7 +295,7 @@
 							||deleveryStatus.equals("배송완료"))) { 
 							%>   
 								<p><!-- 교환신청 -->
-									<button onclick="location.href='<%= request.getContextPath() %>/orders/switchProduct.jsp?orderProductNo=<%= orderProductNo%>'">교환신청</button>	
+									<button class="custom-button"  onclick="location.href='<%= request.getContextPath() %>/orders/switchProduct.jsp?orderProductNo=<%= orderProductNo%>'">교환신청</button>	
 								</p>
 						<%
 							}
@@ -370,10 +375,10 @@
 					<div class="cart-summary">
 						<h5>Order Summary</h5>
 						<ul class="summary-table">
-							<li><span style="font-weight: bold; font-size: larger;">총 결제 금액 :</span> <span style="font-weight: bold; font-size: larger;"><%= formattedOrderPrice %> 원</span></li>
-							<li><span style="color: gray; font-size: small; text-decoration: line-through;">총 상품 금액 :</span> <span style="color: gray; text-decoration: line-through;"><%= formattedOriPrice %> 원</span></li>
-							<li><span>총 할인 금액 : </span> <span><%= formattedDiscountAmount %> 원</span></li>
-							<li><span>적립 혜택 : </span> <span><%= pointByOrder %> P</span></li>
+							<li><span style="font-weight: bold; font-size: larger;">Total Amout &nbsp;</span> <span style="font-weight: bold; font-size: larger;"> ₩ <%= formattedOrderPrice %></span></li>
+							<li><span style="color: gray; font-size: small; text-decoration: line-through;">총 상품 금액 :</span> <span style="color: gray; text-decoration: line-through;">₩ <%= formattedOriPrice %></span></li>
+							<li><span>총 할인 금액 : </span> <span>₩ <%= formattedDiscountAmount %> </span></li>
+							<li><span>적립 혜택 : </span> <span> <%= decimalFormat.format(pointByOrder) %> P</span></li>
 						</ul>
 					</div>
 				</div>

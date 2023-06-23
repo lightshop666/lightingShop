@@ -149,7 +149,7 @@ public class PointHistoryDao {
 				+ "	JOIN customer c ON o.id = c.id "
 				+ "	WHERE o.order_no = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS);
-		stmt.setInt(1, refundpoint);
+		stmt.setInt(1, -(refundpoint));
 		stmt.setInt(2, orderNo);
 		result = stmt.executeUpdate();
 		

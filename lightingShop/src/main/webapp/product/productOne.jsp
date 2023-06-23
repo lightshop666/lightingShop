@@ -297,8 +297,8 @@
 
                             <!-- Add to Cart Form -->
                             <form action="<%=request.getContextPath()%>/cart/cartListAction.jsp" method="post" class="cart clearfix">
-							<input type="hidden" name="productNo" value="<%=product.getProductNo()%>">
-							<input type="hidden" name="productCnt" value=""> <!-- 동적으로 값 변경 -->
+							<input type="hidden" name="productNo"  id="productNo[]"value="<%=product.getProductNo()%>">
+							<input type="hidden" name="productCnt" id="productCnt" value=""> <!-- 동적으로 값 변경 -->
 							<input type="hidden" name="discountedPrice" value="<%=discountedPrice%>">
                                 <div class="cart-btn d-flex mb-50">
                                     <p>수량</p>

@@ -3,6 +3,16 @@
 <%
 	//수취확인 액션
 	request.setCharacterEncoding("utf-8");	
+	
+	String loingIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loingIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loingIdListId+"<--새로 들어온 아이디 orderConfirmDelivery.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- orderConfirmDelivery.jsp");
+		return;
+	}
 
 	int orderProductNo=0;
 	if(request.getParameter("orderProductNo")!=null){

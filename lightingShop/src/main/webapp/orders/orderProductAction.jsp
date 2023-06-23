@@ -7,11 +7,17 @@
 	request.setCharacterEncoding("utf-8");	
 //유효성 검사
 	//세션 유효성 검사 --> 비회원은 주문할 수 없다 게스트 걸러내기
-	Customer customer = new Customer(); // 객체 생성 및 초기화
-	customer.setId("user1"); //-------------------------임시 테스트용-------------------------------------//
-	if(session.getAttribute("loginMemberId") != null) {
-		customer.setId((String)session.getAttribute("loginMemberId"));
+	Customer customer = new Customer();
+	
+	if(session.getAttribute("loginIdListId") != null) {
+		customer.setId((String)session.getAttribute("loginIdListId"));
+		//System.out.println(customer.getId()+"<--새로 들어온 아이디 orderProductAction.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		//System.out.println("로그인에서 리턴 <-- orderProductAction.jsp");
+		return;
 	}
+	
 	// 제품 번호 배열과 제품 수량 배열을 가져옵니다.
 	String[] productNos = request.getParameterValues("productNo");
 	String[] productCnts = request.getParameterValues("productCnt");
@@ -85,13 +91,19 @@
 	int pointResult1= pointHistoryDao.cstmPointUpdate(pointUsedPk);
 	int pointResult2 = pointHistoryDao.cstmPointUpdate(pointAddPk);
 
-	if(pointResult1 != 0
-	||pointResult2 != 0){
-		response.sendRedirect("orderProductOne.jsp?orderNo=" + orderPk);
-		return;
-	}else{
-	    out.println("<script>alert('주문 중 에러가 발생했습니다.'); history.go(-1);</script>");
-	}
+	String id = (String)session.getAttribute("loginIdListId");
+	   if(pointResult1 != 0
+	   ||pointResult2 != 0){
+	      //product no 에 해당하는 상품번호 장바구니에서 삭제
+	      for(int i=0; i<productNos.length; i+=1){
+	         CartDao cartDao = new CartDao();
+	         cartDao.deleteProductFromCart(Integer.parseInt(productNos[i]),id );
+	      }
+	      response.sendRedirect("orderProductOne.jsp?orderNo=" + orderPk);         
+	      return;
+	   }else{
+	       out.println("<script>alert('주문 중 에러가 발생했습니다.'); history.go(-1);</script>");
+	   }
 	
 	%>
 	
