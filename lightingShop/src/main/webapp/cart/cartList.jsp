@@ -93,7 +93,7 @@
                     %>
                             <tr>
                                <td >
-                                   <input type="checkbox" name="selectedProducts" value="<%= cartProduct.get("productNo") %>">                            
+                                   <input type="checkbox" name="selectedProducts" value="<%= cartProduct.get("productNo") %>" onchange="updateTotalPrice()">                            
                                </td>
                                <td> 
                                
@@ -130,11 +130,6 @@
 	                            </td>   
                             </tr>
                     <%
-                                // 각 상품의 가격을 누적하여 총 가격을 계산
-                                totalPrice += productTotalPrice;
-                    %>
-                    
-                    <% 
                         }
                     %>
                 </tbody>
@@ -144,7 +139,7 @@
         	
         	<tbody>
                 <tr>
-                	<td colspan="5">장바구니가 비었습니다.</td>
+                	<td colspan="5">cart is empty.</td>
                 </tr>
             </tbody>    
         <%
@@ -158,6 +153,8 @@
                     var quantity = parseInt(quantityElement.innerHTML);
                     quantity += 1;
                     quantityElement.innerHTML = quantity;
+                    
+                    updateTotalPrice(); // 수량이 변경될 때마다 총 가격 업데이트
                 }
             
                 function decreaseQuantity(productNo) {
@@ -167,6 +164,7 @@
                         quantity -= 1;
                         quantityElement.innerHTML = quantity;
                     }
+                    updateTotalPrice(); // 수량이 변경될 때마다 총 가격 업데이트
                 }
             </script>
             </div>
@@ -175,17 +173,36 @@
                 <div class="cart-summary">
                     <h5>Cart Total</h5>
                     <ul class="summary-table">
-                        <li><span>subtotal:</span> <span><%= totalPrice %>원</span></li>
                         <li><span>delivery:</span> <span>Free</span></li>
-                        <li><span>total:</span> <span><%= totalPrice %>원</span></li>
+                        <li><span>total:</span> <span class="total-price"><%= totalPrice %>원</span></li>
                     </ul>
                     <div class="cart-btn mt-100">
-                        <a href="<%=request.getContextPath()%>/customer/myPage.jsp" class="btn amado-btn w-100">login</a>
+                        <a href="<%=request.getContextPath()%>/customer/myPage.jsp" class="btn amado-btn w-100">Login</a>
                     </div>
                 </div>
             </div>
        </div>
+	   <script>
+	   function updateTotalPrice() {
+	        var checkboxes = document.getElementsByName("selectedProducts");
+	        var subPriceElement = document.querySelector(".sub-price"); // 클래스로 요소 선택
+	        var totalPriceElement = document.querySelector(".total-price"); // 클래스로 요소 선택
 
+	        var totalPrice = 0;
+	        for (var i = 0; i < checkboxes.length; i++) {
+	            if (checkboxes[i].checked) {
+	                var quantityElement = document.getElementById("quantity_" + checkboxes[i].value);
+	                var quantity = parseInt(quantityElement.innerHTML);
+	                var priceElement = checkboxes[i].closest("tr").querySelector(".price");
+	                var price = parseFloat(priceElement.innerText); // 문자열에서 가격 값을 추출
+	                totalPrice += quantity * price;
+	            }
+	        }
+
+	        subPriceElement.innerHTML = totalPrice + "원";
+	        totalPriceElement.innerHTML = totalPrice + "원";
+	    }   
+	   </script>
 <% 
 		} else {
             // 로그인된 사용자일 경우, 실제 데이터베이스에서 장바구니 정보를 가져와 출력
@@ -220,7 +237,7 @@
 		                   	%>
 		                            <tr>
 		                                <td>
-		                                    <input type="checkbox" name="selectedProducts" value="<%= cartProduct.get("productNo") %>">
+		                                    <input type="checkbox" name="selectedProducts" value="<%= cartProduct.get("productNo") %>" onchange="updateTotalPrice()">
 						 				</td>
 						 				<td>
 						 					<%
@@ -260,15 +277,12 @@
 		                            
 		        <%
 		                     int quantity =  (Integer)cartProduct.get("quantity");
-		                     int productTotalPrice =  quantity * (Integer)cartProduct.get("price") ;
-							
-		                            // 각 상품의 가격을 누적하여 총 가격을 계산
-		                    			totalPrice += productTotalPrice;
+		                    
 		                   	}
 		           		} else {
 		        %>
 		                <tr>
-		                	<td colspan="5">장바구니가 비었습니다.</td>
+		                	<td colspan="5">cart is empty.</td>
 		                </tr>
 		        <%
 		            }	
@@ -278,21 +292,26 @@
 		        </table>
 		       </div> 
 					<script>
-			            function increaseQuantity(productNo) {
-			                var quantityElement = document.getElementById("quantity_" + productNo);
-			                var quantity = parseInt(quantityElement.innerHTML);
-			                quantity += 1;
-			                quantityElement.innerHTML = quantity;
-			            }
-			        
-			            function decreaseQuantity(productNo) {
-			                var quantityElement = document.getElementById("quantity_" + productNo);
-			                var quantity = parseInt(quantityElement.innerHTML);
-			                if (quantity > 1) {
-			                    quantity -= 1;
-			                    quantityElement.innerHTML = quantity;
-			                }
-			            }
+					   function updateTotalPrice() {
+					        var checkboxes = document.getElementsByName("selectedProducts");
+					        var subPriceElement = document.querySelector(".sub-price"); // 클래스로 요소 선택
+					        var totalPriceElement = document.querySelector(".total-price"); // 클래스로 요소 선택
+
+					        var totalPrice = 0;
+					        for (var i = 0; i < checkboxes.length; i++) {
+					            if (checkboxes[i].checked) {
+					                var quantityElement = document.getElementById("quantity_" + checkboxes[i].value);
+					                var quantity = parseInt(quantityElement.innerHTML);
+					                var priceElement = checkboxes[i].closest("tr").querySelector(".price");
+					                var price = parseFloat(priceElement.innerText); // 문자열에서 가격 값을 추출
+					                totalPrice += quantity * price;
+					                subPrice += quantity * price;
+					            }
+					        }
+
+					        subPriceElement.innerHTML = totalPrice + "원";
+					        totalPriceElement.innerHTML = totalPrice + "원";
+					    } 
 			        </script>	
 			           
 		           </div>
@@ -300,9 +319,8 @@
 		                <div class="cart-summary">
 		                    <h5>Cart Total</h5>
 		                    <ul class="summary-table">
-		                        <li><span>subtotal:</span> <span><%= totalPrice %>원</span></li>
 		                        <li><span>delivery:</span> <span>Free</span></li>
-		                        <li><span>total:</span> <span><%= totalPrice %>원</span></li>
+		                        <li><span>total:</span>  <span class="total-price"><%= totalPrice %>원</span></li>
 		                    </ul>
 		                    <div class="cart-btn mt-100">
 		                    <!-- 주문서 제출을 위한 form -->
@@ -310,7 +328,7 @@
 							       <input type="hidden" name="productNo[]" value="">
     							   <input type="hidden" name="productCnt[]" value=""> 
 							   <div class="cart-btn mt-100">
-							      <button type="button" class="btn amado-btn w-100" onclick="submitOrder()">선택 상품 주문</button>
+							      <button type="button" class="btn amado-btn w-100" onclick="submitOrder()">Check Out</button>
 							   </div>
 							</form>
 		                   	<!-- submitOrder() 함수 -->
@@ -339,6 +357,24 @@
 
 								   form.submit();
 							}
+							
+						    function updateTotalPrice() {
+						        var checkboxes = document.getElementsByName("selectedProducts");
+						        var totalPriceElement = document.querySelector(".total-price"); // 클래스로 요소 선택
+
+						        var totalPrice = 0;
+						        for (var i = 0; i < checkboxes.length; i++) {
+						            if (checkboxes[i].checked) {
+						                var quantityElement = document.getElementById("quantity_" + checkboxes[i].value);
+						                var quantity = parseInt(quantityElement.innerHTML);
+						                var priceElement = checkboxes[i].closest("tr").querySelector(".price");
+						                var price = parseFloat(priceElement.innerText); // 문자열에서 가격 값을 추출
+						                totalPrice += quantity * price;
+						            }
+						        }
+
+						        totalPriceElement.innerHTML = totalPrice + "원";
+						    }
 							</script>
 							
 		                    </div>
@@ -348,6 +384,24 @@
 		                     
 		<%       
 		    } 
-		%>		
+		%>	
+	</div>
+    <!-- ##### Main Content Wrapper End ##### -->
+<!-- ##### Footer Area Start ##### -->
+    <div>
+      <jsp:include page="/inc/copyright.jsp"></jsp:include>
+   </div>
+<!-- ##### Footer Area End ##### -->
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <script src="<%=request.getContextPath()%>/resources/js/jquery/jquery-2.2.4.min.js"></script>
+    <!-- Popper js -->
+    <script src="<%=request.getContextPath()%>/resources/js/popper.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+    <!-- Plugins js -->
+    <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
+    <!-- Active js -->
+    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>			
 </body>
 </html>
