@@ -52,7 +52,7 @@ selector {
 
 
 a.product-name {
- font-family: 'Playfair Display', serif !important;
+ font-family: 'Montserrat', sans-serif !important;
   font-size: 16px !important;
   font-weight: bold !important;
   color: #333333 !important;
