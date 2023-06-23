@@ -30,17 +30,38 @@
     <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
     <!-- Title  -->
-    <title>Amado - Furniture Ecommerce Template | Cart</title>
+    <title>lighting shop</title>
 
     <!-- Favicon  -->
     <link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
-
+    
+    <!-- Google Fonts 링크 추가 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato&display=swap">
     <!-- Core Style CSS -->
     <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
 <style>
 
+selector {
+  property: value !important;
+}
 
+
+
+a.product-name {
+ font-family: 'Playfair Display', serif !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  color: #333333 !important;
+  text-decoration: underline !important;
+}
+
+td.price {
+  font-family: 'Lato', sans-serif !important;
+}
 td button {
   width: 30px;
   height: 30px;
@@ -57,7 +78,29 @@ td span {
   font-weight: bold;
 }
 
-    </style>
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cart-table th,
+.cart-table td {
+  padding: 10px;
+  text-align: center;
+}
+
+.cart-table input[type="checkbox"] {
+  display: block;
+  margin: 0 auto;
+}
+
+.cart-table tbody tr {
+  border-bottom: 1px solid #ccc; 
+}
+
+
+</style>
+
 </head>
 <body>
 <jsp:include page="/inc/header.jsp"></jsp:include>
@@ -86,13 +129,13 @@ td span {
 					        HashMap<String, Object> cart = (HashMap<String, Object>) session.getAttribute("cart");
 					%>
 					       <div class="cart-table clearfix">
-					        <table class="table table-responsive">
+					        <table class="cart-table">
 					         <thead>
-					            <tr>
-					                <th>check</th>
-					                <th>product</th>
-					                <th>price</th>
-					                <th>quantity</th>
+					            <tr style="background-color: black; color: white;">
+					                    <th style="color: white;">check</th>
+									    <th style="color: white;">product</th>
+									    <th style="color: white;">price</th>
+									    <th style="color: white;">quantity</th>
 					            </tr>
 					        </thead>
 					<%
@@ -134,7 +177,7 @@ td span {
 					                                        }
 					                                    %>  
 					                                
-					                			 		<a style="color: blue;" href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= cartProduct.get("productNo") %>"><%= cartProduct.get("productName") %></a>                			 
+					                			 		<a style="text-decoration: underline;" class="product-name" href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%= cartProduct.get("productNo") %>"><%= cartProduct.get("productName") %></a>                			 
 					                			 	</td>
 					                                <td class="price"><span><%= discountedPrice %>원</span></td>
 					                                <td>
@@ -233,17 +276,16 @@ td span {
 					               	<input type="hidden" name="cartOrder" value="cartOrder">
 					           	</div>
 							   <div class="cart-table clearfix">
-							        <table class="table table-responsive">
-							                <thead>
-							                    <tr>
-							                        <th>check</th>
-									                <th>product</th>
-									                <th>price</th>
-									                <th>quantity</th>
-					
-							                    </tr>
-							                </thead>
-							                <tbody>
+							 	 <table class="cart-table">
+			        				 <thead>
+							            <tr style="background-color: black; color: white;">
+							                    <th style="color: white;">check</th>
+											    <th style="color: white;">product</th>
+											    <th style="color: white;">price</th>
+											    <th style="color: white;">quantity</th>
+							            </tr>
+							        </thead>
+					                <tbody>
 							                    <%
 							                                      
 							                        for (HashMap<String, Object> cartProduct : cartList) {
@@ -271,9 +313,9 @@ td span {
 																<%	
 																	}
 																%>	         	                       
-							                                	<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>"><%= cartProduct.get("productName") %></a>
+							                                	<a class="product-name" style="text-decoration: underline;"  href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>"><%= cartProduct.get("productName") %></a>
 							                                </td>
-							                                <td class="price"><%= cartProduct.get("price") %>원</td>
+							                                <td class="product-price"><%= cartProduct.get("price") %>원</td>
 														    <td colspan="2" class="qty">
 															 	<button type="button" onclick="increaseQuantity('<%= productNo %>')">+</button>
 							                                    <span id="quantity_<%= productNo %>"><%= cartProduct.get("quantity") %></span>
@@ -282,7 +324,7 @@ td span {
 																<input type="hidden" name="productCnt[]" value="<%= cartProduct.get("quantity") %>">
 									                            <!-- 숨겨진 input 태그를 이용하여 수량을 배열로 전달 -->																
 															
-							           							 <a role="button" href="<%=request.getContextPath()%>/cart/removeCartAction.jsp?productNo=<%= cartProduct.get("productNo") %>&action=deleteData">X</a>
+							           							 <a style="color: red;" role="button" href="<%=request.getContextPath()%>/cart/removeCartAction.jsp?productNo=<%= cartProduct.get("productNo") %>&action=deleteData">&nbsp;X</a>
 							                                </td>
 					
 										                   
