@@ -73,17 +73,17 @@
 					if(session.getAttribute("loginIdListId") != null) {
 				%>
                     <!-- 내정보 상세보기 -->
-                    <li><a href="<%=request.getContextPath()%>/customer/customerOne.jsp">내정보 상세보기</a></li>
-					<!-- 배송지 관리 -->
-					<li><a href="<%=request.getContextPath()%>/customer/addressList.jsp">배송지 관리</a></li>
+                    <li><a href="<%=request.getContextPath()%>/customer/customerOne.jsp">Profile</a></li>
 					<!-- 포인트 내역 -->
-					<li><a href="<%=request.getContextPath()%>/customer/customerPointList.jsp">포인트 내역 확인</a></li>
-					<!-- 리뷰등록  -->
-					<li><a href="<%=request.getContextPath()%>/review/addReview.jsp">리뷰등록</a></li>
+					<li><a href="<%=request.getContextPath()%>/customer/customerPointList.jsp">point</a></li>
+					<!-- 배송지 관리 -->
+					<li><a href="<%=request.getContextPath()%>/customer/addressList.jsp">Your Addresses</a></li>
+					<!-- 나의 주문 내역  -->
+					<li><a href="<%=request.getContextPath()%>/orders/orderProductList.jsp">Your Orders</a></li>
+					<!-- 나의 리뷰 -->
+					<li><a href="<%=request.getContextPath()%>/review/myReview.jsp">Your Review</a></li>
 					<!-- 1:1 문의 -->
-					<li><a href="<%=request.getContextPath()%>/board/myQuestionList.jsp">1:1 문의</a></li>
-					<!-- 로그아웃 -->
-					<li><a href="<%=request.getContextPath()%>/customer/logoutAction.jsp">로그아웃</a></li>
+					<li><a href="<%=request.getContextPath()%>/board/myQuestionList.jsp">Contact Us</a></li>
 				<%
 					}
 				%>	

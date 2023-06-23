@@ -197,11 +197,8 @@
 <!-- 장바구니에 담기-->
 	                                <div class="ratings-cart text-right">
 	                                    <div class="ratings">
-	                                    	작성일 : <%= m.get("createdate") %>
+	                                    	<%= m.get("createdate") %>
 	                                    </div>
-	                                    <div class="cart">
-                                        	<a href=" <%=request.getContextPath()%>cart/cartList.html" data-toggle="tooltip" data-placement="left" title="Add to Cart"><img src="<%=request.getContextPath()%>/imgcore-img/cart.png"></a>
-                                    	</div>
                                     </div>
                                 </div>
                             </div>

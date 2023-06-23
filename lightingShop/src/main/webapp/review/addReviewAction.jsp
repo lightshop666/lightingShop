@@ -49,7 +49,9 @@
 	}
 
 	//업로드 파일이 jpg 파일이 아니면 리턴하겠다. cos.jar에서는 이미 파일이 들어온 이후다.--> 삭제 API import="java.io.File"
-	if(mRequest.getContentType("reviewFile").equals("image/jpeg") == false){
+	if(!mRequest.getContentType("reviewFile").equals("image/jpeg")
+			&&!mRequest.getContentType("reviewFile").equals("image/png")
+			){
 		//이미 저장된 파일 삭제
 		String saveFilename = mRequest.getFilesystemName("reviewFile");
 		System.out.println(saveFilename+ "<--saveFilename-- addReviewAction.jsp");
@@ -59,7 +61,7 @@
 
 		//파일을 삭제해줬으니 리턴시킨다.
 		response.sendRedirect(request.getContextPath()+"/review/addReview.jsp?orderProductNo=" + mRequest.getParameter("orderProductNo"));
-		System.out.println("업로드 파일이 jpg가 아니라 리턴합니다 <-- addReviewAction.jsp");
+		System.out.println("업로드 파일이 jpg, png가 아니라 리턴합니다 <-- addReviewAction.jsp");
 		return;
 	}
 	
