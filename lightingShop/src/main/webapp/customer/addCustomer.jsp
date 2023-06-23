@@ -72,7 +72,7 @@
 			        <div class="container">
 			            <div class="row justify-content-center">
 			                <div class="col-12 col-lg-10">
-			                	<div class="login-content">
+			                	<div class="login-content" >
 			                  
 				                  <h2>회원 가입</h2>
 									

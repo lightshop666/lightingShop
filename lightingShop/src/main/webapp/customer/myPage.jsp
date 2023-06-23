@@ -82,6 +82,10 @@
 
     <!-- Title  -->
     <title>Amado - MyPage</title>
+    
+    <!-- BootStrap5 -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Favicon  -->
     <link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
@@ -89,10 +93,7 @@
     <!-- Core Style CSS -->
     <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
-    <!-- BootStrap5 -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-	
+   
 	<!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -122,7 +123,7 @@
     
     	<!-- menu 좌측 bar -->
 	    <div>
-			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
+			<jsp:include page="/inc/menu.jsp"></jsp:include>
 		</div>
 
         <!-- Product Catagories Area Start -->
@@ -135,18 +136,18 @@
 				%>
 			 
 			<!-- [시작] 고객등급확인 및 이미지 출력 -->
-		    <section class="section-padding-100-0 border" style='margin-bottom: 50px; width: 80%; margin-left: auto; margin-right: auto;'>
+		    <section class="newsletter-area section-padding-100-0 border" style='margin-bottom: 50px; width: 80%; margin-left: auto; margin-right: auto; color:#FFFFFF;'>
 		        <div class="container">
 		            <div class="row align-items-center">
 		                <!-- Newsletter Text -->
-		                <div class="col-12 col-lg-6 col-xl-8">
-		                    <div class="newsletter-text mb-100">
-		                        <h3><span style="font-weight:bold; color:#000;"><%=customerOne.get("c.cstm_name") %></span>님의 등급은 <span style="font-weight:bold; color:#000;"><%=customerOne.get("c.cstm_rank") %>등급</span>&nbsp;입니다.</h3>
+		                <div class="col-12 col-lg-6 col-xl-9">
+		                    <div class="newsletter-text mb-100" style='margin-left: 50px;'>
+		                        <h4><span style="font-weight:bold; color:#FFFFFF;"><%=customerOne.get("c.cstm_name") %></span>님의 등급은 <span style="font-weight:bold; color:#FFFFFF;"><%=customerOne.get("c.cstm_rank") %>등급</span>&nbsp;입니다.</h4>
 		                    </div>
 		                </div>
 		                <!-- Newsletter Form -->
-		                <div class="col-12 col-lg-6 col-xl-4">
-		                    <div class="newsletter-form mb-100">
+		                <div class="col-12 col-lg-6 col-xl-3">
+		                    <div class="newsletter-form mb-100" style='margin-left: 0px;'>
 	                        	<!-- 아이콘 or 이미지 -->
 	                           <div><i class="fa fa-address-book-o" aria-hidden="true">&nbsp;배송지</i> </div>
 	                           <div> <i class="fa fa-money" aria-hidden="true">&nbsp;포인트</i></div>
@@ -160,12 +161,12 @@
 			 
 			
 			<!-- [시작] 진행중인 주문 확인 -->
-			 <section class="section-padding-50-0 border" style='margin-bottom: 50px; width: 80%; margin-left: auto; margin-right: auto;'>
+			 <section class="section border" style='margin-bottom: 50px; width: 80%; margin-left: auto; margin-right: auto; padding-top: 100px; padding-bottom: 0px;'>
 		        <div class="container">
 		            <div class="row align-items-center">
 		                <!-- Newsletter Text -->
-		                <div class="col-12 col-lg-6 col-xl-8">
-		                    <div class="newsletter-text mb-100">
+		                <div class="col-12 col-lg-6 col-xl-9">
+		                    <div class="newsletter-text mb-100" style='margin-left: 50px;'>
 		                        <% for(String status : Arrays.asList("주문확인중", "배송중", "배송시작", "배송완료" ,"구매확정")) { %>
 						          <% boolean found = false;
 						             int count = 0;
@@ -178,9 +179,8 @@
 						             }
 						
 						          %>
-						          	<div style="width: 33%;">
-						          	
-						            <h4><%=status%></h4>
+						          	<div style="width: 15%; display:inline-block; vertical-align: top; font-size: 15px;">
+						            <%=status%> <br>
 						            <% if(found) { %>
 						              <%=count %> 건
 						            <% } else { %>
@@ -191,23 +191,22 @@
 		                    </div>
 		                </div>
 		                <!-- Newsletter Form -->
-		                <div class="col-12 col-lg-6 col-xl-4">
-		                    <div class="newsletter-form mb-100">
-	                        	<div class="col-lg-3 col-xl-4 mb-100">
-				                    <div class="newsletter-form mb-100">
-				                    	<h4>취소완료/교환중</h4>
-				                    	<%
-				                    		int totalCancelledOrExchanged = 0;
-				                    		for(HashMap<String, Object> m : customerDelList) {
-				                    			 if(m.get("op.delivery_status").equals("취소완료") 
-				                    					 || m.get("op.delivery_status").equals("교환중")) { 
-				                    				 		totalCancelledOrExchanged += (int)m.get("cnt");
-				                    			 }
-				                    		}
-										%>
-				                    	<%=totalCancelledOrExchanged %> 건
-	                    			</div>
-			                	</div>   
+		                <div class="col-12 col-lg-6 col-xl-3">
+		                    <div class="newsletter-text mb-100" >
+				                    	
+			                    	<%
+			                    		int totalCancelledOrExchanged = 0;
+			                    		for(HashMap<String, Object> m : customerDelList) {
+			                    			 if(m.get("op.delivery_status").equals("취소완료") 
+			                    					 || m.get("op.delivery_status").equals("교환중")) { 
+			                    				 		totalCancelledOrExchanged += (int)m.get("cnt");
+			                    			 }
+			                    		}
+									%>
+									<div style="font-size: 15px">
+									취소완료/교환중 <br>
+			                    	<%=totalCancelledOrExchanged %> 건
+			                    	</div>
 		                    </div>
 		                </div>
 		            </div>
@@ -266,13 +265,40 @@
 		    </section>
 			<!-- [끝] 진행중인 주문 확인 -->   --%>
 			
-			
-			
-			<!-- [시작] 주문정보 표시 -->
-			
-			<!-- [끝] 주문정보 표시 -->
-		                    
-			 
+		    <!-- [시작] 주문정보 표시 -->
+		    <section class="section border" style='margin-bottom: 50px; width: 80%; margin-left: auto; margin-right: auto; padding-top: 100px; padding-bottom: 0px;'>
+		        <div class="container">
+		            <div class="row align-items-center">
+		                <!-- Newsletter Text -->
+		                <div class="col-12">
+		                    <div class="newsletter-text mb-100" style='margin: 0 auto;"'>              
+				 				<table class = "table " style=" width: 100%; table-layout: fixed;">
+	                            	<thread>
+	                            		<tr>
+	                            			<th>주문일</th>
+	                            			<th>주문가격</th>
+	                            		</tr>
+	                            	</thread>
+						                    <%
+				                            for (Orders o : orderList) {
+				                                int orderNo = o.getOrderNo();
+				                        	%>
+			                        <tbody>	
+			                        	<tr>
+			                        		<td><span ><%= o.getCreatedate() %> &nbsp; </span></td>
+			                        		<td><span ><%= o.getOrderPrice() %> &nbsp; </span></td>
+			                        	</tr>
+	                         		</tbody>
+	                            			<%
+											}
+	                            			%>
+	                            </table>
+			 				</div>
+			 			</div>
+			 		</div>
+			 	</div>
+			 </section>
+			 <!-- [끝] 주문정보 표시 -->
 								<%
 									} else { // 로그인 전이라면 로그인 폼
 								%>

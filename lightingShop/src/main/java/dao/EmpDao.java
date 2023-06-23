@@ -893,248 +893,321 @@ public class EmpDao {
 		}
 		
 		//----------------- e.문의관리------------------------
-	      
-	      // 1-1) 관리자 문의 list count -> 검색단어, 카테고리 선택에 따른 문의글 전체 수 (totalRow)
-	      public int selectQuestionCnt(String qCategory, String searchCategory, String searchWord, String aChk) throws Exception {
-	         int totalRow = 0;
-	         
-	         DBUtil dbUtil = new DBUtil();
-	         Connection conn = dbUtil.getConnection();
-	         String sql = "";
-	         PreparedStatement stmt = null;
-	         
-	         // 1) 셋다 null
-	         if(qCategory.equals("") && searchCategory.equals("") && aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question";
-	            stmt = conn.prepareStatement(sql);
-	         }
-	         // 2) 답변유무만 선택
-	         else if(qCategory.equals("") && searchCategory.equals("") && !aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question WHERE a_chk = ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, aChk);
-	         }
-	         // 3) qCategory만 선택
-	         else if(!qCategory.equals("") && searchCategory.equals("") && aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question WHERE q_category = ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	         }
-	         // 4) searchCategory : qName만 선택
-	         else if(searchCategory.equals("qName") && qCategory.equals("") && aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question question WHERE q_name LIKE ? ";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, "%"+searchWord+"%");
-	         }
-	         // 5) searchCategory : qtitleAndContent만 선택
-	         else if(searchCategory.equals("qtitleAndContent") && qCategory.equals("") && aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ? ";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, "%"+searchWord+"%");
-	         }
-	         // 6) qCategory + 답변유무
-	         else if(!qCategory.equals("") && searchCategory.equals("") && !aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND a_chk = ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	            stmt.setString(2, aChk);
-	         }
-	         // 7) searchCategory : qName + 답변유무
-	         else if(searchCategory.equals("qName") && qCategory.equals("") && !aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question question WHERE q_name LIKE ? AND a_chk = ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, "%"+searchWord+"%");
-	            stmt.setString(2, aChk);
-	         }
-	         // 8) searchCategory : qtitleAndContent + 답변유무
-	         else if(searchCategory.equals("qtitleAndContent") && qCategory.equals("") && !aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ? AND a_chk = ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, "%"+searchWord+"%");
-	            stmt.setString(2, aChk);
-	         }
-	         // 9) qCategory + searchCategory : qName
-	         else if(!qCategory.equals("") && searchCategory.equals("qName") && aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND q_name LIKE ? ";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	            stmt.setString(2, "%"+searchWord+"%");
-	         }
-	         // 10) qCategory + searchCategory : qtitleAndContent
-	         else if(!qCategory.equals("") && searchCategory.equals("qtitleAndContent") && aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ? ";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	            stmt.setString(2, "%"+searchWord+"%");
-	         }
-	         // 11) qCategory + searchCategory : qName + 답변유무
-	         else if(!qCategory.equals("") && searchCategory.equals("qName") && !aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND q_name LIKE ? AND a_chk = ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	            stmt.setString(2, "%"+searchWord+"%");
-	            stmt.setString(3, aChk);
-	         }
-	         // 12) qCategory + searchCategory : qtitleAndContent + 답변유무
-	         else if(!qCategory.equals("") && searchCategory.equals("qtitleAndContent") && !aChk.equals("")) {
-	            sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ? AND a_chk = ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	            stmt.setString(2, "%"+searchWord+"%");
-	            stmt.setString(3, aChk);
-	         }
-	         ResultSet rs = stmt.executeQuery();
-	         if(rs.next()) {
-	            totalRow = rs.getInt(1);
-	         }
-	         return totalRow;
-	      }
-	      
-	      // 문의글 리스트 조회 + 페이징, 검색단어(작성자,제목+내용), 카테고리 선택
-	      public ArrayList<Question> selectQuestionListByPage(int beginRow, int rowPerPage, String qCategory, String searchCategory, String searchWord, String aChk) throws Exception {
-	         ArrayList<Question> list = new ArrayList<>();
-	         
-	         DBUtil dbUtil = new DBUtil();
-	         Connection conn = dbUtil.getConnection();
-	         /*
-	            정렬 : 최신순 (생성일자 내림차순)
-	            선택 가능 값 : qCategory(select태그 사용), searchWord, aChk(select태그 사용)
-	            경우의 수 :
-	         */
-	         String sql = "";
-	         PreparedStatement stmt = null;
-	         
-	         // 1) 셋다 null
-	         if(qCategory.equals("") && searchCategory.equals("") && aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setInt(1, beginRow);
-	            stmt.setInt(2, rowPerPage);
-	         }
-	         // 2) 답변유무만 선택
-	         else if(qCategory.equals("") && searchCategory.equals("") && !aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question WHERE a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, aChk);
-	            stmt.setInt(2, beginRow);
-	            stmt.setInt(3, rowPerPage);
-	         }
-	         // 3) qCategory만 선택
-	         else if(!qCategory.equals("") && searchCategory.equals("") && aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question WHERE q_category = ? ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	            stmt.setInt(2, beginRow);
-	            stmt.setInt(3, rowPerPage);
-	         }
-	         // 4) searchCategory : qName만 선택
-	         else if(searchCategory.equals("qName") && qCategory.equals("") && aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question question WHERE q_name LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, "%"+searchWord+"%");
-	            stmt.setInt(2, beginRow);
-	            stmt.setInt(3, rowPerPage);
-	         }
-	         // 5) searchCategory : qtitleAndContent만 선택
-	         else if(searchCategory.equals("qtitleAndContent") && qCategory.equals("") && aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, "%"+searchWord+"%");
-	            stmt.setInt(2, beginRow);
-	            stmt.setInt(3, rowPerPage);
-	         }
-	         // 6) qCategory + 답변유무
-	         else if(!qCategory.equals("") && searchCategory.equals("") && !aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question WHERE q_category = ? AND a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	            stmt.setString(2, aChk);
-	            stmt.setInt(3, beginRow);
-	            stmt.setInt(4, rowPerPage);
-	         }
-	         // 7) searchCategory : qName + 답변유무
-	         else if(searchCategory.equals("qName") && qCategory.equals("") && !aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question question WHERE q_name LIKE ? AND a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, "%"+searchWord+"%");
-	            stmt.setString(2, aChk);
-	            stmt.setInt(3, beginRow);
-	            stmt.setInt(4, rowPerPage);
-	         }
-	         // 8) searchCategory : qtitleAndContent + 답변유무
-	         else if(searchCategory.equals("qtitleAndContent") && qCategory.equals("") && !aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ? AND a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, "%"+searchWord+"%");
-	            stmt.setString(2, aChk);
-	            stmt.setInt(3, beginRow);
-	            stmt.setInt(4, rowPerPage);
-	         }
-	         // 9) qCategory + searchCategory : qName
-	         else if(!qCategory.equals("") && searchCategory.equals("qName") && aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question WHERE q_category = ? AND q_name LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	            stmt.setString(2, "%"+searchWord+"%");
-	            stmt.setInt(3, beginRow);
-	            stmt.setInt(4, rowPerPage);
-	         }
-	         // 10) qCategory + searchCategory : qtitleAndContent
-	         else if(!qCategory.equals("") && searchCategory.equals("qtitleAndContent") && aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	            stmt.setString(2, "%"+searchWord+"%");
-	            stmt.setInt(3, beginRow);
-	            stmt.setInt(4, rowPerPage);
-	         }
-	         // 11) qCategory + searchCategory : qName + 답변유무
-	         else if(!qCategory.equals("") && searchCategory.equals("qName") && !aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question WHERE q_category = ? AND q_name LIKE ? AND a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	            stmt.setString(2, "%"+searchWord+"%");
-	            stmt.setString(3, aChk);
-	            stmt.setInt(4, beginRow);
-	            stmt.setInt(5, rowPerPage);
-	         }
-	         // 12) qCategory + searchCategory : qtitleAndContent + 답변유무
-	         else if(!qCategory.equals("") && searchCategory.equals("qtitleAndContent") && !aChk.equals("")) {
-	            sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
-	                  + " FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ? AND a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
-	            stmt = conn.prepareStatement(sql);
-	            stmt.setString(1, qCategory);
-	            stmt.setString(2, "%"+searchWord+"%");
-	            stmt.setString(3, aChk);
-	            stmt.setInt(4, beginRow);
-	            stmt.setInt(5, rowPerPage);
-	         }
-	         ResultSet rs = stmt.executeQuery();
-	         while(rs.next()) {
-	            Question q = new Question();
-	            q.setqNo(rs.getInt("qNo"));
-	            q.setId(rs.getString("id"));
-	            q.setqCategory(rs.getString("qCategory"));
-	            q.setqTitle(rs.getString("qTitle"));
-	            q.setqName(rs.getString("qName"));
-	            q.setaChk(rs.getString("aChk"));
-	            q.setPrivateChk(rs.getString("privateChk"));
-	            q.setCreatedate(rs.getString("createdate"));
-	            list.add(q);
-	         }
-	         return list;
-	      }
+		// 1-1) 관리자 문의 list count -> 검색단어, 카테고리 선택에 따른 문의글 전체 수 (totalRow) 
+		public int selectQuestionCnt(String qCategory, String searchCategory, String searchWord, String aChk) throws Exception { 
+		int totalRow = 0;  
+		String sql = "";
+        PreparedStatement stmt = null;
+        
+        DBUtil dbUtil = new DBUtil();
+        Connection conn = dbUtil.getConnection();
+        
+        // 1) 셋다 null
+        if(qCategory.equals("") && searchCategory.equals("") && aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question";
+           stmt = conn.prepareStatement(sql);
+        }
+        // 2) 답변유무만 선택
+        else if(qCategory.equals("") && searchCategory.equals("") && !aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question WHERE a_chk = ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, aChk);
+        }
+        // 3) qCategory만 선택
+        else if(!qCategory.equals("") && searchCategory.equals("") && aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question WHERE q_category = ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+        }
+        // 4) searchCategory : qName만 선택
+        else if(searchCategory.equals("qName") && qCategory.equals("") && aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question question WHERE q_name LIKE ? ";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, "%"+searchWord+"%");
+        }
+        // 5) searchCategory : qtitleAndContent만 선택
+        else if(searchCategory.equals("qtitleAndContent") && qCategory.equals("") && aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ? ";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, "%"+searchWord+"%");
+        }
+        // 6) qCategory + 답변유무
+        else if(!qCategory.equals("") && searchCategory.equals("") && !aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND a_chk = ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+           stmt.setString(2, aChk);
+        }
+        // 7) searchCategory : qName + 답변유무
+        else if(searchCategory.equals("qName") && qCategory.equals("") && !aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question question WHERE q_name LIKE ? AND a_chk = ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, "%"+searchWord+"%");
+           stmt.setString(2, aChk);
+        }
+        // 8) searchCategory : qtitleAndContent + 답변유무
+        else if(searchCategory.equals("qtitleAndContent") && qCategory.equals("") && !aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ? AND a_chk = ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, "%"+searchWord+"%");
+           stmt.setString(2, aChk);
+        }
+        // 9) qCategory + searchCategory : qName
+        else if(!qCategory.equals("") && searchCategory.equals("qName") && aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND q_name LIKE ? ";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+           stmt.setString(2, "%"+searchWord+"%");
+        }
+        // 10) qCategory + searchCategory : qtitleAndContent
+        else if(!qCategory.equals("") && searchCategory.equals("qtitleAndContent") && aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ? ";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+           stmt.setString(2, "%"+searchWord+"%");
+        }
+        // 11) qCategory + searchCategory : qName + 답변유무
+        else if(!qCategory.equals("") && searchCategory.equals("qName") && !aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND q_name LIKE ? AND a_chk = ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+           stmt.setString(2, "%"+searchWord+"%");
+           stmt.setString(3, aChk);
+        }
+        // 12) qCategory + searchCategory : qtitleAndContent + 답변유무
+        else if(!qCategory.equals("") && searchCategory.equals("qtitleAndContent") && !aChk.equals("")) {
+           sql = "SELECT COUNT(*) FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ? AND a_chk = ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+           stmt.setString(2, "%"+searchWord+"%");
+           stmt.setString(3, aChk);
+        }
+        ResultSet rs = stmt.executeQuery();
+        if(rs.next()) {
+           totalRow = rs.getInt(1);
+        }
+        return totalRow;
+     }
+     
+     // 문의글 리스트 조회 + 페이징, 검색단어(작성자,제목+내용), 카테고리 선택
+     public ArrayList<Question> selectQuestionListByPage(int beginRow, int rowPerPage, String qCategory, String searchCategory, String searchWord, String aChk) throws Exception {
+        ArrayList<Question> list = new ArrayList<>();
+        
+        DBUtil dbUtil = new DBUtil();
+        Connection conn = dbUtil.getConnection();
+        /*
+           정렬 : 최신순 (생성일자 내림차순)
+           선택 가능 값 : qCategory(select태그 사용), searchWord, aChk(select태그 사용)
+           경우의 수 :
+        */
+        String sql = "";
+        PreparedStatement stmt = null;
+        
+        // 1) 셋다 null
+        if(qCategory.equals("") && searchCategory.equals("") && aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setInt(1, beginRow);
+           stmt.setInt(2, rowPerPage);
+        }
+        // 2) 답변유무만 선택
+        else if(qCategory.equals("") && searchCategory.equals("") && !aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question WHERE a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, aChk);
+           stmt.setInt(2, beginRow);
+           stmt.setInt(3, rowPerPage);
+        }
+        // 3) qCategory만 선택
+        else if(!qCategory.equals("") && searchCategory.equals("") && aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question WHERE q_category = ? ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+           stmt.setInt(2, beginRow);
+           stmt.setInt(3, rowPerPage);
+        }
+        // 4) searchCategory : qName만 선택
+        else if(searchCategory.equals("qName") && qCategory.equals("") && aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question question WHERE q_name LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, "%"+searchWord+"%");
+           stmt.setInt(2, beginRow);
+           stmt.setInt(3, rowPerPage);
+        }
+        // 5) searchCategory : qtitleAndContent만 선택
+        else if(searchCategory.equals("qtitleAndContent") && qCategory.equals("") && aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, "%"+searchWord+"%");
+           stmt.setInt(2, beginRow);
+           stmt.setInt(3, rowPerPage);
+        }
+        // 6) qCategory + 답변유무
+        else if(!qCategory.equals("") && searchCategory.equals("") && !aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question WHERE q_category = ? AND a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+           stmt.setString(2, aChk);
+           stmt.setInt(3, beginRow);
+           stmt.setInt(4, rowPerPage);
+        }
+        // 7) searchCategory : qName + 답변유무
+        else if(searchCategory.equals("qName") && qCategory.equals("") && !aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question question WHERE q_name LIKE ? AND a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, "%"+searchWord+"%");
+           stmt.setString(2, aChk);
+           stmt.setInt(3, beginRow);
+           stmt.setInt(4, rowPerPage);
+        }
+        // 8) searchCategory : qtitleAndContent + 답변유무
+        else if(searchCategory.equals("qtitleAndContent") && qCategory.equals("") && !aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question WHERE CONCAT(q_title,' ',q_content) LIKE ? AND a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, "%"+searchWord+"%");
+           stmt.setString(2, aChk);
+           stmt.setInt(3, beginRow);
+           stmt.setInt(4, rowPerPage);
+        }
+        // 9) qCategory + searchCategory : qName
+        else if(!qCategory.equals("") && searchCategory.equals("qName") && aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question WHERE q_category = ? AND q_name LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+           stmt.setString(2, "%"+searchWord+"%");
+           stmt.setInt(3, beginRow);
+           stmt.setInt(4, rowPerPage);
+        }
+        // 10) qCategory + searchCategory : qtitleAndContent
+        else if(!qCategory.equals("") && searchCategory.equals("qtitleAndContent") && aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ? ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+           stmt.setString(2, "%"+searchWord+"%");
+           stmt.setInt(3, beginRow);
+           stmt.setInt(4, rowPerPage);
+        }
+        // 11) qCategory + searchCategory : qName + 답변유무
+        else if(!qCategory.equals("") && searchCategory.equals("qName") && !aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question WHERE q_category = ? AND q_name LIKE ? AND a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+           stmt.setString(2, "%"+searchWord+"%");
+           stmt.setString(3, aChk);
+           stmt.setInt(4, beginRow);
+           stmt.setInt(5, rowPerPage);
+        }
+        // 12) qCategory + searchCategory : qtitleAndContent + 답변유무
+        else if(!qCategory.equals("") && searchCategory.equals("qtitleAndContent") && !aChk.equals("")) {
+           sql = "SELECT q_no qNo, id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate"
+                 + " FROM question WHERE q_category = ? AND CONCAT(q_title,' ',q_content) LIKE ? AND a_chk = ? ORDER BY createdate DESC LIMIT ?, ?";
+           stmt = conn.prepareStatement(sql);
+           stmt.setString(1, qCategory);
+           stmt.setString(2, "%"+searchWord+"%");
+           stmt.setString(3, aChk);
+           stmt.setInt(4, beginRow);
+           stmt.setInt(5, rowPerPage);
+        }
+        ResultSet rs = stmt.executeQuery();
+        while(rs.next()) {
+           Question q = new Question();
+           q.setqNo(rs.getInt("qNo"));
+           q.setId(rs.getString("id"));
+           q.setqCategory(rs.getString("qCategory"));
+           q.setqTitle(rs.getString("qTitle"));
+           q.setqName(rs.getString("qName"));
+           q.setaChk(rs.getString("aChk"));
+           q.setPrivateChk(rs.getString("privateChk"));
+           q.setCreatedate(rs.getString("createdate"));
+           list.add(q);
+        }
+        return list;
+     }
+		
+		/*
+		 * // 1-1) 관리자 문의 list count -> 검색단어, 카테고리 선택에 따른 문의글 전체 수 (totalRow) public int
+		 * selectQuestionCnt(String qCategory, String searchCategory, String searchWord,
+		 * String aChk) throws Exception { int totalRow = 0;
+		 * 
+		 * DBUtil dbUtil = new DBUtil(); Connection conn = dbUtil.getConnection();
+		 * 
+		 * String sql = "SELECT COUNT(*) FROM question WHERE 1=1"; // 1) qCategory만 선택
+		 * if(!qCategory.equals("")) { sql += " AND q_category = ?"; } // 2)
+		 * searchCategory가 qName일 때 if(searchCategory.equals("qName")) { sql +=
+		 * " AND q_name LIKE ?"; } // 3) searchCategory가 qtitleAndContent일 때
+		 * if(searchCategory.equals("qtitleAndContent")) { sql +=
+		 * " AND CONCAT(q_title,' ',q_content) LIKE ?"; }
+		 * 
+		 * //4) aChk if(aChk != null && !aChk.isEmpty()) {
+		 * if(aChk.equalsIgnoreCase("Y")){ // add condition to include only questions
+		 * with answers sql+=
+		 * "AND EXISTS (SELECT * FROM answer WHERE question.id = answer.id)"; } else if
+		 * (aChk.equalsIgnoreCase("N")){ // add condition to exclude questions with
+		 * answers sql+=
+		 * "AND NOT EXISTS(SELECT * FROM answer WHERE question.id = answer.id)"; } }
+		 * 
+		 * 
+		 * PreparedStatement stmt = conn.prepareStatement(sql); int parameterIndex = 1;
+		 * // 물음표 인덱스 // 1) if(!qCategory.equals("")) { stmt.setString(parameterIndex++,
+		 * qCategory); } // 2) if(searchCategory.equals("qName")) {
+		 * stmt.setString(parameterIndex++, "%"+searchWord+"%"); } // 3)
+		 * if(searchCategory.equals("qtitleAndContent")) {
+		 * stmt.setString(parameterIndex++, "%"+searchWord+"%"); }
+		 * 
+		 * ResultSet rs = stmt.executeQuery(); if(rs.next()) { totalRow = rs.getInt(1);
+		 * } return totalRow; }
+		 * 
+		 * // 1-2) 문의글 전체 리스트 조회 + 페이징, 검색단어(작성자,제목+내용), 문의 유형 카테고리 선택, 답변 유무 public
+		 * ArrayList<Question> selectQuestionListByPage(int beginRow, int rowPerPage,
+		 * String qCategory, String searchCategory, String searchWord, String aChk)
+		 * throws Exception { ArrayList<Question> list = new ArrayList<>();
+		 * 
+		 * DBUtil dbUtil = new DBUtil(); Connection conn = dbUtil.getConnection();
+		 * 
+		 * String sql =
+		 * "SELECT q_no qNo, id id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate createdate FROM question WHERE 1=1"
+		 * ; // 1) qCategory만 선택 if(!qCategory.equals("")) { sql +=
+		 * " AND q_category = ?"; } // 2) searchCategory가 qName일 때
+		 * if(searchCategory.equals("qName")) { sql += " AND q_name LIKE ?"; } // 3)
+		 * searchCategory가 qtitleAndContent일 때
+		 * if(searchCategory.equals("qtitleAndContent")) { sql +=
+		 * " AND CONCAT(q_title,' ',q_content) LIKE ?"; } //4) aChk if(aChk != null &&
+		 * !aChk.isEmpty()) { if(aChk.equalsIgnoreCase("Y")){ // add condition to
+		 * include only questions with answers sql+=
+		 * "AND EXISTS (SELECT * FROM answer WHERE question.id = answer.id)"; } else if
+		 * (aChk.equalsIgnoreCase("N")){ // add condition to exclude questions with
+		 * answers sql+=
+		 * "AND NOT EXISTS(SELECT * FROM answer WHERE question.id = answer.id)"; } }
+		 * 
+		 * // 5) 정렬(신상품순), 페이징 sql += " ORDER BY createdate DESC LIMIT ?, ?";
+		 * 
+		 * PreparedStatement stmt = conn.prepareStatement(sql); int parameterIndex = 1;
+		 * // 물음표 인덱스 // 1) if(!qCategory.equals("")) { stmt.setString(parameterIndex++,
+		 * qCategory); } // 2) if(searchCategory.equals("qName")) {
+		 * stmt.setString(parameterIndex++, "%"+searchWord+"%"); } // 3)
+		 * if(searchCategory.equals("qtitleAndContent")) {
+		 * stmt.setString(parameterIndex++, "%"+searchWord+"%"); } // 4)
+		 * stmt.setInt(parameterIndex++, beginRow); stmt.setInt(parameterIndex++,
+		 * rowPerPage);
+		 * 
+		 * ResultSet rs = stmt.executeQuery(); while(rs.next()) { Question q = new
+		 * Question(); q.setqNo(rs.getInt("qNo")); q.setId(rs.getString("id"));
+		 * q.setqCategory(rs.getString("qCategory"));
+		 * q.setqTitle(rs.getString("qTitle")); q.setqName(rs.getString("qName"));
+		 * q.setaChk(rs.getString("aChk")); q.setPrivateChk(rs.getString("privateChk"));
+		 * q.setCreatedate(rs.getString("createdate")); list.add(q); } return list; }
+		 */
 	      
 	      // 2) QuestionOne (문의내용 + 답변내용 + 상품이름 + 상품이미지 join)
 	      public HashMap<String, Object> selectQuestionOne(int qNo) throws Exception {
