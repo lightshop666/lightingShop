@@ -30,7 +30,7 @@
                     <li>
                     <!-- 비로그인 : 회원가입 버튼 / 로그인 : 로그아웃 버튼-->
 			<%//비로그인 : 회원가입
-						if(session.getAttribute("loginMemberId") == null) {//로그인 전
+						if(session.getAttribute("loginIdListId") == null) {//로그인 전
 			%>
 							<a class="nav-link" href="<%=request.getContextPath()%>/customer/addCustomer.jsp">
 								Join
@@ -49,7 +49,7 @@
                     <li>
                     <!-- 비로그인 : 로그인 버튼 / 로그인 : 마이페이지 버튼-->
 				<%	//비로그인 : 로그인
-						if(session.getAttribute("loginMemberId") == null) { // 로그인전
+						if(session.getAttribute("loginIdListId") == null) { // 로그인전
 				%>
 							<a class="nav-link" href="<%=request.getContextPath()%>/customer/myPage.jsp">
 								Login
@@ -80,8 +80,8 @@
 					<li><a href="<%=request.getContextPath()%>/customer/customerPointList.jsp">포인트 내역 확인</a></li>
 					<!-- 리뷰등록  -->
 					<li><a href="<%=request.getContextPath()%>/review/addReview.jsp">리뷰등록</a></li>
-					<!-- 문의등록 -->
-					<li><a href="<%=request.getContextPath()%>/board/addQuestion.jsp">문의등록</a></li>
+					<!-- 1:1 문의 -->
+					<li><a href="<%=request.getContextPath()%>/board/myQuestionList.jsp">1:1 문의</a></li>
 					<!-- 로그아웃 -->
 					<li><a href="<%=request.getContextPath()%>/customer/logoutAction.jsp">로그아웃</a></li>
 				<%

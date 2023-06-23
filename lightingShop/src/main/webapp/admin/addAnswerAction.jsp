@@ -6,6 +6,7 @@
 	//인코딩
 	request.setCharacterEncoding("utf-8");
 	
+	String loginIdListId = "admin";
 	/* // 관리자인 경우에만 접근 허용
 	if(session.getAttribute("loginIdListId") == null
 		|| session.getAttribute("loginIdListEmpLevel").equals("1") 
@@ -14,6 +15,8 @@
 		response.sendRedirect(request.getContextPath()+"/home.jsp");
 		return;
 	}  */
+	
+	
 	
 	// 유효성
 	if(request.getParameter("qNo") == null
@@ -26,7 +29,8 @@
 	
 	// 변수값 받기
 	int qNo = Integer.parseInt(request.getParameter("qNo"));
-	String id = (String)session.getAttribute("loginIdListId");
+	String id = loginIdListId;
+	// String id = (String)session.getAttribute("loginIdListId");
 	String aContent = request.getParameter("aContent");
 	
 	// Answer 객체 생성 
@@ -36,7 +40,10 @@
 	answer.setaContent(aContent);
 	// 객체 생성 및 메서드 호출
 	EmpDao eDao = new EmpDao();
+	// 댓글 삽입
 	int insertAnswer = eDao.insertAnswer(answer);
+	// 답변 등록시 답변유무 Y로 변경
+	int modifyQuestion = eDao.modifyQuestion(answer);
 	
 	if(insertAnswer == 1) {
 		System.out.println("답변 입력 성공");

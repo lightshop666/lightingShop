@@ -278,7 +278,7 @@
 			if (minPage > 1) {
 		%>
 			<li class="page-item">
-				<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage-1%>">이전</a>
+				<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage-1%>&rowPerPage=<%=rowPerPage%>&qCategory=<%=qCategory%>&searchCategory=<%=searchCategory%>&searchWord=<%=searchWord%>&aChk=<%=aChk%>">이전</a>
 			</li>
 		<%	
 			}
@@ -292,7 +292,7 @@
 				}else{
 		%>
 				<li class="page-item">
-					<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=i%>"><%=i %></a>
+					<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=i%>&rowPerPage=<%=rowPerPage%>&qCategory=<%=qCategory%>&searchCategory=<%=searchCategory%>&searchWord=<%=searchWord%>&aChk=<%=aChk%>"><%=i %></a>
 				</li>
 		<%
 				}
@@ -301,7 +301,7 @@
 			if(maxPage != lastPage ){
 		%>
 			<li class="page-item">	
-				<a href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage+1%>">다음</a>
+				<a href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage+1%>&rowPerPage=<%=rowPerPage%>&qCategory=<%=qCategory%>&searchCategory=<%=searchCategory%>&searchWord=<%=searchWord%>&aChk=<%=aChk%>">다음</a>
 			</li>
 		<%
 			}

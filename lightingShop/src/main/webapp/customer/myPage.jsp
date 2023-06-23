@@ -135,17 +135,17 @@
 				%>
 			 
 			<!-- [시작] 고객등급확인 및 이미지 출력 -->
-		    <section class="section-padding-100-0 border" style='margin-bottom: 50px;'>
+		    <section class="section-padding-100-0 border" style='margin-bottom: 50px; width: 80%; margin-left: auto; margin-right: auto;'>
 		        <div class="container">
 		            <div class="row align-items-center">
 		                <!-- Newsletter Text -->
-		                <div class="col-12 col-lg-6 col-xl-7">
+		                <div class="col-12 col-lg-6 col-xl-8">
 		                    <div class="newsletter-text mb-100">
-		                        <h3>고객님의 등급은 <span><%=customerOne.get("c.cstm_rank") %>회원등급</span>&nbsp;입니다.</h3>
+		                        <h3><span style="font-weight:bold; color:#000;"><%=customerOne.get("c.cstm_name") %></span>님의 등급은 <span style="font-weight:bold; color:#000;"><%=customerOne.get("c.cstm_rank") %>등급</span>&nbsp;입니다.</h3>
 		                    </div>
 		                </div>
 		                <!-- Newsletter Form -->
-		                <div class="col-12 col-lg-6 col-xl-5">
+		                <div class="col-12 col-lg-6 col-xl-4">
 		                    <div class="newsletter-form mb-100">
 	                        	<!-- 아이콘 or 이미지 -->
 	                           <div><i class="fa fa-address-book-o" aria-hidden="true">&nbsp;배송지</i> </div>
@@ -158,128 +158,118 @@
 		    </section>
 		    <!-- [끝] 고객등급확인 및 이미지 출력 -->
 			 
-			 
 			
 			<!-- [시작] 진행중인 주문 확인 -->
-			 <section class=" section-padding-100-0 border">
+			 <section class="section-padding-50-0 border" style='margin-bottom: 50px; width: 80%; margin-left: auto; margin-right: auto;'>
 		        <div class="container">
 		            <div class="row align-items-center">
 		                <!-- Newsletter Text -->
-		                <div class="col-12 col-lg-6 col-xl-9">
+		                <div class="col-12 col-lg-6 col-xl-8">
 		                    <div class="newsletter-text mb-100">
-		                    	<h3>주문확인중/배송중/배송시작/배송완료/구매확정</h3>
-		                    	<%
-		                    		for(HashMap<String, Object> m : customerDelList) {
-		                    			 if(m.get("op.delivery_status").equals("주문확인중")) { 
-		                    	%>
-										<%=m.get("cnt") %> 건
-								<%
-		                    			 }
-		                    		}
-								%>
-								
-								<%
-		                    		for(HashMap<String, Object> m : customerDelList) {
-		                    			 if(m.get("op.delivery_status").equals("배송중")) { 
-		                    	%>
-										<%=m.get("cnt") %> 건
-								<%
-		                    			 }
-		                    		}
-								%>
-								
-								<%
-		                    		for(HashMap<String, Object> m : customerDelList) {
-		                    			 if(m.get("op.delivery_status").equals("배송시작")) { 
-		                    	%>
-										<%=m.get("cnt") %> 건
-								<%
-		                    			 }
-		                    		}
-								%>
-								
-								<%
-		                    		for(HashMap<String, Object> m : customerDelList) {
-		                    			 if(m.get("op.delivery_status").equals("배송완료")) { 
-		                    	%>
-										<%=m.get("cnt") %> 건
-								<%
-		                    			 }
-		                    		}
-								%>
-								
-								<%
-		                    		for(HashMap<String, Object> m : customerDelList) {
-		                    			 if(m.get("op.delivery_status").equals("구매확정")) { 
-		                    	%>
-										<%=m.get("cnt") %> 건
-								<%
-		                    			 }
-		                    		}
-								%>
-											
+		                        <% for(String status : Arrays.asList("주문확인중", "배송중", "배송시작", "배송완료" ,"구매확정")) { %>
+						          <% boolean found = false;
+						             int count = 0;
+						
+						             for(HashMap<String, Object> m : customerDelList) {
+						                 if(m.get("op.delivery_status").equals(status)) { 
+						                     found = true;
+						                     count += (int)m.get("cnt");
+						                 }
+						             }
+						
+						          %>
+						          	<div style="width: 33%;">
+						          	
+						            <h4><%=status%></h4>
+						            <% if(found) { %>
+						              <%=count %> 건
+						            <% } else { %>
+						              0 건
+						            <% } %> 
+									</div>
+						        <% } %> 
 		                    </div>
 		                </div>
 		                <!-- Newsletter Form -->
-		                <div class="col-12 col-lg-6 col-xl-3">
+		                <div class="col-12 col-lg-6 col-xl-4">
 		                    <div class="newsletter-form mb-100">
-		                    	<h3>취소완료/교환중</h3>
-		                    	
-		                    	<%
-		                    		int totalCancelledOrExchanged = 0;
-		                    		for(HashMap<String, Object> m : customerDelList) {
-		                    			 if(m.get("op.delivery_status").equals("취소완료") 
-		                    					 || m.get("op.delivery_status").equals("교환중")) { 
-		                    				 		totalCancelledOrExchanged += (int)m.get("cnt");
-		                    			 }
-		                    		}
-								%>
-		                    		<%=totalCancelledOrExchanged %> 건
+	                        	<div class="col-lg-3 col-xl-4 mb-100">
+				                    <div class="newsletter-form mb-100">
+				                    	<h4>취소완료/교환중</h4>
+				                    	<%
+				                    		int totalCancelledOrExchanged = 0;
+				                    		for(HashMap<String, Object> m : customerDelList) {
+				                    			 if(m.get("op.delivery_status").equals("취소완료") 
+				                    					 || m.get("op.delivery_status").equals("교환중")) { 
+				                    				 		totalCancelledOrExchanged += (int)m.get("cnt");
+				                    			 }
+				                    		}
+										%>
+				                    	<%=totalCancelledOrExchanged %> 건
+	                    			</div>
+			                	</div>   
 		                    </div>
 		                </div>
 		            </div>
 		        </div>
 		    </section>
-			<!-- [끝] 진행중인 주문 확인 -->  
+			<!-- [끝] 진행중인 주문 확인 -->
+			
+			<%--  <!-- [시작] 진행중인 주문 확인 -->
+		     <section class="section-padding-100-0 border" style='margin-bottom: 50px; width: 80%; margin-left: auto; margin-right: auto;'>
+				<div class="container">
+					<div class="row align-items-center">
+		                <!-- Newsletter Text -->
+      					<div class="col-lg-9 col-xl-8 mb-100" style="display: flex; flex-wrap: wrap;">
+		                
+		                <% for(String status : Arrays.asList("주문확인중", "배송중", "배송시작", "배송완료" ,"구매확정")) { %>
+				          <% boolean found = false;
+				             int count = 0;
+				
+				             for(HashMap<String, Object> m : customerDelList) {
+				                 if(m.get("op.delivery_status").equals(status)) { 
+				                     found = true;
+				                     count += (int)m.get("cnt");
+				                 }
+				             }
+				
+				          %>
+				          	<div style="width: 33%;">
+				          	
+				            <h4><%=status%></h4>
+				            <% if(found) { %>
+				              <%=count %> 건
+				            <% } else { %>
+				              0 건
+				            <% } %> 
+							</div>
+				        <% } %> 
+			                <!-- Newsletter Form -->
+			                <div class="col-lg-3 col-xl-4 mb-100">
+			                    <div class="newsletter-form mb-100">
+			                    	<h4>취소완료/교환중</h4>
+			                    	<%
+			                    		int totalCancelledOrExchanged = 0;
+			                    		for(HashMap<String, Object> m : customerDelList) {
+			                    			 if(m.get("op.delivery_status").equals("취소완료") 
+			                    					 || m.get("op.delivery_status").equals("교환중")) { 
+			                    				 		totalCancelledOrExchanged += (int)m.get("cnt");
+			                    			 }
+			                    		}
+									%>
+			                    	<%=totalCancelledOrExchanged %> 건
+                    			</div>
+		                	</div>   
+		            	</div> 	
+		            </div>
+		        </div>
+		    </section>
+			<!-- [끝] 진행중인 주문 확인 -->   --%>
 			
 			
-			<!-- // 세션으로부터 고객별 묶어놓은 데이터 가져오기
-               	HashMap<String, Object> delData = (HashMap)session.getAttribute("customerDelivery");
-               	
-               	for (String key : delData.keySet()) {
-               		if(key.equals(id)) {
-               			
-								out.println("<br><br>");
-                     			out.println("<table style='width:100%'>");   
-                     			
-                     			for(Map.Entry m : ((HashMap<String,Integer>)delData.get(key)).entrySet()){    
-                            Integer value=(Integer)m.getValue();
-                            switch((String)m.getKey()){
-                                case "주문확인중":
-                                    out.print("<tr><td width='14%' style='text-align:left;'>주문확인중</td>");
-                                    break;
-                                case "배송중":
-                                    out.print("<tr><td width='14%' style='text-align:left;'>배송중</td>");
-                                     break;
-                                case "배송시작":
-                                	out.print("<tr><td width='14%' style='text-align:left;'>배송시작</td>");
-                                     break;
-                                case "배송완료":
-                                	out.print("<tr><td width='14%' style='text-align:left;'>배송완료</td>");
-                                     break;
-                                case "구매확정":
-                                	out.print("<tr><td width='14%' style='text-align:left;'>구매확정</td>");
-                                     break;
-                            }
-                     	}
-                     			out.println("</table>");   
-               		}
-               	} -->
 			
-			 
-			 
 			<!-- [시작] 주문정보 표시 -->
-			<!-- 주문정보 표시 -->
+			
 			<!-- [끝] 주문정보 표시 -->
 		                    
 			 

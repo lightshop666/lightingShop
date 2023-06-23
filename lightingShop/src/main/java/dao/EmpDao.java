@@ -1235,7 +1235,20 @@ public class EmpDao {
 	         return insertAnswer;
 	      }
 	      
-	      // 4-2) answerInsert 체크 -> q_no 조회로 답변유무 체크
+	      // 4-2) 답변등록시 question 테이블의 답변유무 변경
+	      public int modifyQuestion(Answer answer) throws Exception {
+	         DBUtil dbUtil = new DBUtil();
+	         Connection conn = dbUtil.getConnection();
+	         
+	         int modifyQuestion = 0;
+	         String sql = "UPDATE question SET a_chk = 'Y' WHERE q_no = ?";
+	         PreparedStatement stmt = conn.prepareStatement(sql);
+	         stmt.setInt(1, answer.getqNo() );
+	         modifyQuestion = stmt.executeUpdate();
+	         return modifyQuestion;
+	      }
+	      
+	      // 4-3) answerInsert 체크 -> q_no 조회로 답변유무 체크
 	      public boolean answerInsertCheck(int qNo) throws Exception {
 	         DBUtil dbUtil = new DBUtil();
 	         Connection conn = dbUtil.getConnection();

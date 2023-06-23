@@ -144,6 +144,10 @@ img {
 .section-padding-100-0 {
   padding-top: 100px;
   padding-bottom: 0; }
+  
+.section-padding-50-0 {
+  padding-top: 50px;
+  padding-bottom: 0; }
 
 .section-padding-0-100 {
   padding-top: 0;

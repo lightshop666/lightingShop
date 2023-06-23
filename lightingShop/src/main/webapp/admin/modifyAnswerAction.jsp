@@ -6,6 +6,7 @@
 	//인코딩
 	request.setCharacterEncoding("utf-8");
 	
+	String loginIdListId = "admin";
 	/* // 관리자인 경우에만 접근 허용
 	if(session.getAttribute("loginIdListId") == null
 		|| session.getAttribute("loginIdListEmpLevel").equals("1") 
@@ -26,7 +27,8 @@
 	
 	// 변수값 받기
 	int qNo = Integer.parseInt(request.getParameter("qNo"));
-	String id = (String)session.getAttribute("loginIdListId");
+	String id = loginIdListId;
+	// String id = (String)session.getAttribute("loginIdListId");
 	String aContent = request.getParameter("aContent");
 	
 	// Answer 객체 생성 
@@ -43,5 +45,5 @@
 	} else {
 		System.out.println("답변 수정 실패");
 	}
-	response.sendRedirect(request.getContextPath()+"/admin/modifyAnswer.jsp");
+	response.sendRedirect(request.getContextPath()+"/admin/addAnswer.jsp");
 %>
