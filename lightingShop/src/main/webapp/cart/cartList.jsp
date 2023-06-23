@@ -192,22 +192,18 @@ td span {
 						                            </td> 
 					                            </tr>
 					                    <%
-					                        }
-					                    %>
-					                </tbody>
-					                        <%
-					           } else {
-					        %>
+					                        }				                
+					           			} else {
+					       				 %>
 					        	
-					        	<tbody>
-					                <tr>
-					                	<td colspan="5">cart is empty.</td>
-					                </tr>
-					            </tbody>    
+					        				 <tr>
+							                	<td colspan="5" style="text-align: center;" >cart is empty.</td>
+							                </tr>  							                
 					        <%
 					           }
 					    
 					    	 %>  
+					    	 		</tbody>
 					           </table>
 					            <script>
 					                function increaseQuantity(productNo) {
@@ -267,25 +263,27 @@ td span {
 							} else {
 					            // 로그인된 사용자일 경우, 실제 데이터베이스에서 장바구니 정보를 가져와 출력
 					            // 장바구니에 담긴 각 상품에 대한 정보를 표시         
-					            int totalPrice = 0; // 총 가격을 누적하기 위한 변수 
+					            int totalPrice = 0; // 총 가격을 누적하기 위한 변수 4
+					            %>
+					       <div>
+				               	<input type="hidden" name="cartOrder" value="cartOrder">
+				           </div>
+						   <div class="cart-table clearfix">
+						 	 <table class="cart-table">
+		        				 <thead>
+						            <tr style="background-color: black; color: white;">
+						                    <th style="color: white;">check</th>
+										    <th style="color: white;">product</th>
+										    <th style="color: white;">price</th>
+										    <th style="color: white;">quantity</th>
+						            </tr>
+						        </thead>
+				                <tbody>
+				    <%             
 					            if (cartList != null && cartList.size() > 0) {
 					                // 장바구니 정보를 표시하는 코드
 					%>
 					        
-					        	<div>
-					               	<input type="hidden" name="cartOrder" value="cartOrder">
-					           	</div>
-							   <div class="cart-table clearfix">
-							 	 <table class="cart-table">
-			        				 <thead>
-							            <tr style="background-color: black; color: white;">
-							                    <th style="color: white;">check</th>
-											    <th style="color: white;">product</th>
-											    <th style="color: white;">price</th>
-											    <th style="color: white;">quantity</th>
-							            </tr>
-							        </thead>
-					                <tbody>
 							                    <%
 							                                      
 							                        for (HashMap<String, Object> cartProduct : cartList) {
@@ -337,7 +335,7 @@ td span {
 							           		} else {
 							        %>
 							                <tr>
-							                	<td colspan="5">cart is empty.</td>
+							                	<td colspan="5" style="text-align: center;" >cart is empty.</td>
 							                </tr>
 							        <%
 							            }	
