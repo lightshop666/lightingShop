@@ -403,6 +403,5 @@
     <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
     <!-- Active js -->
     <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
-
 </body>
 </html>

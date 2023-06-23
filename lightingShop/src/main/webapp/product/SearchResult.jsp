@@ -137,8 +137,8 @@
 	                            		<input type="text" class="form-control" name="searchWord" value="<%=searchWord%>" placeholder="키워드를 입력하세요">
 	                            	</div>
 	                            	<div class="col-12 mb-3">
-		                            	<select class="w-100">
-		                            		<option value="">Category</option>
+		                            	<select class="w-100" name="categoryName" onchange="this.form.submit()">
+		                            		<option value="" <%if(categoryName.equals("")) {%> selected <%}%>>Category</option>
 		                            		<!-- CategoryDao 사용해서 버튼 출력, categoryName -->
 											<%
 												for(String s : categoryList) {

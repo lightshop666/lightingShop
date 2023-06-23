@@ -17,7 +17,7 @@
 	BoardDao dao = new BoardDao();
 	String msg = null;
 	if(session.getAttribute("loginIdListId") == null
-			|| !session.getAttribute("loginIdListlogin").equals(qId)) { // 비밀번호 입력란 생성 조건
+			|| !session.getAttribute("loginIdListId").equals(qId)) { // 비밀번호 입력란 생성 조건
 		if(request.getParameter("inputPw") == null
 				|| request.getParameter("inputPw").equals("")) {
 			msg = URLEncoder.encode("비밀번호를 입력해주세요", "utf-8");

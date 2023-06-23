@@ -297,8 +297,8 @@
 
                             <!-- Add to Cart Form -->
                             <form action="<%=request.getContextPath()%>/cart/cartListAction.jsp" method="post" class="cart clearfix">
-							<input type="hidden" name="productNo"  id="productNo[]"value="<%=product.getProductNo()%>">
-							<input type="hidden" name="productCnt" id="productCnt" value=""> <!-- 동적으로 값 변경 -->
+							<input type="hidden" name="productNo" value="<%=product.getProductNo()%>">
+							<input type="hidden" name="productCnt" value=""> <!-- 동적으로 값 변경 -->
 							<input type="hidden" name="discountedPrice" value="<%=discountedPrice%>">
                                 <div class="cart-btn d-flex mb-50">
                                     <p>수량</p>
@@ -371,7 +371,7 @@
 				// 이전은 1페이지에서는 출력되면 안 된다
 				if(reviewBeginPage != 1) {
 			%>
-					<a href="<%=request.getContextPath()%>/product/productList.jsp?reviewCurrentPage=<%=reviewBeginPage - 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
+					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&reviewCurrentPage=<%=reviewBeginPage - 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
 						&laquo;
 					</a>
 			<%
@@ -384,7 +384,7 @@
 			<%
 					} else {
 			%>
-						<a href="<%=request.getContextPath()%>/product/productList.jsp?reviewCurrentPage=<%=i%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
+						<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&reviewCurrentPage=<%=i%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
 							<%=i%>
 						</a>&nbsp;
 			<%
@@ -393,7 +393,7 @@
 				// 다음은 마지막 페이지에서는 출력되면 안 된다
 				if(reviewEndPage != reviewLastPage) {
 			%>
-					<a href="<%=request.getContextPath()%>/product/productList.jsp?reviewCurrentPage=<%=reviewEndPage + 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
+					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&reviewCurrentPage=<%=reviewEndPage + 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
 						&raquo;
 					</a>
 			<%
@@ -402,7 +402,7 @@
 	</div>
 	
 	<!------------- 3) 해당 상품의 문의 --------------->
-	<div div id="question" class="tab-content">
+	<div id="question" class="tab-content">
 		<h1>Question</h1>
 		<div style="float:left;">
 			총 <%=questionTotalRow %>건
@@ -474,7 +474,7 @@
 			// 이전은 1페이지에서는 출력되면 안 된다
 			if(questionBeginPage != 1) {
 		%>
-				<a href="<%=request.getContextPath()%>/product/productList.jsp?questionCurrentPage=<%=questionBeginPage - 1%>&questionRowPerPage=<%=questionRowPerPage%>">
+				<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&questionCurrentPage=<%=questionBeginPage - 1%>&questionRowPerPage=<%=questionRowPerPage%>">
 					&laquo;
 				</a>
 		<%
@@ -487,7 +487,7 @@
 		<%
 				} else {
 		%>
-					<a href="<%=request.getContextPath()%>/product/productList.jsp?questionCurrentPage=<%=i%>&questionRowPerPage=<%=questionRowPerPage%>">
+					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&questionCurrentPage=<%=i%>&questionRowPerPage=<%=questionRowPerPage%>">
 						<%=i%>
 					</a>&nbsp;
 		<%
@@ -496,7 +496,7 @@
 			// 다음은 마지막 페이지에서는 출력되면 안 된다
 			if(questionEndPage != questionLastPage) {
 		%>
-				<a href="<%=request.getContextPath()%>/product/productList.jsp?questionCurrentPage=<%=questionEndPage + 1%>&questionRowPerPage=<%=questionRowPerPage%>">
+				<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&questionCurrentPage=<%=questionEndPage + 1%>&questionRowPerPage=<%=questionRowPerPage%>">
 					&raquo;
 				</a>
 		<%
