@@ -269,7 +269,7 @@ public class ReviewDao {
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT r.review_no reviewNo, r.order_product_no productNo, r.review_title revieTitle, r.review_content reviewContent,   r.review_written reviewWritten, r.review_ori_filename reviewOriFilename,  r.review_save_filename reviewSaveFilename,  r.review_filetype reviewFiletype,   r.review_path reviewPath,   r.createdate createdate,  r.updatedate updatedate FROM review r   INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no WHERE o.id = 'test2';";
+		String sql = "SELECT r.review_no reviewNo, r.order_product_no productNo, r.review_title revieTitle, r.review_content reviewContent,   r.review_written reviewWritten, r.review_ori_filename reviewOriFilename,  r.review_save_filename reviewSaveFilename,  r.review_filetype reviewFiletype,   r.review_path reviewPath,   r.createdate createdate,  r.updatedate updatedate FROM review r   INNER JOIN order_product op ON r.order_product_no = op.order_product_no INNER JOIN orders o ON op.order_no = o.order_no WHERE o.id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, id);
 		ResultSet rs = stmt.executeQuery();
@@ -291,9 +291,63 @@ public class ReviewDao {
 		return map;
 	}
 
+//4) 리뷰 one
+	/*
+	SELECT
+		order_product_no orderProductNo
+		,review_title	reviewTitle
+		,review_content reviewContent
+		,review_written review_written
+		,review_ori_filename reviewOriFilename
+		,review_save_filename reviewSaveFilename
+		,review_filetype reviewFiletype
+		,review_path reviewPath
+		,createdate
+		,updatedate
+	FROM review
+	WHERE order_product_No =?
+	 * */
+	public Review reviewOne (int orderProductNo) throws Exception {
+		Review review = null;
+	    
+	    // DB 연결을 위한 DBUtil 객체와 Connection 객체 생성
+	    DBUtil dbUtil = new DBUtil();
+	    Connection conn = dbUtil.getConnection();
+	    
+	    // 주문 및 주문 상품 정보를 조회하는 SQL문
+	    String sql = "SELECT "
+	    		+ "	order_product_no orderProductNo	,review_title	reviewTitle "
+	    		+ "	,review_content reviewContent	,review_written review_written "
+	    		+ "	,review_ori_filename reviewOriFilename	,review_save_filename reviewSaveFilename "
+	    		+ "	,review_filetype reviewFiletype	,review_path reviewPath "
+	    		+ "	,createdate	,updatedate "
+	    		+ "FROM review "
+	    		+ "WHERE order_product_No =?"; 
+	    // SQL문 실행을 위한 PreparedStatement 객체 생성
+	    PreparedStatement mainStmt = conn.prepareStatement(sql);
+	    mainStmt.setInt(1, orderProductNo);
+	    ResultSet rs = mainStmt.executeQuery();
+	    
+	    // 결과셋 받아오기
+	    if (rs.next()) {
+	    	review = new Review();
+	    	review.setOrderProductNo(rs.getInt("orderProductNo"));
+	    	review.setReviewTitle(rs.getString("reviewtitle"));
+	    	review.setReviewContent(rs.getString("reviewContent"));
+	    	review.setReviewWritten(rs.getString("review_written"));
+	    	review.setReviewOriFilename(rs.getString("reviewOriFilename"));
+	    	review.setReviewSaveFilename(rs.getString("reviewSaveFilename"));
+	    	review.setReviewFiletype(rs.getString("reviewFiletype"));
+	    	review.setReviewPath(rs.getString("reviewPath"));
+	    	review.setCreatedate(rs.getString("createdate"));
+	    	review.setUpdatedate(rs.getString("updatedate"));
+	    }
+	    
+	    return review;
+	}
+	
 
-
-//4-1)리뷰 insert
+//5)리뷰 insert
 	/*
 	INSERT INTO review
 		(order_product_no, review_title, review_content,
@@ -330,7 +384,7 @@ public class ReviewDao {
 	}
 	
 	
-//5) 리뷰 파일 삭제
+//6) 리뷰 파일 삭제
     public void deleteInvalidFile(String saveFilename, String dir) throws Exception  {
     	File f = new File(dir+"/"+saveFilename);
 		//이미 파일은 업데이트가 됐기 때문에 파일이 진짜로 있다면

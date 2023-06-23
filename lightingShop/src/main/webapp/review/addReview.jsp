@@ -1,9 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
 	//memberId 선언과 세션 로그인 ID가 널이 아니면 넣어준다.
-	String loginMemberId = "test2";
-	if(session.getAttribute("loginMemberId") != null) {
-		loginMemberId = (String)session.getAttribute("loginMemberId");
+	//세션 로그인 확인
+	String loginIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loginIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 addReview.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- addReview.jsp");
+		return;
 	}
 	/*
 	else{
@@ -18,11 +24,11 @@
 	//orderProductNo null이면 리턴, 아니면 그 값을 넣어준다.
 	if(request.getParameter("orderProductNo") == null){
 		response.sendRedirect(request.getContextPath()+"/review/reviewList.jsp");	
-		System.out.println("reviewList.jsp로 리턴");
+		System.out.println("reviewList.jsp로 리턴 <-- addReview.jsp");
 		return;	
 	}else{
 		//orderProductNo 파라미터값 확인
-		System.out.println(request.getParameter("orderProductNo")+"<--orderProductNo--reviewOne parm ");
+		System.out.println(request.getParameter("orderProductNo")+"<--orderProductNo-- addReview.jsp ");
 		orderProductNo = Integer.parseInt(request.getParameter("orderProductNo"));
 	}
 %>

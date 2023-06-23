@@ -3,124 +3,158 @@
 <%@ page import="vo.*" %>
 <%@ page import="java.util.*"%>
 <%
-	//order_product_no와  orderNo를 받아온다
-	if(request.getParameter("orderProductNo") == null){
-		response.sendRedirect(request.getContextPath()+"/review/reviewList.jsp");	
-		System.out.println("orderProductNo 유효성 검사에서 튕긴다<--reviewOne.jsp");
-		return;	
+	//세션 로그인 확인
+	String loginIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loginIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 reviewList.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- reviewList.jsp");
+		return;
 	}
+
+	//order_product_no 유효성 검사
 	System.out.println(request.getParameter("orderProductNo")+"<--orderProductNo--reviewOne.jsp parm ");
 	String orderProductNoStr = request.getParameter("orderProductNo");
-	int orderProductNo = Integer.parseInt(orderProductNoStr.trim());
-	System.out.println(orderProductNo + "<--parm-- orderProductNo modifyReview.jsp  ");
-
-	//세션 로그인 확인
-	String loginMemberId = "test2";
-	if(session.getAttribute("loginMemberId") != null) {
-		//현재 로그인 사용자의 아이디
-		loginMemberId = (String)session.getAttribute("loginMemberId");
+	if (orderProductNoStr == null || orderProductNoStr.trim().isEmpty()) {
+	    response.sendRedirect(request.getContextPath() + "/review/reviewList.jsp");
+	    System.out.println("orderProductNo 유효성 검사에서 튕긴다<--reviewOne.jsp");
+	    return;
 	}
+	int orderProductNo = Integer.parseInt(orderProductNoStr.trim());
+
+	
 
 	//리뷰사진 출력, 글 클릭시 상품 페이지로 이동
-	//리뷰사진출력을 위한 dao 호출
+	//모델 호출	
 	ReviewDao reviewDao = new ReviewDao();
-	HashMap<String, Object> customerReview = reviewDao.customerReview(loginMemberId);
-
+	//담을 변수 선언
+	Review review =	reviewDao.reviewOne(orderProductNo);
 %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>리뷰 상세</title>
-<!-- Latest compiled and minified CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Latest compiled JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-<style>
-	a{
-		/* 링크의 라인 없애기  */
-		text-decoration: none;
-	}
-	.p2 {/* 본문 폰트 좌정렬*/
-		font-family: "Lucida Console", "Courier New", monospace;
-		text-align: left;
-	}
-	}
-	h1{	/*제목 폰트*/
-		font-family: 'Black Han Sans', sans-serif;
-		text-align: center;
-	}
-	
-	/*이미지 사이즈, 클릭시 풀스크린*/
-	.thumbnail {
-    max-width: 200px;
-    cursor: pointer;
-  	}
-	.fullscreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  	}
-	.fullscreen img {
-    max-width: 80%;
-    max-height: 80%;
-	}
-</style>
+<title>조명 가게 | 리뷰 상세</title>
+   
+   <!-- BootStrap5 -->
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+   
+   <!-- Favicon  -->
+   <link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
+   
+   <!-- Core Style CSS -->
+   <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
+   <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
+
 </head>
 <body>
-<div class="container">	
-<h1>리뷰 상세 페이지</h1>
-	<div>
-	<form action="<%=request.getContextPath()%>/review/modifyReviewAction.jsp" method="post"  enctype="multipart/form-data">
-		<table class="table table-bordered ">
-			<tr>			
-				<th>기존 리뷰 사진</th>
-				<th>리뷰 제목</th>
-				<th>리뷰 내용</th>
-				<th>등록일</th>
-				<th>수정일</th>
-			</tr>		
-			<tr>	
-				<td>
-					<img class="thumbnail" src="<%= request.getContextPath()%>/<%=(String)customerReview.get("reviewPath")%>/<%=(String)customerReview.get("reviewSaveFilename")%>" alt="Review Image">
-					<script>
-						// 이미지 클릭 시 확대/축소
-						document.querySelector('.thumbnail').addEventListener('click', function() {
-							var img = document.createElement('img');
-							img.src = this.src;
-							img.classList.add('fullscreen');
-							img.addEventListener('click', function() {
-								document.body.removeChild(this);
-							});
-							document.body.appendChild(img);
-						});
-					</script>
-					<input type="file" name="reviewFile">
-				</td>
-				<td>
-					<input type="text" name="reviewTitle" value="<%=customerReview.get("reviewTitle")%>">
-				</td>
-				<td>
-					<textarea rows="3" cols="70" name="reviewContent">
-						<%=customerReview.get("reviewContent")%>
-					</textarea>
-				</td>
-				<td><%=customerReview.get("createdate")%></td>
-				<td><%=customerReview.get("updatedate")%></td>
-			</tr>
-		</table>
-		<input type="hidden" name="pastSaveFilename" value="<%=customerReview.get("reviewSaveFilename")%>">
-		<input type="hidden" name="orderProductNo" value="<%=String.valueOf(orderProductNo).trim()%>">
-		<button type="submit">수정</button>
-	</form>		
+
+<body>
+	<!-- Search Wrapper Area Start -->
+	<div class="search-wrapper section-padding-100">
+	   <div class="search-close">
+	      <i class="fa fa-close" aria-hidden="true"></i>
+	   </div>
+	   <div class="container">
+	      <div class="row">
+	         <div class="col-12">
+	            <div class="search-content">
+	               <form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
+	                  <input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
+	                  <button type="submit"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""></button>
+	               </form>
+	            </div>
+	         </div>
+	      </div>
+	   </div>
+	</div>
+
+   <!-- ##### Main Content Wrapper Start ##### -->
+	<div class="main-content-wrapper d-flex clearfix">
+       <!-- menu 좌측 bar -->
+		<div>
+			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
+		</div>
+
+        <!-- Product Details Area Start -->
+        <div class="single-product-area section-padding-100 clearfix">
+            <div class="container-fluid">
+
+                <div class="row">
+                	<form action="<%=request.getContextPath()%>/review/modifyReviewAction.jsp" method="post"  enctype="multipart/form-data">
+                    <div class="col-12 col-lg-7"> 
+<!-- 리뷰 이미지 -->
+                        <div class="single_product_thumb">
+                        	<div class="carousel-inner">
+								<div class="carousel-item active">
+									<img src="<%= request.getContextPath()%>/<%=(String)review.getReviewPath()%>/<%=(String)review.getReviewSaveFilename()%>" alt="Review Image">
+                               		<input type="file" name="reviewFile">                               
+                                 </div>
+                        	</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        <div class="single_product_desc">
+                            <!-- Product Meta Data -->
+                            <div class="product-meta-data">
+                                <div class="line"></div>
+<!-- 리뷰 타이틀 -->
+									<span class="product-price">
+										<input type="text" name="reviewTitle" value="<%=review.getReviewTitle()%>">
+									</span>
+									<p>
+										<span>작성일 : </span>
+										<span><%=review.getCreatedate()%></span>
+									</p>
+									<!-- 리뷰 날짜 -->
+									<p>
+										<span>수정일 : </span>
+										<span><%=review.getUpdatedate()%></span>
+									</p>
+                            </div>
+                            <div class="short_overview my-5">
+                            	<textarea rows="3" cols="70" name="reviewContent">
+                             		<%=review.getReviewContent()%>
+								</textarea>
+                            </div>
+                        </div>
+			              <div>
+								<input type="hidden" name="orderProductNo" value="<%=orderProductNo %> ">
+								<input type="hidden" name="saveFilename" value="<%=(String)review.getReviewSaveFilename()%> ">
+								<button type="submit" class="btn amado-btn w-100">수정</button>
+						</div>
+                    </div>	
+                    </form>
+                </div>
+            </div>
+      
+        <!-- Product Details Area End -->
 	</div>
 </div>
+<!-- ##### Main Content Wrapper End ##### -->
+
+
+
+	
+	
+<!-- ##### Footer Area Start ##### -->
+    <div>
+      <jsp:include page="/inc/copyright.jsp"></jsp:include>
+   </div>
+<!-- ##### Footer Area End ##### -->
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <script src="<%=request.getContextPath()%>/resources/js/jquery/jquery-2.2.4.min.js"></script>
+    <!-- Popper js -->
+    <script src="<%=request.getContextPath()%>/resources/js/popper.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+    <!-- Plugins js -->
+    <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
+    <!-- Active js -->
+    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
 </body>
 </html>

@@ -8,9 +8,15 @@
 <%
 	request.setCharacterEncoding("utf-8");
 	
-	String loginMemberId = null;
-	if(session.getAttribute("loginMemberId") != null) {
-		loginMemberId = (String)session.getAttribute("loginMemberId");
+	//세션 로그인 확인
+	String loginIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loginIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 modifyReviewAction.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- modifyReviewAction.jsp");
+		return;
 	}
 	
 	//모델 호출
@@ -71,7 +77,8 @@
 	// 파일 첨부를 했을 때 처리
 	if (mRequest.getFile("reviewFile") != null) {
 		//업로드 파일이 jpg 파일이 아니면 리턴하겠다. cos.jar에서는 이미 파일이 들어온 이후다.--> 삭제 API import="java.io.File"
-		if(mRequest.getContentType("reviewFile").equals("image/jpeg") == false){
+			if(!mRequest.getContentType("reviewFile").equals("image/jpeg")
+			&&!mRequest.getContentType("reviewFile").equals("image/png")){
 			//이미 저장된 파일 삭제
 			String saveFilename = mRequest.getFilesystemName("reviewFile");
 			System.out.println(saveFilename+ "<--saveFilename-- modifyReviewAction.jsp");
@@ -86,7 +93,7 @@
 
 			//파일을 삭제해줬으니 리턴시킨다.
 			response.sendRedirect(request.getContextPath()+"/review/modifyReview.jsp?orderProductNo=" + orderProductNo);
-			System.out.println("업로드 파일이 jpg가 아니라 리턴합니다 <-- modifyReviewAction.jsp");
+			System.out.println("업로드 파일이 jpg, png가 아니라 리턴합니다 <-- addReviewAction.jsp");
 			return;
 		}
 		

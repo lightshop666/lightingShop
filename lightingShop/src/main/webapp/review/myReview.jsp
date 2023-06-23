@@ -4,9 +4,15 @@
 <%@ page import="java.util.*"%>
 <%
 	//세션 로그인 확인
-	String loginMemberId = "test2";
-	if(session.getAttribute("loginMemberId") != null) {
-		loginMemberId = (String)session.getAttribute("loginMemberId");
+	//세션 로그인 확인
+	String loginIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loginIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 myReview.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- myReview.jsp");
+		return;
 	}
 	//모델 호출
 	ReviewDao reviewDao = new ReviewDao();
@@ -29,7 +35,7 @@
 	int beginRow = (currentPage-1) * rowPerPage + 1;
 	
 	//총 행을 구하기 위한 메소드
-	int totalRow = reviewDao.selectUserReviewCnt(loginMemberId);
+	int totalRow = reviewDao.selectUserReviewCnt(loginIdListId);
 	
 	//마지막 페이지
 	int lastPage = totalRow / rowPerPage;
@@ -47,7 +53,7 @@
 	}
 	
 	//Review 출력
-	 ArrayList<HashMap<String, Object>> reviewList  = reviewDao.selectReviewListByPage(beginRow, rowPerPage, loginMemberId);
+	 ArrayList<HashMap<String, Object>> reviewList  = reviewDao.selectReviewListByPage(beginRow, rowPerPage, loginIdListId);
 	
 	//카테고리 목록 출력
 	List<String> category = cateDao.getCategoryList();
@@ -56,7 +62,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>My Review Page</title>
+<title>조명 가게 - 나의 리뷰 | My review</title>
 <head>
 	<meta charset="UTF-8">
 	<!-- 웹페이지와 호환되는 Internet Explorer의 버전을 지정합니다. -->
@@ -66,7 +72,6 @@
 	<!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 	
 	<!-- Title  -->
-	<title>조명 가게 - 나의 리뷰 | My review</title>
 	
 	<!-- Favicon  -->
 	<link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
@@ -162,7 +167,7 @@
 			    
 		%>	
                     <!-- Single Product Area -->
-                    <div class="col-12 col-sm-6 col-md-12 col-xl-6">
+                    <div class="col-10">
                         <div class="single-product-wrapper">
 <!-- 리뷰 이미지 -->
                             <div class="product-img">
@@ -177,18 +182,16 @@
                                 <div class="product-meta-data">
                                     <div class="line"></div>
                                     <p class="product-price"><%= m.get("reviewTitle") %></p>
-                                    <a href=" <%=request.getContextPath()%>/review/reivewOne.jsp?orderProductNo=<%=(int)m.get("orderProductNo")%>">
+                                    <a href=" <%=request.getContextPath()%>/review/reviewOne.jsp?orderProductNo=<%=(int)m.get("orderProductNo")%>">
                                         <h6><%= m.get("reviewContent") %></h6>
                                     </a>
                                 </div>
 <!-- 장바구니에 담기-->
 	                                <div class="ratings-cart text-right">
 	                                    <div class="ratings">
-	                                    	작성일 : <%= m.get("createdate") %>
+	                                    	<span>작성일 : </span>
+	                                    	<span> <%= m.get("createdate") %></span>	                                    	
 	                                    </div>
-	                                    <div class="cart">
-                                        	<a href=" <%=request.getContextPath()%>cart/cartList.html" data-toggle="tooltip" data-placement="left" title="Add to Cart"><img src="<%=request.getContextPath()%>/imgcore-img/cart.png"></a>
-                                    	</div>
                                     </div>
                                 </div>
                             </div>

@@ -17,7 +17,7 @@
 	}
 	
 	//주문번호 유효성 검사
-	int orderNo =20;
+	int orderNo =0;
 	if(request.getParameter("orderNo")!=null){
 		orderNo = Integer.parseInt(request.getParameter("orderNo"));
 		System.out.println(orderNo + "<--parm-- orderNo orderProductOne.jsp");
@@ -216,7 +216,6 @@
 							String deleveryStatus = (String)orderProductInfo.get("deleveryStatus");
 							Date createDate = (Date) orderProductInfo.get("createdate");
 							Date todayDate = (Date) orderProductInfo.get("todaydate");
-							boolean isReviewAllowed = orderProductDao.checkReviewEligibility(createDate, todayDate);
 							
 						//디버깅	
 							//System.out.println(deleveryStatus+"<--deleveryStatus orderProductOne.jsp");
@@ -224,9 +223,15 @@
 							//System.out.println(todayDate+"<--todayDate orderProductOne.jsp");
 							HashMap<String, Object> review = reviewDao.customerReview(orders.getId());
 							String reviewWritten = null;
-							if (review != null) {
+							if (review != null && review.size() != 0) {
 							    reviewWritten = (String) review.get("reviewWritten");
-							};
+							}
+							// 리뷰 작성 여부 확인
+							boolean isReviewAllowed = orderProductDao.checkReviewEligibility(createDate, todayDate);
+							boolean isReviewWritten = reviewWritten != null && reviewWritten.equals("Y");
+							// 리뷰 작성 가능 여부 확인
+							boolean canWriteReview = isReviewAllowed && !isReviewWritten;
+
 							//원가 더하기
 							oriPrice += (int) product.getProductPrice() * orderProduct.getProductCnt();
 							System.out.println(oriPrice+"<--oriPrice 원가 orderProductOne.jsp");
@@ -308,47 +313,40 @@
 						4-3) 수취확인 버튼 -> db 상태값 변경  ***** 수취확인시 상품평 버튼으로 변경**** ->리뷰 작성 페이지******* 리뷰 작성시 리뷰 수정 페이지
 						 -->
 						<%
-							//배송상태에 따라 버튼 분기
-							if(deleveryStatus.equals("주문확인중")){
+						// 배송상태에 따라 버튼 분기
+						if (deleveryStatus.equals("주문확인중")) {
 						%><!-- 주문취소 -->
-							  <form action="<%= request.getContextPath() %>/orders/orderCancel.jsp" method="GET">
-							    <input type="hidden" name="orderNo" value="<%= orderNo %>">
-							    <button type="submit" class="custom-button">주문취소</button>
-							  </form>
-		  				<%
-							}
-							else if(deleveryStatus.equals("배송중")
-							||deleveryStatus.equals("배송완료")
-							||deleveryStatus.equals("교환 중")){				
+						    <form action="<%= request.getContextPath() %>/orders/orderCancel.jsp" method="GET">
+						        <input type="hidden" name="orderNo" value="<%= orderNo %>">
+						        <button type="submit" class="custom-button">주문취소</button>
+						    </form>
+						<%
+						} else if (deleveryStatus.equals("배송중") || deleveryStatus.equals("배송완료") || deleveryStatus.equals("교환 중")) {
 						%><!-- 수취확인 -->
-							  <form action="<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp" method="GET">
-							    <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
-							    <button type="submit" class="custom-button">수취확인</button>
-							  </form>
+						    <form action="<%= request.getContextPath() %>/orders/orderConfirmDelivery.jsp" method="GET">
+						        <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
+						        <button type="submit" class="custom-button">수취확인</button>
+						    </form>
 						<%
-							//배송 상태가 구매확정이고 리뷰 상태가 아직 쓰여지지 않은 경우
-							} else if ((deleveryStatus.equals("구매확정"))
-							        && isReviewAllowed == true
-							        && (reviewWritten == null || reviewWritten.equals("N"))
-							        && review != null) {
+						} else if (deleveryStatus.equals("구매확정")) {
+						    if (canWriteReview) {
 						%><!-- 리뷰작성 -->
-							  <form action="<%= request.getContextPath() %>/review/addReview.jsp" method="GET">
-							    <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
-							    <button type="submit" class="custom-button">상품평</button>
-							  </form>				<%
-							}else if ( deleveryStatus.equals("구매확정")
-									//주문한지 한 달 이내인지
-									&& isReviewAllowed==true
-									//작성여부가 Y인지
-									&& reviewWritten.equals("Y")){
-						%><!-- 리뷰수정 -->
-								<form action="<%= request.getContextPath() %>/review/modifyReview.jsp?orderProductNo=<%= orderProductNo %>">
-									 <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
-									 <button type="submit" class="custom-button">리뷰 수정</button>							
-								</form>						
+						    <form action="<%= request.getContextPath() %>/review/addReview.jsp" method="GET">
+						        <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
+						        <button type="submit" class="custom-button">상품평</button>
+						    </form>
 						<%
-							}
+						    } else if (reviewWritten != null) {
+						%><!-- 리뷰수정 -->
+						    <form action="<%= request.getContextPath() %>/review/modifyReview.jsp?orderProductNo=<%= orderProductNo %>" method="GET">
+						        <input type="hidden" name="orderProductNo" value="<%= orderProductNo %>">
+						        <button type="submit" class="custom-button">리뷰 수정</button>
+						    </form>
+						<%
+						    }
+						}
 						%>
+
 						</td>
 					</tr>					
 				<%
@@ -375,7 +373,7 @@
 					<div class="cart-summary">
 						<h5>Order Summary</h5>
 						<ul class="summary-table">
-							<li><span style="font-weight: bold; font-size: larger;">Total Amout &nbsp;</span> <span style="font-weight: bold; font-size: larger;"> ₩ <%= formattedOrderPrice %></span></li>
+							<li><span style="font-weight: bold; font-size: larger;">Total</span> <span style="font-weight: bold; font-size: larger;"> ₩ <%= formattedOrderPrice %></span></li>
 							<li><span style="color: gray; font-size: small; text-decoration: line-through;">총 상품 금액 :</span> <span style="color: gray; text-decoration: line-through;">₩ <%= formattedOriPrice %></span></li>
 							<li><span>총 할인 금액 : </span> <span>₩ <%= formattedDiscountAmount %> </span></li>
 							<li><span>적립 혜택 : </span> <span> <%= decimalFormat.format(pointByOrder) %> P</span></li>

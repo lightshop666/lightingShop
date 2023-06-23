@@ -3,11 +3,6 @@
 <%@ page import="vo.*" %>
 <%@ page import="java.util.*"%>
 <%
-	//세션 로그인 확인
-	String loginMemberId = "test2";
-	if(session.getAttribute("loginMemberId") != null) {
-		loginMemberId = (String)session.getAttribute("loginMemberId");
-	}
 
 	String category = null;
 	if(request.getParameter("category") !=null){
@@ -144,9 +139,10 @@
         
         <div class="amado_product_area section-padding-100">
             <div class="container-fluid">
+            <div class="cart-table clearfix">            
              <!-- 정렬 상품 카테고리 별로 -->
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-12 col-lg-11 text-center""  >
                         <div class="product-topbar d-xl-flex align-items-end justify-content-between">
                             <!-- Sorting -->
                             <div class="product-sorting d-flex">
@@ -190,7 +186,7 @@
                                 <div class="product-meta-data">
                                     <div class="line"></div>
                                     <p class="product-price"><%= m.get("reviewTitle") %></p>
-                                    <a href=" <%=request.getContextPath()%>/review/reivewOne.jsp?orderProductNo=<%=(int)m.get("orderProductNo")%>">
+                                    <a href=" <%=request.getContextPath()%>/review/reviewOne.jsp?orderProductNo=<%=(int)m.get("orderProductNo")%>">
                                         <h6><%= m.get("reviewContent") %></h6>
                                     </a>
                                 </div>
@@ -207,48 +203,46 @@
               <%
               }
               %>
+              </div>
  <!-- 리뷰리스트 출력 종료 -->
  
-                <div class="row">
-                
-                
-<!-- 페이징 -->
-                    <div class="col-12">
-                        <nav aria-label="navigation">
-                            <ul class="pagination justify-content-end mt-50">
-							<%
-								//1번 페이지보다 작은데 나오면 음수로 가버린다
-								if (minPage > 1) {
-							%>
-									<li class="page-item"><a href=" <%=request.getContextPath()%>/review/myReview.jsp?currentPage=<%=minPage-pageRange%>">이전</a></li>
-							
-							<%	
-								}
-								for(int i=minPage; i <= maxPage; i=i+1){
-									if ( i == currentPage){		
-							%>
-										<li class="page-item active"><span><%=i %></span></li>
-							<%
-									}else{
-							%>
-										<li class="page-item"><a href=" <%=request.getContextPath()%>/review/myReview.jsp?currentPage=<%=i%>"><%=i %></a></li>
-							<%
+				<div class="pagination justify-content-center mt-50">
+	                <!-- 페이징 -->
+	                    <div class="col-12">
+	                        <nav aria-label="navigation">
+	                            <ul class="pagination justify-content-end mt-50">
+								<%
+									//1번 페이지보다 작은데 나오면 음수로 가버린다
+									if (minPage > 1) {
+								%>
+										<li class="page-item"><a href=" <%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=minPage-pageRange%>">이전</a></li>
+								
+								<%	
 									}
-								}
-							
-								//maxPage와 lastPage가 같지 않으면 여분임으로 마지막 페이지목록일거다.
-								if(maxPage != lastPage ){
-							%>
-									<!-- maxPage+1해도 동일하다 -->
-									<li class="page-item"><a href=" <%=request.getContextPath()%>/review/myReview.jsp?currentPage=<%=minPage+pageRange%>">다음</a></li>
-							<%
-								}
-							%>
-                            </ul>
-                        </nav>
-                    </div>
-                    
-                    
+									for(int i=minPage; i <= maxPage; i=i+1){
+										if ( i == currentPage){		
+								%>
+											<li class="page-item active"><span><%=i %></span></li>
+								<%
+										}else{
+								%>
+											<li class="page-item"><a href=" <%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=i%>"><%=i %></a></li>
+								<%
+										}
+									}
+								
+									//maxPage와 lastPage가 같지 않으면 여분임으로 마지막 페이지목록일거다.
+									if(maxPage != lastPage ){
+								%>
+										<!-- maxPage+1해도 동일하다 -->
+										<li class="page-item"><a href=" <%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=minPage+pageRange%>">다음</a></li>
+								<%
+									}
+								%>
+	                            </ul>
+	                        </nav>
+	                    </div>                
+	                </div>
                 </div>
             </div>
         </div>

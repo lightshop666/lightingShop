@@ -3,6 +3,17 @@
 <%@ page import="vo.*" %>
 <%@ page import="java.util.*"%>
 <%
+	//세션 로그인 확인
+	String loginIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loginIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 reviewList.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- reviewList.jsp");
+		return;
+	}
+
 	//order_product_no가 테이블 외래키이자 기본키다.
 	if(request.getParameter("orderProductNo") == null){
 		response.sendRedirect(request.getContextPath()+"/review/reviewList.jsp");	
@@ -12,117 +23,142 @@
 	System.out.println(request.getParameter("orderProductNo")+"<--orderProductNo--reviewOne.jsp parm ");
 	int orderProductNo = Integer.parseInt(request.getParameter("orderProductNo"));
 	
-	//세션 로그인 확인
-	String loginMemberId = "test2";
-	if(session.getAttribute("loginMemberId") != null) {
-		//현재 로그인 사용자의 아이디
-		loginMemberId = (String)session.getAttribute("loginMemberId");
-	}
 
 	//리뷰사진 출력, 글 클릭시 상품 페이지로 이동
 	//모델 호출	
 	ReviewDao reviewDao = new ReviewDao();
+	OrderProductDao orderProductDao = new OrderProductDao();
 	//담을 변수 선언
-	HashMap<String, Object> customerReview =	reviewDao.customerReview(loginMemberId);
+	Review review =	reviewDao.reviewOne(orderProductNo);
+	OrderProduct orderProduct = orderProductDao.orderProductOne(orderProductNo);
 	
 %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>리뷰 상세</title>
-<!-- Latest compiled and minified CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Latest compiled JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-<style>
-	a{
-		/* 링크의 라인 없애기  */
-		text-decoration: none;
-	}
-	.p2 {/* 본문 폰트 좌정렬*/
-		font-family: "Lucida Console", "Courier New", monospace;
-		text-align: left;
-	}
-	}
-	h1{	/*제목 폰트*/
-		font-family: 'Black Han Sans', sans-serif;
-		text-align: center;
-	}
-	
-	/*이미지 사이즈, 클릭시 풀스크린*/
-	.thumbnail {
-    max-width: 200px;
-    cursor: pointer;
-  	}
-	.fullscreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  	}
-	.fullscreen img {
-    max-width: 80%;
-    max-height: 80%;
-	}
-</style>
+<title>조명 가게 | 리뷰 상세</title>
+   
+   <!-- BootStrap5 -->
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+   
+   <!-- Favicon  -->
+   <link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
+   
+   <!-- Core Style CSS -->
+   <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
+   <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
+
 </head>
 <body>
-<div class="container">	
-<h1>리뷰 상세 페이지</h1>
+
+<body>
+	<!-- Search Wrapper Area Start -->
+	<div class="search-wrapper section-padding-100">
+	   <div class="search-close">
+	      <i class="fa fa-close" aria-hidden="true"></i>
+	   </div>
+	   <div class="container">
+	      <div class="row">
+	         <div class="col-12">
+	            <div class="search-content">
+	               <form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
+	                  <input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
+	                  <button type="submit"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""></button>
+	               </form>
+	            </div>
+	         </div>
+	      </div>
+	   </div>
+	</div>
+
+   <!-- ##### Main Content Wrapper Start ##### -->
+	<div class="main-content-wrapper d-flex clearfix">
+       <!-- menu 좌측 bar -->
 		<div>
-		<table class="table table-bordered ">
-			<tr>			
-				<th>리뷰 사진</th>
-				<th>리뷰 제목</th>
-				<th>리뷰 내용</th>
-				<th>등록일</th>
-				<th>수정일</th>
-			</tr>		
-			<tr>	
-				<td>
-					<img class="thumbnail" src="<%= request.getContextPath()%>/<%=(String)customerReview.get("reviewPath")%>/<%=(String)customerReview.get("ReviewSaveFilename")%>" alt="Review Image">
-					<script>
-						// 이미지 클릭 시 확대/축소
-						document.querySelector('.thumbnail').addEventListener('click', function() {
-							var img = document.createElement('img');
-							img.src = this.src;
-							img.classList.add('fullscreen');
-							img.addEventListener('click', function() {
-								document.body.removeChild(this);
-							});
-							document.body.appendChild(img);
-						});
-					</script>
-				</td>
-				<td><%=customerReview.get("reviewTitle")%></td>
-				<td><%=customerReview.get("ReviewContent")%></td>
-				<td><%=customerReview.get("Createdate")%></td>
-				<td><%=customerReview.get("Updatedate")%></td>
-			</tr>
-		</table>
-		<div>			
-			<div class="col-5 text-center">
-				<form action="<%=request.getContextPath()%>/review/modifyReview.jsp" method="post">
-					<input type="hidden" name="orderProductNo" value="<%=orderProductNo %> ">
-					<button type="submit">수정</button>
-				</form>		
-			</div>
-			<div class="col-6 text-center">				
-				<form action="<%=request.getContextPath()%>/review/removeReviewAction.jsp" method="post" >
-					<input type="hidden" name="orderProductNo" value="<%=orderProductNo  %> ">
-					<input type="hidden" name="saveFilename" value="<%=(String)customerReview.get("ReviewSaveFilename")%> ">
-					<button type="submit">삭제</button>
-				</form>	
-			</div>
+			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
 		</div>
+
+        <!-- Product Details Area Start -->
+        <div class="single-product-area section-padding-100 clearfix">
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-12 col-lg-7"> 
+<!-- 리뷰 이미지 -->
+                        <div class="single_product_thumb">
+                        	<div class="carousel-inner">
+								<div class="carousel-item active">
+									<a href="<%= request.getContextPath()%>/product/productOne.jsp?productNo=<%=orderProduct.getProductNo()%>">
+										<img src="<%= request.getContextPath()%>/<%=(String)review.getReviewPath()%>/<%=(String)review.getReviewSaveFilename()%>" alt="Review Image">
+									</a>
+								</div>
+                        	</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        <div class="single_product_desc">
+                            <!-- Product Meta Data -->
+                            <div class="product-meta-data">
+                                <div class="line"></div>
+<!-- 리뷰 타이틀 -->
+									<span class="product-price">
+										<%=review.getReviewTitle()%>
+									</span>
+									<p>
+										<span>작성일 : </span>
+										<span><%=review.getCreatedate()%></span>
+									</p>
+									<!-- 리뷰 날짜 -->
+									<p>
+										<span>수정일 : </span>
+										<span><%=review.getUpdatedate()%></span>
+									</p>
+                            </div>
+                            <div class="short_overview my-5">
+                                <p><%=review.getReviewContent()%></p>
+                            </div>
+                        </div>
+			              <div>
+							<form action="<%=request.getContextPath()%>/review/modifyReview.jsp" method="get">
+								<input type="hidden" name="orderProductNo" value="<%=orderProductNo %> ">
+								<button type="submit" class="btn amado-btn w-100">수정</button>
+							</form>
+							<form action="<%=request.getContextPath()%>/review/removeReviewAction.jsp" method="get" >
+								<input type="hidden" name="orderProductNo" value="<%=orderProductNo  %> ">
+								<input type="hidden" name="saveFilename" value="<%=(String)review.getReviewSaveFilename()%> ">
+								<button type="submit" class="btn amado-btn w-100">삭제</button>
+							</form>	
+						</div>
+                    </div>	
+                </div>
+            </div>
+      
+        <!-- Product Details Area End -->
 	</div>
 </div>
+<!-- ##### Main Content Wrapper End ##### -->
+
+
+
+	
+	
+<!-- ##### Footer Area Start ##### -->
+    <div>
+      <jsp:include page="/inc/copyright.jsp"></jsp:include>
+   </div>
+<!-- ##### Footer Area End ##### -->
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <script src="<%=request.getContextPath()%>/resources/js/jquery/jquery-2.2.4.min.js"></script>
+    <!-- Popper js -->
+    <script src="<%=request.getContextPath()%>/resources/js/popper.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+    <!-- Plugins js -->
+    <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
+    <!-- Active js -->
+    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
 </body>
 </html>

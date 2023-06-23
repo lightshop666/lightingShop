@@ -50,26 +50,40 @@
 <head>
 <meta charset="UTF-8">
 <title>반품 신청</title>
-<!-- Latest compiled and minified CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Latest compiled JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-<style>
-	a{
-		/* 링크의 라인 없애기  */
-		text-decoration: none;
-	}
-	.p2 {/* 본문 폰트 좌정렬*/
-		font-family: "Lucida Console", "Courier New", monospace;
-		text-align: left;
-	}
-	}
-	h1{	/*제목 폰트*/
-		font-family: 'Black Han Sans', sans-serif;
-		text-align: center;
-	}
+	<meta charset="UTF-8">
+	<!-- 웹페이지와 호환되는 Internet Explorer의 버전을 지정합니다. -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- 다양한 기기에서 더 나은 반응성을 위해 뷰포트 설정을 구성합니다. -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 	
-	/*이미지 사이즈, 클릭시 풀스크린*/
+	<!-- Title  -->
+	<title>주문 상세 페이지 | Order Details</title>
+	
+	<!-- Favicon  -->
+	<link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
+	
+	<!-- Core Style CSS -->
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
+</head>
+<style>
+	.custom-button {
+	  background-color: #f1bb41;
+	 border: none;
+	  color: white;
+	  padding: 10px 20px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  font-size: 8px;
+	  margin: 4px 2px;
+	  cursor: pointer;
+	  transition: background-color 0.3s; /* 색상 변화에 0.3초의 트랜지션 효과 적용 */
+	}
+	.custom-button:hover {
+	  background-color: black; /* 마우스를 올렸을 때 버튼 배경색을 회색으로 설정 */
+	}
 	.thumbnail {
     max-width: 200px;
     cursor: pointer;
@@ -92,55 +106,120 @@
 	}
 </style>
 <body>
-<div class="container">	
-	<h3>반품 사유를 선택하세요</h3>
-	<form action="<%= request.getContextPath() %>/orders/returnProductAction.jsp" method="post">
-		<div>
-			<p>상품 이미지
-	<%		// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
-				if(productImg.getProductSaveFilename() == null) {
-	%>
-					<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
-	<%
-				}else {
-	%>
-					<img class="thumbnail" src="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>" alt="Product Image">
-	<%
-				}
-	%>
-		</p>
-			<p>상품 이름: <%= product.getProductName() %></p>			
-			<p>상품 수량 : <%= orderProduct.getProductCnt() %></p>
-			<p>상품 금액 : <%=discountedPrice * orderProduct.getProductCnt()  %></p>
+<!-- ##### Main Content Wrapper Start ##### -->
+<div class="main-content-wrapper d-flex clearfix">
+
+	<!-- Mobile Nav (max width 767px)-->
+	<div class="mobile-nav">
+		<!-- Navbar Brand -->
+		<div class="amado-navbar-brand">
+				<a href="<%=request.getContextPath()%>/resources/<%=request.getContextPath()%>/home.jsp"><img src="<%=request.getContextPath()%>/resources/img/core-img/logo.png" alt=""></a>
 		</div>
-		
-		<label>
-			<input type="radio" name="returnReason" value="changedMind">
-				마음이 변했어요
-			<span style="float: right; font-size: 12px; color: lightgray;">반품비 구매자 부담</span>
-		</label>
-		
-		<label>
-			<input type="radio" name="returnReason" value="productProblem">
-			상품이 불량이에요
-			<span style="float: right; font-size: 12px; color: lightgray;">반품비 판매자 부담</span>
-		</label>
-		
-		<label>
-			<input type="radio" name="returnReason" value="missDelivery">
-			상품이 오배송 됐어요
-			<span style="float: right; font-size: 12px; color: lightgray;">반품비 판매자 부담</span>
-		</label>
-		<label id="detailReasonLabel" style="display: none;">
-			상세사유
-			<textarea id="detailReason" name="detailReason" rows="3" cols="40" placeholder="판매자에게 추가로 전달할 사유가 있다면 입력해주세요 (100글자)" maxlength="100" disabled></textarea>
-		</label>
-		<div>
-			<input type="hidden" name="orderProductNo" value="<%= orderProductNo%>">
-			<button type="submit">반품 신청</button>		
+		<!-- Navbar Toggler -->
+		<div class="amado-navbar-toggler">
+			<span></span><span></span><span></span>
 		</div>
-	</form>
-</div>
+	</div>
+
+	<!-- menu 좌측 bar -->
+	<!-- Header Area Start -->
+	<div>
+		<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
+	</div>
+	<!-- Header Area End -->
+
+
+<div class="amado_product_area section-padding-100">
+    <div class="container-fluid">
+        <form action="<%= request.getContextPath() %>/orders/orderCancelAction.jsp" method="post" enctype="application/x-www-form-urlencoded">
+            <div class="product-topbar d-xl-flex align-items-end justify-content-between">
+                <h2>반품 사유를 선택하세요</h2>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="single-product-wrapper">
+                        <div class="product-img">
+						<%		// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+									if(productImg.getProductSaveFilename() == null) {
+						%>
+										<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+						<%
+									}else {
+						%>
+										<img class="thumbnail" src="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>" alt="Product Image">
+						<%
+									}
+						%>
+                        </div>
+                        <div class="product-description d-flex align-items-center justify-content-between">
+                            <div class="product-meta-data">
+                                <div class="line"></div>
+                                <p class="product-price">
+	                                <span><%= product.getProductName() %></span>
+	                                <br>
+									<span><%= orderProduct.getProductCnt() %>개</span>
+									<span>₩ <%=discountedPrice * orderProduct.getProductCnt()  %></span>   
+                                </p>
+                            </div>
+									
+								</div>
+							</div>
+							<div class="ratings-cart text-right">
+							    <div class="ratings d-flex align-items-center">
+									<label>
+										<input type="radio" name="returnReason" value="changedMind">
+											마음이 변했어요
+										<span style="float: right; font-size: 12px; color: lightgray;">반품비 구매자 부담</span>
+									</label>
+									
+									<label>
+										<input type="radio" name="returnReason" value="productProblem">
+										상품이 불량이에요
+										<span style="float: right; font-size: 12px; color: lightgray;">반품비 판매자 부담</span>
+									</label>
+									
+									<label>
+										<input type="radio" name="returnReason" value="missDelivery">
+										상품이 오배송 됐어요
+										<span style="float: right; font-size: 12px; color: lightgray;">반품비 판매자 부담</span>
+									</label>
+								</div>
+									<div>
+										<div>
+										<label id="detailReasonLabel" style="display: none;">
+											상세사유
+											<textarea id="detailReason" name="detailReason" rows="3" cols="40" placeholder="판매자에게 추가로 전달할 사유가 있다면 입력해주세요 (100글자)" maxlength="100" disabled></textarea>
+										</label>
+									</div>
+										<input type="hidden" name="orderProductNo" value="<%= orderProductNo%>">
+										<button type="submit" class="btn amado-btn w-100">반품 신청</button>		
+									</div>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+<!-- ##### Footer Area Start ##### -->
+    <div>
+		<jsp:include page="/inc/copyright.jsp"></jsp:include>
+	</div>
+<!-- ##### Footer Area End ##### -->
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <div>    
+    <script src="<%=request.getContextPath()%>/resources/js/jquery/jquery-2.2.4.min.js"></script>
+    <!-- Popper js -->
+    <script src="<%=request.getContextPath()%>/resources/js/popper.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+    <!-- Plugins js -->
+    <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
+    <!-- Active js -->
+    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
+    </div>
 </body>
 <!-- JS 유효성 검사 -->
 <script>

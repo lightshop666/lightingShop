@@ -5,11 +5,15 @@
 <%@ page import = "dao.*" %>
 <%@ page import = "java.io.*"%> <!-- 타입이 맞지 않는 업로드 된 불필요한 파일을 삭제하기 위해 불러옴 -->
 <%
-	//세션검사
-	String loginMemberId = null;
-	//세션값이 있으면 넣어준다
-	if(session.getAttribute("loginMemberId") != null) {
-		loginMemberId = (String)session.getAttribute("loginMemberId");
+	//세션 로그인 확인
+	String loginIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loginIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 removeReviewAction.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- removeReviewAction.jsp");
+		return;
 	}
 	/*
 	else{//세션아이디가 없으면 리턴

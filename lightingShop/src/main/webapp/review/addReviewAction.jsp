@@ -8,17 +8,16 @@
 <%
 	request.setCharacterEncoding("utf-8");
 
-	String loginMemberId = null;
-	if(session.getAttribute("loginMemberId") != null) {
-		loginMemberId = (String)session.getAttribute("loginMemberId");
-	}	/*
-	else{
-	//review 추가는 로그인 한 사람만 하게 해준다.
-	System.out.println("reviewList.jsp로 리턴<---addReviewAction.jsp");
-	response.sendRedirect(request.getContextPath() + "/review/reviewList.jsp");		
-	return;
-}
-*/
+	//세션 로그인 확인
+	String loginIdListId = null;	
+	if(session.getAttribute("loginIdListId") != null) {
+		loginIdListId = (String)session.getAttribute("loginIdListId");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 addReviewAction.jsp");
+	}else{
+		response.sendRedirect(request.getContextPath()+"/home.jsp");
+		System.out.println("로그인에서 리턴 <-- addReviewAction.jsp");
+		return;
+	}
 	//모델 호출
 	ReviewDao reviewDao = new ReviewDao();
 
@@ -44,7 +43,7 @@
 		return;	
 	}else{
 		//orderProductNo 파라미터값 확인
-		System.out.println(mRequest.getParameter("orderProductNo")+"<--orderProductNo--reviewOne parm ");
+		System.out.println(mRequest.getParameter("orderProductNo")+"<--orderProductNo-- addReviewAction.jsp ");
 		orderProductNo = Integer.parseInt(mRequest.getParameter("orderProductNo"));
 	}
 

@@ -7,10 +7,10 @@
 	String loginIdListId = null;	
 	if(session.getAttribute("loginIdListId") != null) {
 		loginIdListId = (String)session.getAttribute("loginIdListId");
-		System.out.println(loginIdListId+"<--새로 들어온 아이디 orderConfirmDelivery.jsp");
+		System.out.println(loginIdListId+"<--새로 들어온 아이디 orderProductList.jsp");
 	}else{
 		response.sendRedirect(request.getContextPath()+"/home.jsp");
-		System.out.println("로그인에서 리턴 <-- orderConfirmDelivery.jsp");
+		System.out.println("로그인에서 리턴 <-- orderProductList.jsp");
 		return;
 	}
 	//모델 호출
