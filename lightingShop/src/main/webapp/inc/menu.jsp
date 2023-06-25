@@ -35,7 +35,7 @@
 					<!-- 리뷰등록  -->
 					<li><a class="nav-link" href="<%=request.getContextPath()%>/review/myReview.jsp">MyReview</a></li>
 					<!-- 문의등록 -->
-					<li><a class="nav-link" href="<%=request.getContextPath()%>/board/questionBoardList.jsp">1:1 Question</a></li>
+					<li><a class="nav-link" href="<%=request.getContextPath()%>/board/myQuestionList.jsp">1:1 Question</a></li>
 					<!-- 로그아웃 -->
 					<li><a class="nav-link" href="<%=request.getContextPath()%>/customer/logoutAction.jsp">Logout</a></li>
 					

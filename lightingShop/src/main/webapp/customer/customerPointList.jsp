@@ -148,7 +148,7 @@
 											if (minPage > 1) {
 										%>
 												<li class="page-item">
-												<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage-1%>">이전</a>
+												<a class="page-link" href="<%=request.getContextPath()%>/customer/customerPointList.jsp?currentPage=<%=minPage-1%>">이전</a>
 												</li>
 										<%	
 											}
@@ -162,7 +162,7 @@
 												}else{
 										%>
 												<li class="page-item">
-													<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=i%>"><%=i %></a>
+													<a class="page-link" href="<%=request.getContextPath()%>/customer/customerPointList.jsp?currentPage=<%=i%>"><%=i %></a>
 												</li>
 										<%
 												}
@@ -171,7 +171,7 @@
 											if(maxPage != lastPage ){
 										%>
 											<li class="page-item">
-												<a class="page-link" href="<%=request.getContextPath()%>/emp/adminQuestionList.jsp?currentPage=<%=minPage+1%>">다음</a>
+												<a class="page-link" href="<%=request.getContextPath()%>/customer/customerPointList.jsp?currentPage=<%=minPage+1%>">다음</a>
 											</li>
 										<%
 											}
@@ -181,7 +181,7 @@
 									</div>
 									<div class="row">
 								      	<div class="col-auto mr-auto">	
-									        <a class="btn btn-sm btn-outline-dark" href="<%=request.getContextPath()%>/customer/myPage.jsp">취소</a>
+									        <a class="btn btn-sm btn-outline-dark" href="<%=request.getContextPath()%>/customer/myPage.jsp">뒤로</a>
 										</div>
 									</div>
 								</div>

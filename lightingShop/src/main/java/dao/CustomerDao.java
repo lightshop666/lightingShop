@@ -18,6 +18,7 @@ import vo.Cart;
 import vo.Customer;
 import vo.IdList;
 import vo.PwHistory;
+import vo.Question;
 
 public class CustomerDao {
 	
@@ -328,31 +329,64 @@ public class CustomerDao {
 		return customerDelList;
 	}
 	
-	/*
-	 * public HashMap<String, Integer> selectCustomerDelCnt(Customer customer)
-	 * throws Exception {
-	 * 
-	 * HashMap<String, Integer> customerDelMap = new HashMap<>();
-	 * 
-	 * 
-	 * DBUtil dbutil = new DBUtil(); Connection conn = dbutil.getConnection();
-	 * 
-	 * String sql = "SELECT o.id, op.delivery_status, COUNT(*) AS cnt" +
-	 * " FROM orders o" + " INNER JOIN order_product op ON o.order_no = op.order_no"
-	 * + " WHERE o.id = ?" + " GROUP BY op.delivery_status"; PreparedStatement stmt
-	 * = conn.prepareStatement(sql); stmt.setString(1, customer.getId()); ResultSet
-	 * rs = stmt.executeQuery(); while(rs.next()) { String deliveryStatus =
-	 * rs.getString("op.delivery_status"); int count = rs.getInt("cnt");
-	 * 
-	 * // 해당 고객 ID의 맵 객체에서 배송상태별 건수 값을 추가합니다. switch(deliveryStatus) { case "주문확인중":
-	 * customerDelMap.put("orderConfirm",count); break; case "배송중":
-	 * customerDelMap.put("shipping",count); break; case "배송시작":
-	 * customerDelMap.put("startDel",count); break; case "배송완료":
-	 * customerDelMap.put("endDel",count); break; case "취소완료":
-	 * customerDelMap.put("cancelDel",count); break; case "교환중":
-	 * customerDelMap.put("exchangeDel",count); break; case "구매확정":
-	 * customerDelMap.put("purchaseDel",count); break; } } return customerDelMap; }
-	 */
+	// 8) myPage에서 id별 답변대기 개수 구하는 메서드
+	public int myQuestionNoAnserCnt(Customer customer) throws Exception {
+		int count = 0;
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		
+		String sql = "SELECT COUNT(*) AS cnt FROM question WHERE id = ? and a_chk = 'Y'";
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, customer.getId());
+		
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) {
+			count = rs.getInt("cnt");
+		}
+		return count;
+	}
+	// 8-1) myPage에서 id별 답변완료 개수 구하는 메서드
+	public int myQuestionAnserCnt(Customer customer) throws Exception {
+		int count = 0;
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		
+		String sql = "SELECT COUNT(*) AS cnt FROM question WHERE id = ? and a_chk = 'N'";
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, customer.getId());
+		
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) {
+			count = rs.getInt("cnt");
+		}
+		return count;
+	}
+	
+	// 9) myPage에서 id별 리뷰개수 구하는 메서드
+	public int myReviewCnt(Customer customer) throws Exception {
+		int count = 0;
+		
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		
+		String sql = "SELECT COUNT(*) AS cnt FROM review r "
+				+ " INNER JOIN order_product op ON r.order_product_no = op.order_product_no "
+				+ " INNER JOIN orders o ON op.order_no = o.order_no "
+				+ " WHERE o.id = ?";
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, customer.getId());
+		ResultSet rs = stmt.executeQuery();
+		
+		if(rs.next()) {
+			count = rs.getInt("cnt");
+		}
+		return count;
+	}
 	
 	// -------------------b.address 관련---------------------
 	// 1) 회원주소목록 (내주소)
