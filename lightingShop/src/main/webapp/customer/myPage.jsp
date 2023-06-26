@@ -112,7 +112,28 @@
 			<jsp:include page="/inc/menu.jsp"></jsp:include>
 		</div>
 
-        <!-- Product Catagories Area Start -->
+		<div class="shop_sidebar_area">
+			<!-- ##### Single Widget ##### -->
+	        <div class="widget catagory mb-50">
+	            <!-- Widget Title -->
+	            <h6 class="widget-title mb-30">Catagories</h6>
+	
+	            <!--  Catagories  -->
+	            <div class="catagories-menu">
+	                <ul>
+	                    <li class="active"><a href="#">Chairs</a></li>
+	                    <li><a href="#">Beds</a></li>
+	                    <li><a href="#">Accesories</a></li>
+	                    <li><a href="#">Furniture</a></li>
+	                    <li><a href="#">Home Deco</a></li>
+	                    <li><a href="#">Dressings</a></li>
+	                    <li><a href="#">Tables</a></li>
+	                </ul>
+	            </div>
+	        </div>
+        </div>
+
+		<!-- Product Catagories Area Start -->
         <div class="products-catagories-area clearfix">
             <div class="amado-pro-catagory clearfix">
 
@@ -271,9 +292,8 @@
 								<%
 										}
 								%>
-            </div>
-        </div>
-        <!-- Product Catagories Area End -->
+	  </div>
+	 </div>
     </div>
     <!-- ##### Main Content Wrapper End ##### -->
     
@@ -283,15 +303,15 @@
 	</div>
 
     <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
-    <script src="js/jquery/jquery-2.2.4.min.js"></script>
+    <script src="<%=request.getContextPath()%>/resources/js/jquery/jquery-2.2.4.min.js"></script>
     <!-- Popper js -->
-    <script src="js/popper.min.js"></script>
+    <script src="<%=request.getContextPath()%>/resources/js/popper.min.js"></script>
     <!-- Bootstrap js -->
-    <script src="js/bootstrap.min.js"></script>
+    <script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
     <!-- Plugins js -->
-    <script src="js/plugins.js"></script>
+    <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
     <!-- Active js -->
-    <script src="js/active.js"></script>
+    <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
 
 	<!-- js 유효성 검사  -->
 	<script>
