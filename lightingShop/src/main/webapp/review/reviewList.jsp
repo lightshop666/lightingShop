@@ -19,7 +19,7 @@
 		currentPage = Integer.parseInt(request.getParameter("currentPage"));
 	}
 	//페이지에 보여주고 싶은 행의 개수
-	int rowPerPage = 5;
+	int rowPerPage = 6;
 	//페이지 주변부에 보여주고싶은 리스트의 개수
 	int pageRange = 3;
 	//시작 행
@@ -205,7 +205,8 @@
               %>
               </div>
  <!-- 리뷰리스트 출력 종료 -->
- 
+ 				                        <div class="cart-table clearfix">
+ 				
 				<div class="pagination justify-content-center mt-50">
 	                <!-- 페이징 -->
 	                    <div class="col-12">
@@ -242,7 +243,10 @@
 	                            </ul>
 	                        </nav>
 	                    </div>                
-	                </div>
+	                </div>     
+	               </div>           
+	             <div class="row">
+                </div>      
                 </div>
             </div>
         </div>

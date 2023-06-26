@@ -125,33 +125,6 @@
         
         <div class="amado_product_area section-padding-100">
             <div class="container-fluid">
-             <!-- 정렬 상품 카테고리 별로 -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="product-topbar d-xl-flex align-items-end justify-content-between">
-                            <!-- Sorting -->
-                            <div class="product-sorting d-flex">
-                                <div class="sort-by-date d-flex align-items-center mr-15">
-                                    <p>Sort by</p>
-                                    <form action="<%=request.getContextPath()%>/review/myReview.jsp" method="get">
-                                        <select name="selectCategory" id="sortBydate">
-                                        	<option value="All">&nbsp;ALL</option>
-                                        <%
-                                        	for(String s : category){
-                                                if(s.equals("관리자")) continue; // 관리자 카테고리 건너뛰기
-                                        %>
-                                            <option value="<%=s %>">&nbsp;<%=s %></option>
-                                        <%
-                                        	}
-                                        %>
-                                        </select>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="row">
 
 <!-- 상품 이미지 출력 -->
@@ -173,7 +146,7 @@
                             <div class="product-img">
 					    		<img class="thumbnail" src="<%= request.getContextPath() %>/<%= (String) m.get("reviewPath") %>/<%= (String)m.get("reviewSaveFilename") %>" alt="Review Image">
 <!--호버(마우스 위에 올렸을 경우)시 상품 이미지-->
-                                <img class="hover-img" src="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>" alt="Product Image">
+                                <img class="hover-img" style="background:white" src="<%= request.getContextPath() %>/<%= productImg.getProductPath() %>/<%= productImg.getProductSaveFilename() %>" alt="Product Image">
                             </div>
 
 <!-- 리뷰 타이틀 -->
@@ -196,10 +169,10 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
               <%
               }
               %>
+                    </div>
  <!-- 리뷰리스트 출력 종료 -->
  
                 <div class="row">

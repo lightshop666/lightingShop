@@ -91,7 +91,7 @@ public class ReviewDao {
 	    }
 
 
-		System.out.println(list+ "<--ArrayList-- ReviewDao.selectReviewListByPage");
+		//System.out.println(list+ "<--ArrayList-- ReviewDao.selectReviewListByPage");
 
 		return list;
 	}	
@@ -218,7 +218,7 @@ public class ReviewDao {
 
 		}
 
-		System.out.println(list+ "<--ArrayList-- ReviewDao.allReviewListByPage");
+		//System.out.println(list+ "<--ArrayList-- ReviewDao.allReviewListByPage");
 
 		return list;
 	}

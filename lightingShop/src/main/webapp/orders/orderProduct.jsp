@@ -16,7 +16,7 @@
 		System.out.println(customer.getId()+"<--새로 들어온 아이디 orderProduct.jsp");
 	}else{
 		response.sendRedirect(request.getContextPath()+"/home.jsp");
-		System.out.println("로그인에서 리턴 <-- orderProduct.jsp");
+		System.out.println("로그인에서 리턴");
 		return;
 	}
 
@@ -400,6 +400,11 @@
 							</li>
 							<li><input type="number" min=0 max=<%=totalPoint %> step="100" name="usePoint" id="point"></li>
 							<li><button class="btn amado-btn w-100" type="button" id="pointBtn" onclick="togglePoint()">전액사용</button></li>
+							<li>
+								<button class="btn amado-btn w-100" type="submit" id="orderButton">
+									<span id="paymentAmount">₩ <%=decimalFormat.format(totalPrice) %></span>
+								</button>
+							</li>
 						</ul>
 						<!-------- 결제 버튼  넘겨줄 것 : productNo배열, productCnt배열, 최종금액 -->
 						<% 
@@ -415,24 +420,21 @@
 							<input type="hidden" name="customerPhone" value="<%= customerInfo.get("c.cstm_phone") %>">
 							<input type="hidden" name="customerAddress" value="<%= customerInfo.get("c.cstm_address") %>">
 							
-							<button class="btn amado-btn w-100" type="submit" id="orderButton">
-								<span id="paymentAmount">₩ <%=decimalFormat.format(totalPrice) %></span>결제
-							</button>
 	
 		<!---------------- 최종 결제 금액 -->
 						<div class="cart-summary">						
 								최종 결제 금액
 								<ul class="summary-table">
 									<li>
-										<span>상품 금액</span>
-										<span>₩ <%= decimalFormat.format(totalPrice )%></span>
+										<span>상품 금액 ₩ </span>
+										<span><%= decimalFormat.format(totalPrice )%></span>
 									</li>
 									<li>
-										<span>배송비 : </span>
-										<span>₩ <%=decimalFormat.format(deliPrice) %></span>
+										<span>배송비 : ₩ </span>
+										<span><%=decimalFormat.format(deliPrice) %></span>
 									</li>
 									<li>							
-										<span>최종 결제 금액 :  ₩ </span>
+										<span>최종 금액 : ₩ </span> 
 										<span id="finalPrice"></span>
 									</li>
 								</ul>											
@@ -589,7 +591,7 @@
 	  let finalPrice = parseFloat(finalPriceElement.innerHTML);
 	  let pointByOrder = Math.floor(pointRate * finalPrice);
 
-	  pointByOrderElement.innerHTML = pointByOrder;
+	  pointByOrderElement.innerHTML = pointByOrder.toLocaleString();
 	}
 
 	// 최종 결제 금액이 변경될 때마다 적립 예정 포인트를 계산
