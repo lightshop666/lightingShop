@@ -2,7 +2,11 @@
 <%@ page import = "vo.*" %>
 <%@ page import = "dao.*" %>
 <%@ page import = "java.util.*" %>
+<%@ page import="java.text.DecimalFormat" %> <!-- 가격에 쉼표 표시 -->
 <%
+	// 한글 깨지지 않게 인코딩
+	request.setCharacterEncoding("utf-8");
+
 	// 1. 유효성 검사
 	// productNo
 	if(request.getParameter("productNo") == null
@@ -41,6 +45,7 @@
 	ProductDao dao = new ProductDao();
 	OrderProductDao dao2 = new OrderProductDao();
 	
+	// 2-1. 페이징
 	// 리뷰 목록 페이징
 	int reviewBeginRow = (reviewCurrentPage - 1) * reviewRowPerPage;
 	int reviewPagePerPage = 5;
@@ -68,7 +73,10 @@
 		questionEndPage = questionLastPage;
 	}
 	
-	// 2-1. 상품 상세
+	// 2-2. 상품 상세
+	// 숫자 쉼표를 위한 선언
+	DecimalFormat decimalFormat = new DecimalFormat("###,###,###");
+	
 	// 상품 이미지, 상품 정보, 할인 정보
 	HashMap<String, Object> productMap = dao.selectProductAndImgOne(productNo);
 	Product product = (Product)productMap.get("product");
@@ -77,10 +85,10 @@
 	// 해당 상품의 할인율이 적용된 최종 가격
 	int discountedPrice = dao2.discountedPrice(productNo);
 	
-	// 2-2. 해당 상품의 리뷰
+	// 2-3. 해당 상품의 리뷰
 	ArrayList<HashMap<String, Object>> reviewList = dao.selectProductReviewList(reviewBeginRow, reviewRowPerPage, searchWord, productNo);
 	
-	// 2-3. 해당 상품의 문의
+	// 2-4. 해당 상품의 문의
 	ArrayList<Question> questionList = dao.selectProductQuestionListByPage(questionBeginRow, questionRowPerPage, productNo);
 %>
 <!DOCTYPE html>
@@ -267,17 +275,17 @@
 									if(product.getProductPrice() == discountedPrice) {
 								%>
 										<span class="product-price">
-											₩<%=discountedPrice%>
+											₩<%=decimalFormat.format(discountedPrice)%>
 										</span>
 								<%
 									} else {
 								%>
 										<div>
 											<span class="product-price">
-												₩<%=discountedPrice%>
+												₩<%=decimalFormat.format(discountedPrice)%>
 											</span>
 											<span class="line-through">
-												₩<%=(int)product.getProductPrice()%>
+												₩<%=decimalFormat.format(product.getProductPrice())%>
 											</span>
 											<span class="font-bold font-orange">
 												<%=discount.getDiscountRate() * 100%>%
@@ -326,182 +334,278 @@
       
 		<!------------- 2) 해당 상품의 리뷰 --------------->
 		<div id="review" class="tab-content" style="display: block;">
-			<h1>Review</h1>
-			<form action="<%=request.getContextPath()%>/product/productOne.jsp" method="post">
-				<div style="float:left;">
-					총 <%=reviewTotalRow%>건
+			<div class="product-topbar d-xl-flex align-items-end justify-content-between">
+	        <div class="total-products">
+	            <p>총 <%=reviewTotalRow%>건</p>
+	            <div style="float:right;">
+                    <form action="<%=request.getContextPath()%>/product/productOne.jsp" method="post">
+	                    <input type="hidden" name="productNo" value="<%=productNo%>">
+						<input type="text" name="searchWord" value="<%=searchWord%>" placeholder="키워드를 입력하세요">
+						<button type="submit" class="btn btn-warning">Search</button>
 				</div>
-				<div style="float:right;">
-					<input type="text" name="searchWord" placeholder="키워드를 입력하세요">
-					<button type="submit" class="btn btn-warning">Search</button>
-				</div>
-			</form>
-			<table>
-				<%
-					for(HashMap<String, Object> m : reviewList) {
-				%>
-					<tr>
-						<td><!-- 리뷰제목 -->
-							<%=m.get("reviewTitle")%> <br>
-							<!-- 리뷰내용 -->
-							<%=m.get("reviewContent")%> <br>
-							<!-- 리뷰사진 -->
-							<img src="<%=request.getContextPath()%>/<%=m.get("reviewPath")%>/<%=m.get("reviewSaveFilename")%>">
-						</td>
-						<td>
-							<!-- 수정일자 -->
-							<%=m.get("reviewCreatedate") %>
-							<!-- 작성자 -->
-							<%=m.get("id")%>
-						</td>
-					</tr>
-				<%
-					}
-				%>
-			</table>
-			<%
-				if(reviewTotalRow == 0) {
-			%>
-					리뷰가 아직 없습니다
-			<%
-				}
-			%>
-			<!-- 페이지 출력부 -->
-			<%
-				// 이전은 1페이지에서는 출력되면 안 된다
-				if(reviewBeginPage != 1) {
-			%>
-					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&reviewCurrentPage=<%=reviewBeginPage - 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
-						&laquo;
-					</a>
-			<%
-				}
-			
-				for(int i = reviewBeginPage; i <= reviewEndPage; i++) {
-					if(i == reviewCurrentPage) { // 현재페이지에서는 a태그 없이 출력
-			%>
-						<span><%=i%></span>&nbsp;
-			<%
-					} else {
-			%>
-						<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&reviewCurrentPage=<%=i%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
-							<%=i%>
-						</a>&nbsp;
-			<%
-					}
-				}
-				// 다음은 마지막 페이지에서는 출력되면 안 된다
-				if(reviewEndPage != reviewLastPage) {
-			%>
-					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&reviewCurrentPage=<%=reviewEndPage + 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>">
-						&raquo;
-					</a>
-			<%
-				}
-			%>
-	</div>
-	
-	<!------------- 3) 해당 상품의 문의 --------------->
-	<div id="question" class="tab-content">
-		<h1>Question</h1>
-		<div style="float:left;">
-			총 <%=questionTotalRow %>건
-		</div>
-		<div style="float:right;">
-			<!-- 해당 제품의 문의글 작성, productNo 값 넘기기 -->
-			<a class="btn btn-warning" href="<%=request.getContextPath()%>/board/addQuestion.jsp?productNo=<%=productNo%>">
-			문의하기
-			</a>
-		</div>
-		<table>
-			<tr>
-				<th>문의유형</th>
-				<th>작성자</th>
-				<th>제목</th>
-				<th>문의날짜</th>
-				<th>문의상태</th>
-			</tr>
-			<%
-				for(Question q : questionList) {
-			%>
-					<tr>
-						<td>[<%=q.getqCategory()%>]</td>
-						<td><%=q.getqName()%></td>
-						<td>
-							<a href="<%=request.getContextPath()%>/board/questionOne.jsp?qNo=<%=q.getqNo()%>">
-								<%=q.getqTitle()%>
-								<%
-									if(q.getPrivateChk().equals("Y")) {
-								%>
-										(잠긴 자물쇠 아이콘)
-								<%
-									} else {
-								%>
-										(열린 자물쇠 아이콘)
-								<%
-									}
-								%>
-							</a>
-						</td>
-						<td><%=q.getCreatedate().substring(0,10)%></td>
-						<td>
-							<%
-								if(q.getaChk().equals("Y")) {
-							%>	
-									답변완료
-							<%
-								} else {
-							%>		
-									답변대기	
+	        </div>
+            <!-- Sorting -->
+            <div class="product-sorting d-flex">
+                <div class="view-product d-flex align-items-center">
+                    <p>View</p>
+	                        <select name="reviewRowPerPage" id="viewProduct" onchange="this.form.submit()">
+	                        <%
+								for (int i = 5; i <= 50; i = i + 5) {
+							%>
+									<option value="<%=i%>" <%if (reviewRowPerPage == i) {%> selected <%}%>>
+										<%=i%>
+									</option>
 							<%
 								}
 							%>
-						</td>
-					</tr>
-			<%
-				}
-			%>
-		</table>
-		<%
-			if(questionTotalRow == 0) {
-		%>
-				문의글이 없습니다
-		<%
-			}
-		%>
-		<!-- 페이지 출력부 -->
-		<%
-			// 이전은 1페이지에서는 출력되면 안 된다
-			if(questionBeginPage != 1) {
-		%>
-				<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&questionCurrentPage=<%=questionBeginPage - 1%>&questionRowPerPage=<%=questionRowPerPage%>">
-					&laquo;
-				</a>
-		<%
-			}
-		
-			for(int i = questionBeginPage; i <= questionEndPage; i++) {
-				if(i == questionCurrentPage) { // 현재페이지에서는 a태그 없이 출력
-		%>
-					<span><%=i%></span>&nbsp;
-		<%
-				} else {
-		%>
-					<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&questionCurrentPage=<%=i%>&questionRowPerPage=<%=questionRowPerPage%>">
-						<%=i%>
-					</a>&nbsp;
-		<%
-				}
-			}
-			// 다음은 마지막 페이지에서는 출력되면 안 된다
-			if(questionEndPage != questionLastPage) {
-		%>
-				<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&questionCurrentPage=<%=questionEndPage + 1%>&questionRowPerPage=<%=questionRowPerPage%>">
-					&raquo;
-				</a>
-		<%
-			}
-		%>
+	                        </select>
+                    	</form>
+              		</div>
+            	</div>
+        	</div>
+        	<div class="row">
+				<!-- 리뷰 리스트 출력 -->
+				<%
+					for(HashMap<String, Object> m : reviewList) {
+				%>
+					<div class="col-12 col-sm-6 col-md-12 col-xl-6">
+						<div class="card" style="width: 25rem;">
+							<a class="gallery_img" href="<%=request.getContextPath()%>/<%=m.get("reviewPath")%>/<%=m.get("reviewSaveFilename")%>">
+								<img src="<%=request.getContextPath()%>/<%=m.get("reviewPath")%>/<%=m.get("reviewSaveFilename")%>" class="card-img-top">
+							</a>
+						  <div class="card-body">
+						    <h5 class="card-title"><%=m.get("reviewTitle")%></h5>
+						    <p class="card-text"><%=m.get("reviewContent")%></p>
+						  </div>
+						  <ul class="list-group list-group-flush">
+						    <li class="list-group-item"><%=m.get("id")%></li>
+						    <li class="list-group-item card-subtitle mb-2 text-muted"><%=m.get("reviewCreatedate") %></li>
+						  </ul>
+						</div>
+					</div>
+				<%
+					}
+				
+					if(reviewTotalRow == 0) {
+				%>
+						리뷰가 아직 없습니다
+				<%
+					}
+				%>
+			</div>
+	        <!------------------ 페이지 출력부 ------------------>
+            <div class="row">
+            	<div class="col-12">
+                	<nav aria-label="navigation">
+                    	<ul class="pagination justify-content-end mt-50">
+				        	<%
+								// 이전은 1페이지에서는 출력되면 안 된다
+								if(reviewBeginPage != 1) {
+							%>
+									<li class="page-item">
+										<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&reviewCurrentPage=<%=reviewBeginPage - 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>" class="page-link">
+											&laquo;
+										</a>
+									</li>
+							<%
+								}
+								
+								for(int i = reviewBeginPage; i <= reviewEndPage; i++) {
+									if(i == reviewCurrentPage) { // 현재페이지에서는 a태그 링크 없이 출력
+							%>
+										<li class="page-item active">
+											<a href="#" class="page-link">
+												<%=i%>
+											</a>
+										</li>
+							<%
+									} else {
+							%>
+										<li class="page-item">
+											<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&reviewCurrentPage=<%=i%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>" class="page-link">
+												<%=i%>
+											</a>
+										</li>
+							<%
+									}
+								}
+								// 다음은 마지막 페이지에서는 출력되면 안 된다
+								if(reviewEndPage != reviewLastPage) {
+							%>
+									<li class="page-item">
+										<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&reviewCurrentPage=<%=reviewEndPage + 1%>&reviewRowPerPage=<%=reviewRowPerPage%>&searchWord=<%=searchWord%>" class="page-link">
+											&raquo;
+										</a>
+									</li>
+							<%
+								}
+							%>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+	
+		<!------------- 3) 해당 상품의 문의 --------------->
+		<div id="question" class="tab-content">
+			<div class="product-topbar d-xl-flex align-items-end justify-content-between">
+		        <div class="total-products">
+		            <p>총 <%=questionTotalRow%>건</p>
+		            <!-- 해당 제품의 문의글 작성, productNo 값 넘기기 -->
+					<button type="button" class="btn btn-warning">
+						<a href="<%=request.getContextPath()%>/board/addQuestion.jsp?productNo=<%=productNo%>">
+							문의하기
+						</a>
+					</button>
+		        </div>
+	            <!-- Sorting -->
+	            <div class="product-sorting d-flex">
+	                <div class="view-product d-flex align-items-center">
+	                    <p>View</p>
+	                    	<form action="<%=request.getContextPath()%>/product/productOne.jsp" method="post">
+	                    	<input type="hidden" name="productNo" value="<%=productNo%>">
+		                        <select name="questionRowPerPage" id="viewProduct" onchange="this.form.submit()">
+		                        <%
+									for (int i = 5; i <= 50; i = i + 5) {
+								%>
+										<option value="<%=i%>" <%if (questionRowPerPage == i) {%> selected <%}%>>
+											<%=i%>
+										</option>
+								<%
+									}
+								%>
+		                        </select>
+	                    	</form>
+	              		</div>
+	            	</div>
+	        	</div>
+				<!-- 문의글 리스트 출력 -->
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th>문의유형</th>
+							<th>작성자</th>
+							<th>제목</th>
+							<th>문의날짜</th>
+							<th>문의상태</th>
+						</tr>
+					</thead>
+					<tbody>
+						<%
+							for(Question q : questionList) {
+						%>
+								<tr>
+									<td>[<%=q.getqCategory()%>]</td>
+									<td><h6><%=q.getqName()%></h6></td>
+									<td>
+										<%
+											if(q.getPrivateChk().equals("Y")) { // 비공개인 경우
+												if(session.getAttribute("loginIdListId") == null
+														|| !session.getAttribute("loginIdListId").equals(q.getId())) {
+													// 로그인 상태가 아니거나, 현재 로그인 아이디와 작성자 아이디가 일치하지 않으면
+													// 비밀번호 입력 페이지로 이동
+										%>
+													<a href="<%=request.getContextPath()%>/board/inputPassword.jsp?qNo=<%=q.getqNo()%>">
+														<%=q.getqTitle()%>
+													</a>
+													&#x1F512;
+										<%
+												} else {
+													// 작성자 아이디와 현재 로그인 아이디가 일치하면 바로 문의글 상세페이지로 이동
+										%>
+													<a href="<%=request.getContextPath()%>/board/questionOne.jsp?qNo=<%=q.getqNo()%>">
+														<%=q.getqTitle()%>
+													</a>
+													&#x1F512;
+										<%
+												}
+											} else { // 비공개가 아닐경우 바로 문의글 상세 페이지로 이동
+										%>
+												<a href="<%=request.getContextPath()%>/board/questionOne.jsp?qNo=<%=q.getqNo()%>">
+													<%=q.getqTitle()%>
+												</a>
+										<%
+											}
+										%>
+									</td>
+									<td><%=q.getCreatedate().substring(0,10)%></td>
+									<td>
+										<%
+											if(q.getaChk().equals("Y")) {
+										%>	
+												<h6><span class="badge bg-primary">답변완료</span></h6>
+										<%
+											} else {
+										%>		
+												<h6><span class="badge bg-danger">답변대기</span></h6>
+										<%
+											}
+										%>
+									</td>
+								</tr>
+						<%
+							}
+						%>
+					</tbody>
+				</table>
+				<%
+					if(questionTotalRow == 0) {
+				%>
+						문의글이 없습니다
+				<%
+					}
+				%>
+		        <!------------------ 페이지 출력부 ------------------>
+	            <div class="row">
+	            	<div class="col-12">
+	                	<nav aria-label="navigation">
+	                    	<ul class="pagination justify-content-end mt-50">
+					        	<%
+									// 이전은 1페이지에서는 출력되면 안 된다
+									if(questionBeginPage != 1) {
+								%>
+										<li class="page-item">
+											<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&questionCurrentPage=<%=questionBeginPage - 1%>&questionRowPerPage=<%=questionRowPerPage%>" class="page-link">
+												&laquo;
+											</a>
+										</li>
+								<%
+									}
+									
+									for(int i = questionBeginPage; i <= questionEndPage; i++) {
+										if(i == questionCurrentPage) { // 현재페이지에서는 a태그 링크 없이 출력
+								%>
+											<li class="page-item active">
+												<a href="#" class="page-link">
+													<%=i%>
+												</a>
+											</li>
+								<%
+										} else {
+								%>
+											<li class="page-item">
+												<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&questionCurrentPage=<%=i%>&questionRowPerPage=<%=questionRowPerPage%>" class="page-link">
+													<%=i%>
+												</a>
+											</li>
+								<%
+										}
+									}
+									// 다음은 마지막 페이지에서는 출력되면 안 된다
+									if(questionEndPage != questionLastPage) {
+								%>
+										<li class="page-item">
+											<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>&questionCurrentPage=<%=questionEndPage + 1%>&questionRowPerPage=<%=questionRowPerPage%>" class="page-link">
+												&raquo;
+											</a>
+										</li>
+								<%
+									}
+								%>
+							</ul>
+						</nav>
+					</div>
+				</div>
 		 </div>
         <!-- Product Details Area End -->
 	</div>
