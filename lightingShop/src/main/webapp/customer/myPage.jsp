@@ -123,25 +123,30 @@
     
     	<!-- menu 좌측 bar -->
 	    <div>
-			<jsp:include page="/inc/menu.jsp"></jsp:include>
+			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
 		</div>
 
 		<div class="shop_sidebar_area">
 			<!-- ##### Single Widget ##### -->
 	        <div class="widget catagory mb-50">
 	            <!-- Widget Title -->
-	            <h6 class="widget-title mb-30">Catagories</h6>
+	            <h6 class="widget-title mb-30">myPage</h6>
 	
 	            <!--  Catagories  -->
 	            <div class="catagories-menu">
 	                <ul>
-	                    <li class="active"><a href="#">Chairs</a></li>
-	                    <li><a href="#">Beds</a></li>
-	                    <li><a href="#">Accesories</a></li>
-	                    <li><a href="#">Furniture</a></li>
-	                    <li><a href="#">Home Deco</a></li>
-	                    <li><a href="#">Dressings</a></li>
-	                    <li><a href="#">Tables</a></li>
+	                    <!-- 내정보 상세보기 -->
+	                    <li><a href="<%=request.getContextPath()%>/customer/customerOne.jsp">Profile</a></li>
+	                    <!-- 배송지 관리 -->
+	                    <li><a href="<%=request.getContextPath()%>/customer/addressList.jsp">Your Addresses</a></li>
+	                    <!-- 포인트 내역 -->
+	                    <li><a href="<%=request.getContextPath()%>/customer/customerPointList.jsp">point</a></li>
+	                    <!-- 내리뷰 확인  -->
+	                    <li><a href="<%=request.getContextPath()%>/review/myReview.jsp">Your Review</a></li>
+	                    <!-- 내문의 확인 -->
+	                    <li><a href="<%=request.getContextPath()%>/board/myQuestionList.jsp">Your Question</a></li>
+	                    <!-- 주문내역 확인 -->
+	                    <li><a href="<%=request.getContextPath()%>/orders/orderProductList.jsp">Your Orders</a></li>
 	                </ul>
 	            </div>
 	        </div>

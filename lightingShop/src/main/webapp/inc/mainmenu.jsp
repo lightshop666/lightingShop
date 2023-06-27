@@ -68,30 +68,6 @@
                     <li><a href="<%=request.getContextPath()%>/product/productList.jsp">Shop</a></li>
                     <li><a href="<%=request.getContextPath()%>/review/reviewList.jsp">Review</a></li>
                     <li><a href="<%=request.getContextPath()%>/board/questionBoardList.jsp">Question</a></li>
-             	<%
-					// 고객 - 로그인했다면 아래 내역
-					if(session.getAttribute("loginIdListId") != null) {
-				%>
-                    <!-- 내정보 상세보기 -->
-                    <li><a href="<%=request.getContextPath()%>/customer/customerOne.jsp">Profile</a></li>
-					<!-- 포인트 내역 -->
-					<li><a href="<%=request.getContextPath()%>/customer/customerPointList.jsp">point</a></li>
-					<!-- 배송지 관리 -->
-					<li><a href="<%=request.getContextPath()%>/customer/addressList.jsp">Your Addresses</a></li>
-					<!-- 나의 주문 내역  -->
-					<li><a href="<%=request.getContextPath()%>/orders/orderProductList.jsp">Your Orders</a></li>
-					<!-- 나의 리뷰 -->
-					<li><a href="<%=request.getContextPath()%>/review/myReview.jsp">Your Review</a></li>
-					<!-- 1:1 문의 -->
-					<li><a href="<%=request.getContextPath()%>/board/myQuestionList.jsp">Contact Us</a></li>
-				<%
-					}
-				%>	
-					<%-- 사용하지 않는 기능	
-					<!-- 등급확인 - 등급에 따른 이미지 출력-->
-					<%=id%>님의 등급은 <%=customerOne.get("c.cstm_rank")%>입니다. 
-					--%>
-					
                 </ul>
             </nav>
             <!-- Button Group -->
