@@ -59,7 +59,7 @@ a.product-name {
   text-decoration: underline !important;
 }
 
-td.price {
+td.total-price {
   font-family: 'Lato', sans-serif !important;
 }
 td button {
@@ -313,7 +313,7 @@ td span {
 																%>	         	                       
 							                                	<a class="product-name" style="text-decoration: underline;"  href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=productNo%>"><%= cartProduct.get("productName") %></a>
 							                                </td>
-							                                <td class="product-price"><%= cartProduct.get("price") %>원</td>
+							                                <td class="price"><span><%= cartProduct.get("price") %>원</span></td>
 														    <td colspan="2" class="qty">
 															 	<button type="button" onclick="increaseQuantity('<%= productNo %>')">+</button>
 							                                    <span id="quantity_<%= productNo %>"><%= cartProduct.get("quantity") %></span>
@@ -398,14 +398,14 @@ td span {
 													       if (checkboxes[i].checked) {
 													           var productNoInput = document.createElement("input");
 													           productNoInput.setAttribute("type", "hidden");
-													           productNoInput.setAttribute("name", "productNo[]");
+													           productNoInput.setAttribute("name", "productNo");
 													           productNoInput.setAttribute("value", checkboxes[i].value);
 													           form.appendChild(productNoInput);
 					
 													           
 													           var productCntInput = document.createElement("input");
 													           productCntInput.setAttribute("type", "hidden");
-													           productCntInput.setAttribute("name", "productCnt[]");
+													           productCntInput.setAttribute("name", "productCnt");
 													           productCntInput.setAttribute("value", quantityInputs[i].value);
 													           form.appendChild(productCntInput);
 													       }
