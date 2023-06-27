@@ -3,11 +3,26 @@
 <%@ page import="vo.*" %>
 <%@ page import="java.util.*"%>
 <%
+	
+    // 정렬 정보 가져오기
+    String sortByCategory = request.getParameter("sortByCategory");
+    if (sortByCategory == null) {
+    	sortByCategory = "";
+    }
 
-	String category = null;
-	if(request.getParameter("category") !=null){
-		category = request.getParameter("category");
-	}
+    String sortBydate = request.getParameter("sortBydate");
+    if (sortBydate == null) {
+    	sortBydate = "";
+    }
+
+    // 변환값 디버깅하기
+    System.out.println("sortByCategory: " + sortByCategory);
+    System.out.println("sortBydate: " + sortBydate);
+    
+	
+	
+	
+	
 	//모델 호출
 	ReviewDao reviewDao = new ReviewDao();
 	CategoryDao cateDao = new CategoryDao();
@@ -26,7 +41,7 @@
 	int beginRow = (currentPage-1) * rowPerPage + 1;
 	
 	//총 행을 구하기 위한 메소드
-	int totalRow = reviewDao.selectReviewCnt();
+	int totalRow = reviewDao.selectReviewCnt(sortByCategory);
 	
 	//마지막 페이지
 	int lastPage = totalRow / rowPerPage;
@@ -43,7 +58,7 @@
 		maxPage = lastPage;
 	}
 	//Review 출력
-	 ArrayList<HashMap<String, Object>> AllReviewList  = reviewDao.allReviewListByPage(beginRow, rowPerPage, category );
+	 ArrayList<HashMap<String, Object>> AllReviewList  = reviewDao.allReviewListByPage(beginRow, rowPerPage, sortByCategory, sortBydate);
 	//카테고리 출력
 	List<String> cateList = cateDao.getCategoryList();
 %>
@@ -92,6 +107,24 @@
     max-width: 80%;
     max-height: 80%;
 	}
+	
+	/*버튼 사이즈 작은거*/
+	.custom-button {
+	  background-color: #f1bb41;
+	 border: none;
+	  color: white;
+	  padding: 10px 20px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  font-size: 8px;
+	  margin: 4px 2px;
+	  cursor: pointer;
+	  transition: background-color 0.3s; /* 색상 변화에 0.3초의 트랜지션 효과 적용 */
+	}
+	.custom-button:hover {
+	  background-color: black; /* 마우스를 올렸을 때 버튼 배경색을 회색으로 설정 */
+	}
 </style>
 </head>
 <body>
@@ -115,8 +148,7 @@
 </div>
 
    <!-- ##### Main Content Wrapper Start ##### -->
-    <div class="main-content-wrapper d-flex clearfix">
-    
+    <div class="main-content-wrapper d-flex clearfix">    
         <!-- Mobile Nav (max width 767px)-->
         <div class="mobile-nav">
             <!-- Navbar Brand -->
@@ -138,34 +170,33 @@
         <!-- Header Area End -->
         
         <div class="amado_product_area section-padding-100">
-            <div class="container-fluid">
+            <div class="container-fluid">            
             <div class="cart-table clearfix">            
              <!-- 정렬 상품 카테고리 별로 -->
-                <div class="row">
-                    <div class="col-12 col-lg-11 text-center""  >
-                        <div class="product-topbar d-xl-flex align-items-end justify-content-between">
-                            <!-- Sorting -->
-                            <div class="product-sorting d-flex">
-                                <div class="sort-by-date d-flex align-items-center mr-15">
-                                    <p>Sort by</p>
-                                    <form action="<%=request.getContextPath()%>/review/myReview.jsp" method="get">
-                                        <select name="selectCategory" id="sortBydate">
-                                        	<option value="All">&nbsp;ALL</option>
-                                        <%
-                                        	for(String s : cateList){
-                                                if(s.equals("관리자")) continue; // 관리자 카테고리 건너뛰기
-                                        %>
-                                            <option value="<%=s %>">&nbsp;<%=s %></option>
-                                        <%
-                                        	}
-                                        %>
-                                        </select>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+			<div class="row">
+			    <div class="col-12 col-lg-11 text-center">
+			        <div class="product-topbar d-flex align-items-center justify-content-between">
+			            <p class="mr-2">Sort by</p>
+			            <form id="sortForm" action="<%=request.getContextPath()%>/review/reviewList.jsp" method="get" class="d-flex">
+			                <select name="sortByCategory" class="sortByCategory">
+			                    <!-- 카테고리 정렬 -->
+			                    <option value="">&nbsp;ALL</option>
+			                    <% for(String s : cateList){
+			                        if(s.equals("관리자")) continue; // 관리자 카테고리 건너뛰기
+			                    %>
+			                        <option value="<%=s %>">&nbsp;<%=s %></option>
+			                    <% } %>
+			                </select>
+			                <select name="sortBydate" class="sortBydate">
+			                    <option value="ASC" <%= sortBydate.equals("ASC") ? "selected" : "" %>>오름차순</option>
+			                    <option value="DESC" <%= sortBydate.equals("DESC") ? "selected" : "" %>>내림차순</option>
+			                </select>
+			                <button type="submit" class="custom-button">정렬</button>
+			            </form>
+			        </div>
+			    </div>
+			</div>
+
 
                 <div class="row">
 
@@ -205,46 +236,38 @@
               %>
               </div>
  <!-- 리뷰리스트 출력 종료 -->
- 				                        <div class="cart-table clearfix">
  				
-				<div class="pagination justify-content-center mt-50">
-	                <!-- 페이징 -->
-	                    <div class="col-12">
-	                        <nav aria-label="navigation">
-	                            <ul class="pagination justify-content-end mt-50">
-								<%
-									//1번 페이지보다 작은데 나오면 음수로 가버린다
-									if (minPage > 1) {
-								%>
-										<li class="page-item"><a href=" <%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=minPage-pageRange%>">이전</a></li>
-								
-								<%	
-									}
-									for(int i=minPage; i <= maxPage; i=i+1){
-										if ( i == currentPage){		
-								%>
-											<li class="page-item active"><span><%=i %></span></li>
-								<%
-										}else{
-								%>
-											<li class="page-item"><a href=" <%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=i%>"><%=i %></a></li>
-								<%
-										}
-									}
-								
-									//maxPage와 lastPage가 같지 않으면 여분임으로 마지막 페이지목록일거다.
-									if(maxPage != lastPage ){
-								%>
-										<!-- maxPage+1해도 동일하다 -->
-										<li class="page-item"><a href=" <%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=minPage+pageRange%>">다음</a></li>
-								<%
-									}
-								%>
-	                            </ul>
-	                        </nav>
-	                    </div>                
-	                </div>     
-	               </div>           
+<div class="pagination mt-50" style="display: flex; justify-content: center;">
+    <!-- 페이징 -->
+    <div class="col-12">
+        <nav aria-label="navigation">
+            <ul class="pagination justify-content-center">
+                <% if (minPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="<%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=minPage-pageRange%>">이전</a>
+                    </li>
+                <% }
+                for (int i = minPage; i <= maxPage; i = i + 1) {
+                    if (i == currentPage) { %>
+                        <li class="page-item active">
+                            <a class="page-link" href="#"><%=i %>. </a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item">
+                            <a class="page-link" href="<%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=i%>"><%=i %></a>
+                        </li>
+                    <% }
+                }
+                if (maxPage != lastPage) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="<%=request.getContextPath()%>/review/reviewList.jsp?currentPage=<%=minPage+pageRange%>">다음</a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>   
+</div>
+      
 	             <div class="row">
                 </div>      
                 </div>

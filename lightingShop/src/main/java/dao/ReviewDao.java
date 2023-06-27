@@ -161,7 +161,7 @@ public class ReviewDao {
 	LIMIT ?, ?	
 
 	 * */
-	public ArrayList<HashMap<String, Object>> allReviewListByPage(int beginRow, int rowPerPage, String category) throws Exception {
+	public ArrayList<HashMap<String, Object>> allReviewListByPage(int beginRow, int rowPerPage, String sortByCategory, String sortBydate ) throws Exception {
 		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 		//디비 호출
 		DBUtil dbUtil = new DBUtil();
@@ -179,16 +179,29 @@ public class ReviewDao {
 				+ "INNER JOIN orders o ON op.order_no = o.order_no "
 				+ "INNER JOIN product p ON op.product_no = p.product_no "
 				+ "LEFT JOIN product_img pi ON p.product_no = pi.product_no "
-				+ "WHERE r.review_written = 'Y' "
+				+ "WHERE r.review_written = 'Y' ";
+		//만약 카테고리 정렬이 ""(=공백)이 아니라면 조건 추가
+		if (!sortByCategory.equals("")) {
+			mainSql += " AND p.category_name = ?";
+		}
+		
+		if(sortBydate.equals("")
+		||sortBydate.equals("DESC")) {
+			mainSql +=" ORDER BY r.createdate DESC";
+		}else {
+			mainSql +=" ORDER BY r.createdate ASC";			
+		}
 				
-				
-				+ "ORDER BY r.createdate DESC "
-				+ "LIMIT ?, ?";
+		mainSql	+= " LIMIT ?, ?";
 
 		PreparedStatement mainStmt = conn.prepareStatement(mainSql);
 		//페이징 처리를 위한 SQL 쿼리문에서의 인덱스는 0부터 시작하므로 beginRow를 1을 빼서 0부터 시작하도록 설정
-		mainStmt.setInt(1, beginRow-1);
-		mainStmt.setInt(2, rowPerPage);
+		int parameterIndex = 1;
+		if (!sortByCategory.equals("")) {
+		    mainStmt.setString(parameterIndex++, sortByCategory);
+		}
+		mainStmt.setInt(parameterIndex++, beginRow - 1);
+		mainStmt.setInt(parameterIndex, rowPerPage);
 		
 		ResultSet mainRs = mainStmt.executeQuery();
 		
@@ -225,18 +238,37 @@ public class ReviewDao {
 	
 	
 //2-2)리뷰 테이블 전체 row
-
-	public int selectReviewCnt() throws Exception {
+/*
+SELECT COUNT(DISTINCT r.order_product_no)
+FROM review r
+	INNER JOIN order_product op ON r.order_product_no = op.order_product_no
+		INNER JOIN product p ON op.product_no = p.product_no
+WHERE r.review_written = 'Y' AND p.category_name = '펜던트';
+ */
+	public int selectReviewCnt(String sortByCategory) throws Exception {
 	//검색을 하거나, 특정 where절이 있으면 입력값이 필요할 수 있다.
 		int row = 0;
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
 		
-		String sql = "SELECT COUNT(*) FROM review WHERE review_written = 'Y'"; 
+		String sql = "SELECT COUNT(DISTINCT r.order_product_no) "
+				+ "FROM review r "
+				+ "	INNER JOIN order_product op ON r.order_product_no = op.order_product_no "
+				+ "		INNER JOIN product p ON op.product_no = p.product_no "
+				+ "WHERE r.review_written = 'Y'"; 
+		
+		if(!sortByCategory.equals("")) {
+			sql+=" AND p.category_name = ?";
+		}
+		
 		PreparedStatement stmt = conn.prepareStatement(sql);
+	    if (!sortByCategory.equals("")) {
+	        stmt.setString(1, sortByCategory);
+	    }
+	    
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
-			row = rs.getInt("COUNT(*)");
+			row = rs.getInt(1);
 		}
 		System.out.println(row+ "<--ArrayList-- ReviewDao.selectReviewCnt");
 
