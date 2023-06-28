@@ -29,21 +29,22 @@
                                 <div class="collapse navbar-collapse" id="footerNavContent">
                                     <ul class="navbar-nav ml-auto">
                                         <li class="nav-item active">
-                                            <a class="nav-link" href="<%=request.getContextPath()%>/home.jsp">Home</a>
+                                            <a class="nav-link" href="#">Eclipse</a>
                                         </li>
                                         <li class="nav-item">
-                                        	<!-- 임시로 HOME -->
-                                            <a class="nav-link" href="<%=request.getContextPath()%>/home.jsp">Shop</a>
+                                            <a class="nav-link" href="#">JDK(17.0.6)</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="<%=request.getContextPath()%>/orders/orderProductList.jsp">Product</a>
+                                            <a class="nav-link" href="#">Mariadb(10.5.19), HeidiSQL</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="<%=request.getContextPath()%>/cart/cartList.jsp">Cart</a>
+											<a class="nav-link" href="#">Apache Tomcat(9.0.76)</a>							
                                         </li>
                                         <li class="nav-item">
-                                        	 <!-- 결제창 -->
-                                            <a class="nav-link" href="checkout.html">Checkout</a>
+											<a class="nav-link" href="#">html5, bootstrap5</a>							
+                                        </li>
+                                        <li class="nav-item">
+											<a class="nav-link" href="#">DOM API (javascript)</a>							
                                         </li>
                                     </ul>
                                 </div>

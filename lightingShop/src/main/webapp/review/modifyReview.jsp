@@ -86,17 +86,6 @@
                 <div class="row">
                 	<form action="<%=request.getContextPath()%>/review/modifyReviewAction.jsp" method="post"  enctype="multipart/form-data">
                     <div class="col-12 col-lg-7"> 
-<!-- 리뷰 이미지 -->
-                        <div class="single_product_thumb">
-                        	<div class="carousel-inner">
-								<div class="carousel-item active">
-									<img src="<%= request.getContextPath()%>/<%=(String)review.getReviewPath()%>/<%=(String)review.getReviewSaveFilename()%>" alt="Review Image">
-                               		<input type="file" name="reviewFile">                               
-                                 </div>
-                        	</div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-5">
                         <div class="single_product_desc">
                             <!-- Product Meta Data -->
                             <div class="product-meta-data">
@@ -114,18 +103,27 @@
 										<span>수정일 : </span>
 										<span><%=review.getUpdatedate()%></span>
 									</p>
+	                            <div class="short_overview my-5">
+	                            	<textarea rows="3" cols="70" name="reviewContent"><%=review.getReviewContent()%></textarea>
+	                            </div>     
+                                <div class="line"></div>                      
                             </div>
-                            <div class="short_overview my-5">
-                            	<textarea rows="3" cols="70" name="reviewContent">
-                             		<%=review.getReviewContent()%>
-								</textarea>
-                            </div>
+                            <!-- 리뷰 이미지 -->
+	                        <div class="single_product_thumb">
+	                        	<div class="carousel-inner">
+									<div class="carousel-item active">
+										<img src="<%= request.getContextPath()%>/<%=(String)review.getReviewPath()%>/<%=(String)review.getReviewSaveFilename()%>" alt="Review Image">
+	                               		<input type="file" name="reviewFile">                               
+	                                 </div>
+	                        	</div>
+	                        </div>
+				              <div>
+									<input type="hidden" name="orderProductNo" value="<%=orderProductNo %> ">
+									<input type="hidden" name="saveFilename" value="<%=(String)review.getReviewSaveFilename()%> ">
+									<button type="submit" class="btn amado-btn w-100">수정</button>
+							</div>
+							
                         </div>
-			              <div>
-								<input type="hidden" name="orderProductNo" value="<%=orderProductNo %> ">
-								<input type="hidden" name="saveFilename" value="<%=(String)review.getReviewSaveFilename()%> ">
-								<button type="submit" class="btn amado-btn w-100">수정</button>
-						</div>
                     </div>	
                     </form>
                 </div>

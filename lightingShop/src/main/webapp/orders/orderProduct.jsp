@@ -22,7 +22,10 @@
 
 	System.out.println(customer.getId()+"<--customer.getId()-- orderProduct.jsp");
 	
-	
+	if(request.getParameterValues("productNo").length==0){
+	    out.println("<script>alert('선택된 상품이없습니다. StrOrderProductList'); history.go(-1);</script>");
+	    return;
+	}
 	String[] productNos = request.getParameterValues("productNo");
 	String[] productCnts = request.getParameterValues("productCnt");
 	
@@ -32,6 +35,7 @@
 	   productNo =  Arrays.stream(productNos)
 	             .filter(s -> !s.isEmpty())
 	             .toArray(String[]::new);
+	}else{
 	}
 	
 	String[] productCnt = new String[99];
@@ -61,7 +65,7 @@
 
    		if (productNo.length > 1) {
 			// 카트에서 넘어온 경우
-			response.sendRedirect(request.getContextPath() + "/cart/cart.jsp");
+			response.sendRedirect(request.getContextPath() + "/cart/cartList.jsp");
 		} else {
 			// 단일 주문인 경우
 			int singleProductNo = Integer.parseInt(productNo[0]);
