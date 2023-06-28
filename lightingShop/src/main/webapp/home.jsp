@@ -1,5 +1,17 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-   
+<%@ page import = "vo.*" %>
+<%@ page import = "dao.*" %>
+<%@ page import = "java.util.*" %>
+<%@ page import = "java.text.DecimalFormat" %>
+<%
+	// 전체 카테고리의 특가할인 상품 상위 n개 조회 메서드 호출
+	ProductDao dao = new ProductDao();
+	int n = 9; // 9개 조회
+	String categoryName = ""; // 공백이면 전체 카테고리 조회
+	ArrayList<HashMap<String, Object>> discountProductTop = dao.selectDiscountProductTop(categoryName, n);
+	// 숫자 쉼표를 위한 선언
+	DecimalFormat decimalFormat = new DecimalFormat("###,###,###");
+%>   
 <!DOCTYPE html>
 <html>
 <head>
@@ -64,122 +76,37 @@
         <div class="products-catagories-area clearfix">
             <div class="amado-pro-catagory clearfix">
 
-                <!-- Single Catagory -->
-                <div class="single-products-catagory clearfix">
-                    <a href="shop.html">
-                        <img src = "<%=request.getContextPath()%>/resources/img/bg-img/1.jpg" alt="">
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                            <div class="line"></div>
-                            <p>From $180</p>
-                            <h4>Modern Chair</h4>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Catagory -->
-                <div class="single-products-catagory clearfix">
-                    <a href="shop.html">
-                        <img src = "<%=request.getContextPath()%>/resources/img/bg-img/2.jpg" alt="">
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                            <div class="line"></div>
-                            <p>From $180</p>
-                            <h4>Minimalistic Plant Pot</h4>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Catagory -->
-                <div class="single-products-catagory clearfix">
-                    <a href="shop.html">
-                        <img src = "<%=request.getContextPath()%>/resources/img/bg-img/3.jpg" alt="">
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                            <div class="line"></div>
-                            <p>From $180</p>
-                            <h4>Modern Chair</h4>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Catagory -->
-                <div class="single-products-catagory clearfix">
-                    <a href="shop.html">
-                        <img src = "<%=request.getContextPath()%>/resources/img/bg-img/4.jpg" alt="">
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                            <div class="line"></div>
-                            <p>From $180</p>
-                            <h4>Night Stand</h4>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Catagory -->
-                <div class="single-products-catagory clearfix">
-                    <a href="shop.html">
-                        <img src = "<%=request.getContextPath()%>/resources/img/bg-img/5.jpg" alt="">
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                            <div class="line"></div>
-                            <p>From $18</p>
-                            <h4>Plant Pot</h4>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Catagory -->
-                <div class="single-products-catagory clearfix">
-                    <a href="shop.html">
-                        <img src = "<%=request.getContextPath()%>/resources/img/bg-img/6.jpg" alt="">
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                            <div class="line"></div>
-                            <p>From $320</p>
-                            <h4>Small Table</h4>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Catagory -->
-                <div class="single-products-catagory clearfix">
-                    <a href="shop.html">
-                        <img src = "<%=request.getContextPath()%>/resources/img/bg-img/7.jpg" alt="">
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                            <div class="line"></div>
-                            <p>From $318</p>
-                            <h4>Metallic Chair</h4>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Catagory -->
-                <div class="single-products-catagory clearfix">
-                    <a href="shop.html">
-                        <img src = "<%=request.getContextPath()%>/resources/img/bg-img/8.jpg" alt="">
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                            <div class="line"></div>
-                            <p>From $318</p>
-                            <h4>Modern Rocking Chair</h4>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Catagory -->
-                <div class="single-products-catagory clearfix">
-                    <a href="shop.html">
-                        <img src = "<%=request.getContextPath()%>/resources/img/bg-img/9.jpg" alt="">
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                            <div class="line"></div>
-                            <p>From $318</p>
-                            <h4>Home Deco</h4>
-                        </div>
-                    </a>
-                </div>
+				<%
+					for(HashMap<String, Object> m : discountProductTop) {
+						// 할인율이 적용된 최종 가격과 비교해야 할인 날짜까지 고려가능
+						if((int)m.get("productPrice") != (int)m.get("discountedPrice")) {
+				%>
+							<!-- Single Catagory -->
+			                <div class="single-products-catagory clearfix">
+			                    <a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo=<%=m.get("productNo")%>">
+			                        <%
+										// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+										if(m.get("productImgSaveFilename") == null) {
+									%>
+											<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+									<%
+										} else {
+									%>
+											<img src="<%=request.getContextPath()%>/<%=m.get("productImgPath")%>/<%=m.get("productImgSaveFilename")%>">
+									<%	
+										}
+									%>
+			                        <!-- Hover Content -->
+			                        <div class="hover-content">
+			                            <div class="line"></div>
+			                            <p>₩<%=decimalFormat.format(m.get("discountedPrice"))%></p>
+			                        </div>
+			                    </a>
+			                </div>
+				<%
+						}
+					}
+				%>
             </div>
         </div>
         <!-- Product Catagories Area End -->
