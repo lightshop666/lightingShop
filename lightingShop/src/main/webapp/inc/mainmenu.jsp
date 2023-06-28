@@ -47,8 +47,8 @@
 			%>
                     </li>
                     <li>
-                    <!-- 비로그인 : 로그인 버튼 / 로그인 : 마이페이지 버튼-->
-				<%	//비로그인 : 로그인
+                    <!-- 비로그인 : 로그인 버튼 / 로그인 : 마이페이지 버튼 /-->
+				<%		//비로그인 : 로그인
 						if(session.getAttribute("loginIdListId") == null) { // 로그인전
 				%>
 							<a class="nav-link" href="<%=request.getContextPath()%>/customer/myPage.jsp">
@@ -56,12 +56,18 @@
 							</a>
 				<%
 						//로그인시 : 마이페이지
-						}else{
+						}else if(session.getAttribute("loginIdListEmpLevel") == null && session.getAttribute("loginIdListId") != null){
 				%>
 							<a class="nav-link" href="<%=request.getContextPath()%>/customer/myPage.jsp">
 								My Page
 							</a>
-				<%
+				<%		//관리자로그인 : 관리자페이지
+						}else{
+				%>
+							<a class="nav-link" href="<%=request.getContextPath()%>/admin/adminQuestionList.jsp">
+								My Page
+							</a>
+				<% 
 						}
 				%>
                     </li>

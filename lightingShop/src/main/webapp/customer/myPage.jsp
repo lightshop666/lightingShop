@@ -82,7 +82,7 @@
 		font-size: 25px !important;
 	}
 	
-		.main-content-wrapper {
+	.main-content-wrapper {
 	  display: flex;
 	  justify-content: space-between;
 	}
@@ -93,6 +93,10 @@
 	
 	.section-container {
 	   width: calc(80% - 30px);
+	}
+	
+	.login-content {
+		margin-left: 300px;
 	}
 	
 </style>
@@ -175,9 +179,9 @@
 						                <div class="col-12 col-lg-6 col-xl-3">
 						                    <div class="newsletter-form mb-100" style='margin-left: 0px; position:relative; top:-75px;'>
 					                        	<!-- 아이콘 or 이미지 -->
-					                           <div style='font-size: 30px;'><i class="fa fa-address-book-o" aria-hidden="true">&nbsp;<span>배송지</span></i> </div>
-					                           <div style='font-size: 30px;'> <i class="fa fa-money" aria-hidden="true">&nbsp;<span>포인트</span></i></div>
-					                           <div style='font-size: 30px;'> <i class="fa fa-heart-o" aria-hidden="true">&nbsp;<span>찜리스트</span></i></div>
+					                           <a href="<%=request.getContextPath()%>/customer/addressList.jsp"><div style='font-size: 30px;'><i class="fa fa-address-book-o" aria-hidden="true">&nbsp;<span>배송지</span></i></div></a>
+					                           <a href="<%=request.getContextPath()%>/customer/customerPointList.jsp"><div style='font-size: 30px;'> <i class="fa fa-money" aria-hidden="true">&nbsp;<span>포인트</span></i></div></a>
+					                           <a href="<%=request.getContextPath()%>/cart/cartList.jsp"><div style='font-size: 30px;'> <i class="fa fa-heart-o" aria-hidden="true">&nbsp;<span>찜리스트</span></i></div></a>
 						                    </div>
 						                </div>
 						            </div>
