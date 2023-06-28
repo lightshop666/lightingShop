@@ -87,6 +87,7 @@
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
 </head>
 <body>
+<jsp:include page="/inc/header.jsp"></jsp:include>
 	<!-- Search Wrapper Area Start -->
 	<div class="search-wrapper section-padding-100">
 	   <div class="search-close">

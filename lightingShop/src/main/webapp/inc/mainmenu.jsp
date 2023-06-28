@@ -73,7 +73,6 @@
             <!-- Button Group -->
             <div class="amado-btn-group mt-30 mb-100">
                 <a href="<%=request.getContextPath()%>/product/discountProductList.jsp" class="btn amado-btn mb-15">%Discount%</a>
-                <a href="#" class="btn amado-btn active">New this week</a> <!-- 할지말지고민.. -->
             </div>
             <!-- Cart Menu -->
             <div class="cart-fav-search mb-100">

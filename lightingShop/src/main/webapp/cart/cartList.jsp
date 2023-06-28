@@ -110,7 +110,7 @@ td span {
 <div class="main-content-wrapper d-flex clearfix">  
 	<!-- menu 좌측 bar -->
 	<div>
-			<jsp:include page="/inc/menu.jsp"></jsp:include>
+			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
 			
 	</div>
 	<div class="cart-table-area section-padding-100">
