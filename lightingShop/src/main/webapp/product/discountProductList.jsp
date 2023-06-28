@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import = "dao.*" %>
 <%@ page import = "java.util.*" %>
+<%@ page import="java.text.DecimalFormat" %> <!-- 가격에 쉼표 표시 -->
 <%
 	// 한글 깨지지 않게 인코딩
 	request.setCharacterEncoding("utf-8");
@@ -24,6 +25,9 @@
 	}
 	
 	// 2. 모델값
+	// 숫자 쉼표를 위한 선언
+	DecimalFormat decimalFormat = new DecimalFormat("###,###,###");
+	
 	// 2-1. 데이터 출력부
 	int beginRow = (currentPage - 1) * rowPerPage;
 	// 메서드 호출
@@ -176,10 +180,10 @@
 		                                    <div class="line"></div>
 		                                    <div>
 												<span class="product-price"> <!-- 할인 가격 굵게 출력 -->
-													₩<%=m.get("discountedPrice")%>
+													₩<%=decimalFormat.format(m.get("discountedPrice"))%>
 												</span>
 												<span class="line-through"> <!-- 원가 취소선 출력 -->
-													₩<%=m.get("productPrice")%>
+													₩<%=decimalFormat.format(m.get("productPrice"))%>
 												</span>
 												<span class="font-bold font-orange"> <!-- 할인율 -->
 													<%=(Double)m.get("discountRate") * 100%>%
@@ -291,10 +295,10 @@
 			                                    <div class="line"></div>
 												<div>
 													<span class="product-price"> <!-- 할인 가격 굵게 출력 -->
-														₩<%=m.get("discountedPrice")%>
+														₩<%=decimalFormat.format(m.get("discountedPrice"))%>
 													</span>
 													<span class="line-through"> <!-- 원가 취소선 출력 -->
-														₩<%=m.get("productPrice")%>
+														₩<%=decimalFormat.format(m.get("productPrice"))%>
 													</span>
 													<span class="font-bold font-orange"> <!-- 할인율 -->
 														<%=(Double)m.get("discountRate") * 100%>%

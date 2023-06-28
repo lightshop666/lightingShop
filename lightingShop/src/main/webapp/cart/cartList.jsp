@@ -104,6 +104,25 @@ td span {
 </head>
 <body>
 <jsp:include page="/inc/header.jsp"></jsp:include>
+	<!-- Search Wrapper Area Start -->
+	<div class="search-wrapper section-padding-100">
+	   <div class="search-close">
+	      <i class="fa fa-close" aria-hidden="true"></i>
+	   </div>
+	   <div class="container">
+	      <div class="row">
+	         <div class="col-12">
+	            <div class="search-content">
+	               <form action="<%=request.getContextPath()%>/product/SearchResult.jsp" method="post">
+	                  <input type="search" name="searchWord" id="search" placeholder="키워드를 입력하세요">
+	                  <button type="submit"><img src="<%=request.getContextPath()%>/resources/img/core-img/search.png" alt=""></button>
+	               </form>
+	            </div>
+	         </div>
+	      </div>
+	   </div>
+	</div>
+	<!-- Search Wrapper Area End -->
 
 <!-- ##### Main Content Wrapper Start ##### -->
 
@@ -457,3 +476,5 @@ td span {
     <script src="<%=request.getContextPath()%>/resources/js/plugins.js"></script>
     <!-- Active js -->
     <script src="<%=request.getContextPath()%>/resources/js/active.js"></script>
+</body>
+</html>

@@ -32,7 +32,7 @@ public class BoardDao {
 			3) searchCategory가 qtitleAndContent일 때
 				AND CONCAT(q_title,' ',q_content) LIKE ?
 			4) 정렬(신상품순), 페이징
-				ORDER BY createdate DESC LIMIT ?, ?
+				ORDER BY q_no DESC LIMIT ?, ?
 		*/
 		String sql = "SELECT q_no qNo, id id, q_category qCategory, q_title qTitle, q_name qName, a_chk aChk, private_chk privateChk, createdate createdate FROM question WHERE 1=1";
 		// 1) qCategory만 선택
@@ -48,7 +48,7 @@ public class BoardDao {
 			sql += " AND CONCAT(q_title,' ',q_content) LIKE ?";
 		}
 		// 4) 정렬(신상품순), 페이징
-		sql += " ORDER BY createdate DESC LIMIT ?, ?";
+		sql += " ORDER BY q_no DESC LIMIT ?, ?";
 		
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		int parameterIndex = 1; // 물음표 인덱스

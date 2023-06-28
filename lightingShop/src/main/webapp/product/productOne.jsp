@@ -150,9 +150,9 @@
 	// 선택한 상품 수량에 따라 총 금액 계산
 	function count(type) {
 		// 수량 동적으로 변경
-		const quantityElement = document.getElementById('quantity'); // 수량Element 가져오기
+		let quantityElement = document.getElementById('quantity'); // 수량Element 가져오기
 		let quantity = parseInt(quantityElement.value); // 수량의 값 가져오기
-		const maxQuantity = <%=product.getProductStock()%>; // 상품의 최대 수량(재고량) 가져오기
+		let maxQuantity = <%=product.getProductStock()%>; // 상품의 최대 수량(재고량) 가져오기
 		
 		if (type === 'plus') { // '+' 버튼을 클릭한 경우
 		  if (quantity < maxQuantity) { // 현재 수량이 재고량보다 작을 경우에만
@@ -167,26 +167,26 @@
 		quantityElement.value = quantity; // 변경된 수량 출력
 		
 		// 동적으로 바뀌는 quantity 값을 hidden input에 설정
-		const hiddenInput = document.getElementsByName('productCnt')[0];
+		let hiddenInput = document.getElementsByName('productCnt')[0];
 		hiddenInput.value = quantity;
 		
 		// 총 결제 금액 계산
-		const totalElement = document.getElementById('totalAmount'); // 총 가격Element 가져오기
+		let totalElement = document.querySelector('#totalAmount'); // 총 가격Element 가져오기
 		let price = <%=discountedPrice%>; // 할인율이 반영된 최종가격
-		const totalAmount = price * quantity; // 총 결제 금액
-		totalElement.innerText = totalAmount; // 변경된 총 결제 금액 출력
+		let totalAmount = price * quantity; // 총 결제 금액
+		totalElement.innerHTML = totalAmount.toLocaleString(); // 변경된 총 결제 금액 출력
 	}
 	
 	// 리뷰,문의 tab 메뉴
 	function showTab(tabId) {
 		// 모든 탭 컨텐츠 숨기기
-		const tabContents = document.getElementsByClassName('tab-content');
+		let tabContents = document.getElementsByClassName('tab-content');
 		for (let i = 0; i < tabContents.length; i++) {
 			tabContents[i].style.display = 'none';
 		}
 		
 		// 모든 탭 메뉴에서 active 클래스 제거
-		const tabMenus = document.getElementsByClassName('tab-menu');
+		let tabMenus = document.getElementsByClassName('tab-menu');
 		for (let i = 0; i < tabMenus.length; i++) {
 			tabMenus[i].classList.remove('active');
 		}
