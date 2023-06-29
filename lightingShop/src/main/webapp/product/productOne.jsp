@@ -49,6 +49,13 @@
 		loginRank = (String)session.getAttribute("loginIdListRank");
 	}
 	
+	// msg 값이 있으면 받아오기
+	String msg = "";
+	if(request.getParameter("msg") != null) {
+		msg = request.getParameter("msg");
+	}
+	System.out.println(msg);
+	
 	// 2. 모델값
 	ProductDao dao = new ProductDao();
 	OrderProductDao dao2 = new OrderProductDao();
@@ -148,6 +155,15 @@
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
 <script> 
+	// msg 띄우기
+	function showMessage() {
+		let msg = '<%=msg%>';
+		if(msg !== "") {
+			alert(msg);
+		}
+	}
+	// 페이지 로드시 showMessage 함수를 호출
+	window.addEventListener('DOMContentLoaded', showMessage);
 	
 	// 선택한 상품 수량에 따라 총 금액 계산
 	function count(type) {

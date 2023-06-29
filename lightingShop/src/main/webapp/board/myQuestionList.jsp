@@ -39,6 +39,14 @@
 	if(request.getParameter("searchWord") != null) {
 		searchWord = request.getParameter("searchWord");
 	}
+	
+	// msg 값이 있으면 받아오기
+	String msg = "";
+	if(request.getParameter("msg") != null) {
+		msg = request.getParameter("msg");
+	}
+	System.out.println(msg);
+	
 	// 2. 모델값
 	// 2-1. 데이터 출력부
 	int beginRow = (currentPage - 1) * rowPerPage;
@@ -83,6 +91,16 @@
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
 <script>
+	//msg 띄우기
+	function showMessage() {
+		let msg = '<%=msg%>';
+		if(msg !== "") {
+			alert(msg);
+		}
+	}
+	// 페이지 로드시 showMessage 함수를 호출
+	window.addEventListener('DOMContentLoaded', showMessage);
+
 	// 자바스크립트) 체크박스 전체 선택 / 전체 선택해제 
 	function selectAll(selectAll)  {
 		  const checkboxes 

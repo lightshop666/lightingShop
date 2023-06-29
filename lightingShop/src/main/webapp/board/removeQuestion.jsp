@@ -10,6 +10,13 @@
 	}
 	int qNo = Integer.parseInt(request.getParameter("qNo"));
 	String qId = request.getParameter("qId");
+	
+	// msg 값이 있으면 받아오기
+	String msg = "";
+	if(request.getParameter("msg") != null) {
+		msg = request.getParameter("msg");
+	}
+	System.out.println(msg);
 %>
 <!DOCTYPE html>
 <html>
@@ -34,6 +41,17 @@
    <!-- Core Style CSS -->
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
+<script>
+	//msg 띄우기
+	function showMessage() {
+		let msg = '<%=msg%>';
+		if(msg !== "") {
+			alert(msg);
+		}
+	}
+	// 페이지 로드시 showMessage 함수를 호출
+	window.addEventListener('DOMContentLoaded', showMessage);
+</script>
 </head>
 <body>
 	<!-- Search Wrapper Area Start -->
