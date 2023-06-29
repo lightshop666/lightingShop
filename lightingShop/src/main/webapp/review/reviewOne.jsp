@@ -29,7 +29,22 @@
 	ReviewDao reviewDao = new ReviewDao();
 	OrderProductDao orderProductDao = new OrderProductDao();
 	//담을 변수 선언
-	Review review =	reviewDao.reviewOne(orderProductNo);
+	HashMap<String, Object> resultMap = reviewDao.reviewOne(orderProductNo);
+	Review review = new Review();
+	
+	if (resultMap != null) {
+	    review.setOrderProductNo((int) resultMap.get("orderProductNo"));
+	    review.setReviewTitle((String) resultMap.get("reviewTitle"));
+	    review.setReviewContent((String) resultMap.get("reviewContent"));
+	    review.setReviewWritten((String) resultMap.get("review_written"));
+	    review.setReviewOriFilename((String) resultMap.get("reviewOriFilename"));
+	    review.setReviewSaveFilename((String) resultMap.get("reviewSaveFilename"));
+	    review.setReviewFiletype((String) resultMap.get("reviewFiletype"));
+	    review.setReviewPath((String) resultMap.get("reviewPath"));
+	    review.setCreatedate((String) resultMap.get("createdate"));
+	    review.setUpdatedate((String) resultMap.get("updatedate"));
+	}
+
 	OrderProduct orderProduct = orderProductDao.orderProductOne(orderProductNo);
 	
 %>
@@ -120,6 +135,9 @@
                                 <p><%=review.getReviewContent()%></p>
                             </div>
                         </div>
+                        <%
+                        if( loginIdListId.equals(resultMap.get("id")) ){                        	
+                        %>
 			              <div>
 							<form action="<%=request.getContextPath()%>/review/modifyReview.jsp" method="get">
 								<input type="hidden" name="orderProductNo" value="<%=orderProductNo %> ">
@@ -131,6 +149,9 @@
 								<button type="submit" class="btn amado-btn w-100">삭제</button>
 							</form>	
 						</div>
+						<%
+                        }						
+						%>
                     </div>	
                 </div>
             </div>
