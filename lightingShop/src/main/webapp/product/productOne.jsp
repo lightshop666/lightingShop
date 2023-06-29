@@ -41,6 +41,14 @@
 		searchWord = request.getParameter("searchWord");
 	}
 	
+	// 로그인 상태이면 아이디, 회원등급 저장
+	String loginId = "";
+	String loginRank = "";
+	if(session.getAttribute("loginIdListId") != null) {
+		loginId = (String)session.getAttribute("loginIdListId");
+		loginRank = (String)session.getAttribute("loginIdListRank");
+	}
+	
 	// 2. 모델값
 	ProductDao dao = new ProductDao();
 	OrderProductDao dao2 = new OrderProductDao();
@@ -140,12 +148,6 @@
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
 <script> 
-	// 단일구매 경로
-	function submit2(frm) { 
-	   frm.action='<%=request.getContextPath()%>/orders/orderProduct.jsp'; 
-	   frm.submit(); 
-	   return true; 
-	 } 
 	
 	// 선택한 상품 수량에 따라 총 금액 계산
 	function count(type) {
@@ -176,6 +178,29 @@
 		let totalAmount = price * quantity; // 총 결제 금액
 		totalElement.innerHTML = totalAmount.toLocaleString(); // 변경된 총 결제 금액 출력
 	}
+	
+	// 단일구매시 경로 및 수량 검사
+	function submit2(frm) {
+		let productCnt = document.getElementsByName('productCnt')[0].value;
+		if(productCnt == "" || productCnt == 0) {
+			alert('수량을 선택해주세요');
+			return false;
+		}
+		frm.action='<%=request.getContextPath()%>/orders/orderProduct.jsp'; 
+		frm.submit(); 
+		return true; 
+	 } 
+	
+	// 장바구니 선택 시 수량 검사
+	function submit1(frm) {
+		let productCnt = document.getElementsByName('productCnt')[0].value;
+		if(productCnt == "" || productCnt == 0) {
+			alert('수량을 선택해주세요');
+			return false;
+		}
+		return true;
+	}
+	
 	
 	// 리뷰,문의 tab 메뉴
 	function showTab(tabId) {
@@ -302,6 +327,33 @@
                             <div class="short_overview my-5">
                                 <p><%=product.getProductInfo()%></p>
                             </div>
+                            
+                            <!-- 로그인 유무와 회원 등급에 따른 포인트 적립률 고지 -->
+                            <div class="short_overview my-5">
+                            	<%
+                            		String pointRate = ""; // 포인트 적립률 고지 멘트
+                            		String rank = ""; // 회원등급 영어로
+                            		if(!loginId.equals("")) { // 로그인 상태에만
+                            			switch(loginRank) {
+	                            			case "금": // 회원등급이 금
+	                            				rank = "GOLD";
+	                            				pointRate = "5%";
+	                            				break;
+	                            			case "은": // 회원등급이 은
+	                            				rank = "SILVER";
+	                            				pointRate = "3%";
+	                            				break;
+	                            			case "동": // 회원등급이 동
+	                            				rank = "BRONZE";
+	                            				pointRate = "1%";
+	                            				break;
+	                            		}
+                            	%>
+                            			<p><%=loginId%>님의 등급 : <%=rank%><br>현재 구매시 <%=pointRate%>가 적립됩니다!</p>
+                            	<%
+                            		}
+                            	%>
+                            </div>
 
                             <!-- Add to Cart Form -->
                             <form action="<%=request.getContextPath()%>/cart/cartListAction.jsp" method="post" class="cart clearfix">
@@ -319,8 +371,8 @@
                                 <div class="product-meta-data">
 	                                <span class="product-price">Total Price ₩<span id="totalAmount">0</span></span>
 	                            </div>
-                                <button type="submit" class="btn amado-btn">Add to cart</button>
-								<button type="submit" onclick='return submit2(this.form);' class="btn amado-btn">Checkout</button>
+                                <button type="submit" class="btn amado-btn" onclick="return submit1(this.form);">Add to cart</button>
+								<button type="submit" onclick="return submit2(this.form);" class="btn amado-btn">Checkout</button>
                             </form>
                         </div>
                     </div>
