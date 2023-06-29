@@ -54,6 +54,7 @@
 		// 로그인 정보를 Session에 저장
 		session.setAttribute("loginIdListId", loginIdList.get("id"));	// 세션에 로그인 성공한 id_list id를 저장
 		session.setAttribute("loginIdListLastPw", loginIdList.get("lastPw"));	// 세션에 로그인 성공한 id_list last_pw를 저장
+		session.setAttribute("loginIdListRank", loginIdList.get("cstmRank"));	// 세션에 로그인 성공한 id_list last_pw를 저장
 		session.setAttribute("loginIdListActive", loginIdList.get("active"));	// 세션에 로그인 성공한 id_list active를 저장
 		session.setAttribute("loginIdListEmpLevel", loginIdList.get("empLevel")); // 세션에 로그인 성공한 employees emp_level을 저장
 		
@@ -112,6 +113,7 @@
 		// 디버깅
 		System.out.println("로그인 성공 세션정보 : " + session.getAttribute("loginIdListId"));
 		System.out.println("로그인 성공 세션정보 : " + session.getAttribute("loginIdListLastPw"));
+		System.out.println("로그인 성공 세션정보 : " + session.getAttribute("loginIdListRank"));
 		System.out.println("로그인 성공 세션정보 : " + session.getAttribute("loginIdListActive"));
 		System.out.println("로그인 성공 세션정보 : " + session.getAttribute("loginIdListEmpLevel"));
 		

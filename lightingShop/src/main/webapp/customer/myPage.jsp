@@ -43,13 +43,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <!-- Title  -->
-    <title>Amado - MyPage</title>
-    
-    <!-- BootStrap5 -->
+	<!-- BootStrap5 -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Title  -->
+    <title>Amado - MyPage</title>
+    
     <!-- Favicon  -->
     <link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
 
@@ -102,7 +102,6 @@
 </style>
 </head>
 <body>
-
 <!-- Search Wrapper Area Start -->
 <div class="search-wrapper section-padding-100">
 	<div class="search-close">
@@ -121,14 +120,14 @@
 		</div>
 	</div>
 </div>
-
-	<!-- ##### Main Content Wrapper Start ##### -->
-    <div class="main-content-wrapper d-flex clearfix">
-    
+ 	<!-- ##### Main Content Wrapper Start ##### -->
+	<div class="main-content-wrapper d-flex clearfix">
     	<!-- menu 좌측 bar -->
+		<!-- Header Area Start -->  
 	    <div>
 			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
-		</div>
+		</div>       
+		<!-- Header Area End -->  
 
 		<div class="shop_sidebar_area">
 			<!-- ##### Single Widget ##### -->

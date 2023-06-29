@@ -116,8 +116,9 @@ public class CustomerDao {
 			WHERE i.id = 'admin' AND i.last_pw = PASSWORD(1234)";
 		*/
 		
-		String sql = "SELECT i.id id, i.last_pw lastPw, i.active active, e.emp_level empLevel FROM id_list i "
+		String sql = "SELECT i.id id, i.last_pw lastPw, i.active active, c.cstm_rank cstmRank, e.emp_level empLevel FROM id_list i "
 				+ " LEFT OUTER JOIN employees e ON i.id = e.id"
+				+ " LEFT OUTER JOIN customer c ON i.id = c.id"
 				+ " WHERE i.id = ? AND i.last_pw = PASSWORD(?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, idList.getId());
@@ -129,6 +130,7 @@ public class CustomerDao {
 		if(rs.next()) {
 			loginIdList.put("id", rs.getString("id"));
 			loginIdList.put("lastPw", rs.getString("lastPw")); 
+			loginIdList.put("cstmRank", rs.getString("cstmRank")); 
 			loginIdList.put("active" , rs.getString("active")); // 가입탈퇴여부 반환
 			loginIdList.put("empLevel", rs.getString("empLevel")); // 레벨 권한 
 		}
