@@ -41,9 +41,9 @@ public class ProductDao {
 			2-1) 신상품순
 				ORDER BY createdate DESC LIMIT ?,?
 			2-2) 낮은 가격순
-				ORDER BY discountRate ASC LIMIT ?,?
+				ORDER BY discountedPrice ASC LIMIT ?,?
 			2-3) 높은 가격순
-				ORDER BY discountRate DESC LIMIT ?,?
+				ORDER BY discountedPrice DESC LIMIT ?,?
 		*/
 		String sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE 1=1";
 		// 1) 카테고리별 조회
@@ -56,10 +56,10 @@ public class ProductDao {
 				sql += " ORDER BY createdate DESC LIMIT ?,?";
 				break;
 			case "lowPrice": // 2) 낮은 가격순
-				sql += " ORDER BY discountRate ASC LIMIT ?,?";
+				sql += " ORDER BY discountedPrice ASC LIMIT ?,?";
 				break;
 			case "highPrice": // 3) 높은 가격순
-				sql += " ORDER BY discountRate DESC LIMIT ?,?";
+				sql += " ORDER BY discountedPrice DESC LIMIT ?,?";
 				break;
 			default:
 				// 기본적으로 신상품순으로 정렬
@@ -217,9 +217,9 @@ public class ProductDao {
 			2-1) 신상품순
 				ORDER BY createdate DESC LIMIT ?,?
 			2-2) 낮은 가격순
-				ORDER BY discountRate ASC LIMIT ?,?
+				ORDER BY discountedPrice ASC LIMIT ?,?
 			2-3) 높은 가격순
-				ORDER BY discountRate DESC LIMIT ?,?
+				ORDER BY discountedPrice DESC LIMIT ?,?
 		*/
 		String sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, COALESCE(d.discount_rate, 0) discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE d.discount_rate >= ?";
 		// 1) 카테고리별 조회
@@ -232,10 +232,10 @@ public class ProductDao {
 				sql += " ORDER BY createdate DESC LIMIT ?,?";
 				break;
 			case "lowPrice": // 2) 낮은 가격순
-				sql += " ORDER BY discountRate ASC LIMIT ?,?";
+				sql += " ORDER BY discountedPrice ASC LIMIT ?,?";
 				break;
 			case "highPrice": // 3) 높은 가격순
-				sql += " ORDER BY discountRate DESC LIMIT ?,?";
+				sql += " ORDER BY discountedPrice DESC LIMIT ?,?";
 				break;
 			default:
 				// 기본적으로 신상품순으로 정렬
@@ -590,8 +590,8 @@ public class ProductDao {
 				AND p.product_price BETWEEN ? AND ?
 			4) orderBy 를 변경했을 때
 				ORDER BY createdate DESC LIMIT ?,? 
-				ORDER BY discountRate ASC LIMIT ?,?
-				ORDER BY discountRate DESC LIMIT ?,?
+				ORDER BY discountedPrice ASC LIMIT ?,?
+				ORDER BY discountedPrice DESC LIMIT ?,?
 		*/
 		String sql = "SELECT p.product_no productNo, p.category_name categoryName, p.product_name productName, p.product_price productPrice, p.product_status productStatus, p.createdate createdate, p.updatedate updatedate, i.product_save_filename productImgSaveFilename, i.product_path productImgPath, d.discount_rate discountRate, (SELECT CASE WHEN d.discount_start <= NOW() AND d.discount_end >= NOW() THEN p.product_price - (p.product_price * d.discount_rate) ELSE p.product_price END) discountedPrice FROM product p LEFT JOIN product_img i ON p.product_no = i.product_no LEFT JOIN discount d ON p.product_no = d.product_no WHERE 1=1";
 		// 1) searchWord 값이 있을 때
@@ -616,10 +616,10 @@ public class ProductDao {
 				sql += " ORDER BY createdate DESC LIMIT ?,?";
 				break;
 			case "lowPrice": // 낮은 가격순
-				sql += " ORDER BY discountRate ASC LIMIT ?,?";
+				sql += " ORDER BY discountedPrice ASC LIMIT ?,?";
 				break;
 			case "highPrice": // 높은 가격순
-				sql += " ORDER BY discountRate DESC LIMIT ?,?";
+				sql += " ORDER BY discountedPrice DESC LIMIT ?,?";
 				break;
 			default:
 				// 기본적으로 신상품순으로 정렬

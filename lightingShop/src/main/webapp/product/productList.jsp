@@ -35,7 +35,7 @@
 	ProductDao dao = new ProductDao();
 	CategoryDao dao2 = new CategoryDao();
 	// 해당 카테고리의 특가할인 상품 상위 n개 조회 메서드 호출
-	int n = 2; // 몇개 조회할지 선택
+	int n = 4; // 몇개 조회할지 선택
 	ArrayList<HashMap<String, Object>> discountProductTop = dao.selectDiscountProductTop(categoryName, n);	
 	// 카테고리별 상품 리스트 조회 메서드 호출
 	ArrayList<HashMap<String, Object>> list = dao.selectProductListByPage(categoryName, orderBy, beginRow, rowPerPage);
