@@ -11,6 +11,8 @@
 	String lastPw = (String)session.getAttribute("loginIdListLastPw");
 	String loginMemberId = id;
 	
+	System.out.println((String)session.getAttribute("loginIdListRank"));
+	
 	// 객체생성 -> 로그인으로 사용
 	IdList idList = new IdList();
 	idList.setId(id);

@@ -163,7 +163,7 @@ public class CustomerDao {
 		
 		DBUtil dbutil = new DBUtil();
 		Connection conn = dbutil.getConnection();
-		String sql = "UPDATE id_list SET last_pw = ? WHERE id = ? AND last_pw = PASSWORD(?)";
+		String sql = "UPDATE id_list SET last_pw = PASSWORD(?) WHERE id = ? AND last_pw = PASSWORD(?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, modifyIdList.getLastPw());
 		stmt.setString(2, idList.getId());

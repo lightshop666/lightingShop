@@ -21,6 +21,7 @@
 		|| request.getParameter("cstmBirth") == null
 		|| request.getParameter("cstmPhone") == null
 		|| request.getParameter("cstmGender") == null
+		|| request.getParameter("cstmAddress") == null
 		|| request.getParameter("lastPw").equals("")
 		|| request.getParameter("customerNewPw").equals("")
 		|| request.getParameter("customerNewPwCk").equals("")
@@ -28,7 +29,8 @@
 		|| request.getParameter("cstmEmail").equals("")
 		|| request.getParameter("cstmBirth").equals("")
 		|| request.getParameter("cstmPhone").equals("")
-		|| request.getParameter("cstmGender").equals("")) {
+		|| request.getParameter("cstmGender").equals("")
+		|| request.getParameter("cstmAddress").equals("")) {
 		response.sendRedirect(request.getContextPath()+"/customer/modifyCustomer.jsp");
 		return;
 	}
@@ -44,12 +46,13 @@
 	String cstmBirth = request.getParameter("cstmBirth");
 	String cstmPhone = request.getParameter("cstmPhone");
 	String cstmGender = request.getParameter("cstmGender");
+	String cstmAddress = request.getParameter("cstmAddress");
 	String updatedate = request.getParameter("updatedate");
 	System.out.println("[modifyCustomerAction controller acess]");
 	// System.out.println("(1)받아온 pw값 : "+lastPw+"/newPw : "+customerNewPw);
 	
 	// 비밀번호가 서로 일치하지 않는다면 수정폼으로 리다이렉션
-	if(!customerNewPw.equals(customerNewPwCk) || !lastPw.equals(pw)) {
+	if(!customerNewPw.equals(customerNewPwCk)) {
 		System.out.println("비밀번호가 서로 일치하지 않습니다.");
 		String noPwMsg = URLEncoder.encode("비밀번호가 서로 일치하지 않습니다.", "UTF-8");
 		response.sendRedirect(request.getContextPath()+"/customer/modifyCustomer.jsp?noPwMsg="+noPwMsg);
@@ -78,6 +81,7 @@
 	modifyCustomer.setCstmPhone(cstmPhone);
 	modifyCustomer.setCstmPhone(cstmPhone);
 	modifyCustomer.setCstmGender(cstmGender);
+	modifyCustomer.setCstmAddress(cstmAddress);
 	modifyCustomer.setUpdatedate(updatedate);
 	System.out.println("바뀔 이름/pw : "+modifyCustomer.getCstmName() +"/"+modifyIdList.getLastPw());
 	

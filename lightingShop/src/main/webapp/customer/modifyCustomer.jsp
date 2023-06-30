@@ -87,6 +87,8 @@
 								 <!-- 회원정보 수정 -->
 								 <form action="<%=request.getContextPath()%>/customer/modifyCustomerAction.jsp" method="post">
 								 	<input type="hidden" id="updatedate" name="updatedate">
+								 	<!-- 기존 주소 그대로 넘기기 -->
+								 	<input type="hidden" name="cstmAddress" value="<%=customerOne.get("c.cstm_address") %>">
 									<table class="table">
 										<tr>
 											<td>
