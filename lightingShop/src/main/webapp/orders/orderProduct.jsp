@@ -153,14 +153,14 @@
 	if (customerInfo.containsKey("c.cstm_rank")) {
 		String rank = (String) customerInfo.get("c.cstm_rank");
 		if (rank.equals("금")) {
-			System.out.println("고객 랭크 : 금 <--orderProduct.jsp");
 		    pointRate = 0.05; // 랭크 금이면 5퍼
+			System.out.println(pointRate + "고객 랭크 : 금 <--orderProduct.jsp");
 		} else if (rank.equals("은")) {
-			System.out.println("고객 랭크 : 은 <--orderProduct.jsp");
 		    pointRate = 0.03; // 랭크 은이면 3퍼
+			System.out.println(pointRate + "고객 랭크 : 은 <--orderProduct.jsp");
 		} else {
-			System.out.println("고객 랭크 : 그 외<--orderProduct.jsp");
 		    pointRate = 0.01; // 그 외 1퍼
+			System.out.println(pointRate + "고객 랭크 : 그 외<--orderProduct.jsp");
 		}
 	} else {
 	    System.out.println("고객 랭크가 없습니다 <--orderProduct.jsp");
@@ -591,9 +591,17 @@
 	  // id 값 가져와서 JS변수로 변경
 	  let finalPriceElement = document.querySelector('#finalPrice');
 	  let pointByOrderElement = document.querySelector('#pointByOrder');
-
-	  let finalPrice = parseFloat(finalPriceElement.innerHTML);
+	  let pointRate = <%=pointRate%>;
+	  console.log(pointRate+ '<-pointRate');
+	  console.log(finalPriceElement.innerHTML + '<-파이널프라이스엘리먼드');
+	  console.log(pointByOrderElement.innerHTML + '<-pointByOrderElement');
+	  
+	  
+	  let finalPriceText = finalPriceElement.innerHTML.replace(/,/g, ''); // 쉼표(,) 제거
+	  let finalPrice = parseFloat(finalPriceText);
+	  console.log(finalPrice+ '<-finalPrice');
 	  let pointByOrder = Math.floor(pointRate * finalPrice);
+	  console.log(pointByOrder + '<-pointByOrder');
 
 	  pointByOrderElement.innerHTML = pointByOrder.toLocaleString();
 	}
