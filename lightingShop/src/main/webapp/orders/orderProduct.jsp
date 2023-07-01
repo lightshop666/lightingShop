@@ -534,14 +534,15 @@
 	    input.setAttribute('readonly', 'readonly'); // 입력 상자를 읽기 전용으로 설정
 	    pointBtn.innerHTML = '취소'; // 버튼 텍스트를 '취소'로 변경
 	    calculateAmount(); // 포인트 사용에 따른 최종 결제 금액을 계산
+	    calculatePointByOrder(); // 포인트도 계산
 	  }
 	  // 취소 버튼을 클릭한 경우
 	  else {
 	    input.value = ''; // 입력 상자를 비웁니다.
 	    input.removeAttribute('readonly'); // 입력 상자의 읽기 전용 속성을 제거
 	    pointBtn.innerHTML = '전액사용'; // 버튼 텍스트를 '전액 사용'으로 변경
-	    finalPriceElement.innerHTML = totalPrice; // 최종 결제 금액을 초기화합니다.
-	    document.querySelector('#paymentAmount').innerHTML = totalPrice + deliPrice; // 결제 도 초기화합니다.
+	    calculateAmount(); // 포인트 사용에 따른 최종 결제 금액을 계산
+	    calculatePointByOrder(); // 포인트도 계산
 	  }
 	}
 
@@ -549,6 +550,11 @@
 	function calculateAmount() {
 	  // 입력된 포인트 값을 가져오기
 	  let usedPoint = parseInt(input.value);
+	  
+	  // 포인트 값이 NaN이면 0으로 설정
+	  if (isNaN(usedPoint)) {
+	    usedPoint = 0;
+	  }
 
 	  // 입력이 허용 범위를 벗어나면 값을 조정
 	  if (usedPoint < 0) {
@@ -584,31 +590,35 @@
 
 	  // 결제 버튼의 텍스트에 최종 결제 금액을 추가
 	  document.querySelector('#paymentAmount').innerHTML = finalPrice.toLocaleString();
+
+	  // 포인트에 따른 적립 예정 포인트도 계산
+	  calculatePointByOrder();
 	}
 
-	// 주문에 따른 포인트
+	// 주문에 따른 포인트 계산
 	function calculatePointByOrder() {
-	  // id 값 가져와서 JS변수로 변경
+	  // id 값 가져와서 JS 변수로 변경
 	  let finalPriceElement = document.querySelector('#finalPrice');
 	  let pointByOrderElement = document.querySelector('#pointByOrder');
-	  let pointRate = <%=pointRate%>;
-	  console.log(pointRate+ '<-pointRate');
-	  console.log(finalPriceElement.innerHTML + '<-파이널프라이스엘리먼드');
-	  console.log(pointByOrderElement.innerHTML + '<-pointByOrderElement');
-	  
-	  
+	  let pointRate = <%= pointRate %>;
+
 	  let finalPriceText = finalPriceElement.innerHTML.replace(/,/g, ''); // 쉼표(,) 제거
 	  let finalPrice = parseFloat(finalPriceText);
-	  console.log(finalPrice+ '<-finalPrice');
+
+	  // 최종 결제 금액이 NaN이면 0으로 설정
+	  if (isNaN(finalPrice)) {
+	    finalPrice = 0;
+	  }
+
 	  let pointByOrder = Math.floor(pointRate * finalPrice);
-	  console.log(pointByOrder + '<-pointByOrder');
 
 	  pointByOrderElement.innerHTML = pointByOrder.toLocaleString();
 	}
 
 	// 최종 결제 금액이 변경될 때마다 적립 예정 포인트를 계산
-	input.addEventListener('change', calculatePointByOrder);
+	input.addEventListener('change', calculateAmount);
 	input.addEventListener('mouseup', calculateAmount);
+
 
 </script>
 </html>
