@@ -268,189 +268,171 @@
 		주소
 		배송시 요청사항을 선택해주세요(셀렉트
 	 -->
-	<div class="cart-table-area section-padding-80">
-		<div class="container-fluid">
-			<div class="row">		
-			<div class="col-12 col-lg-8">
-			<div class="cart-title mt-50">
-		        <h2>주문서</h2>
-		    <div class="cart-table clearfix">
-			<form action="<%= request.getContextPath()%>/orders/orderProductAction.jsp" method="post">
-			<p>이름 : <%=customerInfo.get("c.cstm_name") %></p>
-			<p>연락처 : <%=customerInfo.get("c.cstm_phone") %></p>
-			<p>
-				주소 : <%=customerInfo.get("c.cstm_address") %>&nbsp;	&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="<%= request.getContextPath()%>/customer/addressList.jsp">변경</a>
-			</p>
-			<p>
-				배송시 요청사항
-				<select name="deliOption" id="deliOption" onchange="showHideInput()">
-					<option value="">선택하세요</option>
-					<option value=" 직접 배송해주세요">직접 배송해주세요</option>
-					<option value=" 문 앞에 놓아주세요">문 앞에 놓아주세요</option>
-					<option value=" 기타">기타</option>
-				</select>
-				<input type="text" name="otherDeliOption" id="otherDeliOption" style="display: none;">
-			</p>
-
-			<!------------------------ 주문상품 -->			            
-				<%
-				    int totalPrice = 0;
-					int deliPrice = 0;
-				    for (int i = 0; i < productNo.length; i++) {
-				        Product product = selectedProducts.get(i);
-				        ProductImg productImg = selectedProductImgs.get(i);
-				        int discountedPrice = discountedPrices.get(i);
-				        //System.out.println(discountedPrice + "<--discountedPrice-- orderProduct.jsp");
-				        
-				        totalPrice += discountedPrice *  Integer.parseInt(productCnt[i]);
-				%>
-			               
-					 <!-- Single Product Area -->
-					<div class="single-product-wrapper">
-					<!-- Product Image -->
-					<div class="product-img">		
-			<%
-						// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
-						if(productImg.getProductSaveFilename() == null) {
-			%>
-							<img  src="<%=request.getContextPath()%>/productImg/no_image.jpg">
-			<%
-						}else {
-			%>
-							<img src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image">
-			<%
-						}
-			%>
-			       </div>
-				<!-- Product Description -->
-				<div class="product-description d-flex align-items-center justify-content-between">
-				<!-- Product Meta Data -->
-					<div class="product-meta-data">
-						<div class="line"></div>	
-							<span class="product-price">
-								₩ <%=decimalFormat.format( (int) (product.getProductPrice() * Integer.parseInt(productCnt[i])) )  %>
-							</span>		
-							<!-- 상품명 -->
-				        	<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo="<%=product.getProductNo() %>>
-				        		<%= product.getProductName() %>
-				        	</a>
-							<!-- 상품갯수 -->	        	
-							<div class="ratings-cart text-right">
-								<div class="ratings d-flex align-items-center">
-									<span class="mr-1"><%=productCnt[i] %></span>
-									<span>개</span>
-								</div>
-								<div>
-									<!-- 상품 원래 가격 * 상품 개수 --> 
-						        <%
-						        	if (discountedPrice==product.getProductPrice() ){
-						        %>
-						        		할인된 가격 : 0 원
-						        <%
-						        	}else{
-						        %>	        		
-							        	할인된 가격 : 
-							        	<%= decimalFormat.format(discountedPrice * Integer.parseInt(productCnt[i]) )%> 원
-						        <%
-						        	}
-						        %>
-						        <!-- 할인된 가격 * 상품 개수 -->
-						        </div>
-								<p>배송비 :
-								<%
-									if(totalPrice >= 25000){
-								%>
-										무료
-								<%
-									} else {
-								%>
-										3000원
-								<%
-									deliPrice += 3000;
-								}
-								%>
-								</p>		
-								</div>
-							</div>			        	
-				        </div>				        
-					</div>
-				<%
-				    }
-				%>
-							</div>
-							
+		<div class="cart-table-area section-padding-80">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-12 col-lg-8">
+						<div class="cart-title mt-50">
+							<h2>주문서</h2>
 						</div>
-						
-					</div>
-					<div class="col-12 col-lg-4">			
-<!---------------- 결제
-	결제 방법(어떻게할지 고민)
-	o 3-1) 상품 총액 
-	o 3-2) 포인트 적용 여부(JS로 가능하면)  
-	o 3-3)전액 사용+항상 전액 사용 버튼(JS로 가능하면) 
-	o 3-4)결제금액- : 상품금액 / 
-	o 3-5)배송비(상품금액 일정 이상이면 배송비 0원으로) / 
-	o 3-6)총 결제 금액 / 
-	o 3-7) 결제 방법 무통장입금 방식 --> 
-				
-<!-- 포인트 사용 -->
-					<div class="cart-summary">
-						<h5>Point</h5>
-						<ul class="summary-table">
-							<li>
-								<span style="font-weight: bold; font-size: larger;">Available Points : </span>
-								<span style="font-weight: bold; font-size: larger;"> <%=decimalFormat.format(totalPoint) %>P</span>
-							</li>
-							<li><input type="number" min=0 max=<%=totalPoint %> step="100" name="usePoint" id="point"></li>
-							<li><button class="btn amado-btn w-100" type="button" id="pointBtn" onclick="togglePoint()">전액사용</button></li>
-							<li>
-								<button class="btn amado-btn w-100" type="submit" id="orderButton">
-									<span id="paymentAmount">₩ <%=decimalFormat.format(totalPrice) %></span>
-								</button>
-							</li>
-						</ul>
-						<!-------- 결제 버튼  넘겨줄 것 : productNo배열, productCnt배열, 최종금액 -->
-						<% 
-							for(int i=0; i<productNo.length; i+=1) { 
-						%>
-								<input type="hidden" name="productNo" value="<%= productNo[i] %>">
-								<input type="hidden" name="productCnt" value="<%= productCnt[i] %>">			
-						<%
-							}
-						%>
-							<input type="hidden" name="finalPrice" id="finalPriceInput">		
+						<div class="cart-table clearfix">
+							<form action="<%= request.getContextPath()%>/orders/orderProductAction.jsp" method="post">
+								<p>이름: <%=customerInfo.get("c.cstm_name") %></p>
+								<p>연락처: <%=customerInfo.get("c.cstm_phone") %></p>
+								<p>
+									 주소: <%=customerInfo.get("c.cstm_address") %>&nbsp;&nbsp;&nbsp;&nbsp;
+									<a href="<%= request.getContextPath()%>/customer/addressList.jsp">변경</a>
+								</p>
+								<p>
+									배송시 요청사항
+									<select name="deliOption" id="deliOption" onchange="showHideInput()">
+										<option value="">선택하세요</option>
+										<option value=" 직접 배송해주세요">직접 배송해주세요</option>
+										<option value=" 문 앞에 놓아주세요">문 앞에 놓아주세요</option>
+										<option value=" 기타">기타</option>
+									</select>
+									<input type="text" name="otherDeliOption" id="otherDeliOption" style="display: none;">
+								</p>
+								<!-- 주문상품 -->
+								<% 
+								int totalPrice = 0;
+								int deliPrice = 0;
+								for (int i = 0; i < productNo.length; i++) {
+									Product product = selectedProducts.get(i);
+									ProductImg productImg = selectedProductImgs.get(i);
+									int discountedPrice = discountedPrices.get(i);
+									totalPrice += discountedPrice * Integer.parseInt(productCnt[i]);
+								%>
+								<!-- Single Product Area -->
+								<div class="single-product-wrapper">
+									<!-- Product Image -->
+									<div class="product-img">
+									<% 
+									// 상품 이미지가 아직 등록되지 않았으면 no_image 파일 출력
+									if (productImg.getProductSaveFilename() == null) { 
+									%>
+										<img src="<%=request.getContextPath()%>/productImg/no_image.jpg">
+									<% 
+									} else { 
+									%>
+										<img src="<%= request.getContextPath() + "/" + productImg.getProductPath() + "/" + productImg.getProductSaveFilename() %>" alt="Product Image">
+									<% 
+									} 
+									%>
+									</div>
+									<!-- Product Description -->
+									<div class="product-description d-flex align-items-center justify-content-between">
+										<!-- Product Meta Data -->
+										<div class="product-meta-data">
+											<div class="line"></div>
+												<span class="product-price">
+													₩ <%=decimalFormat.format((int)(product.getProductPrice() * Integer.parseInt(productCnt[i]))) %>
+												</span>
+												<!-- 상품명 -->
+												<a href="<%=request.getContextPath()%>/product/productOne.jsp?productNo="<%=product.getProductNo() %>">
+												<%= product.getProductName() %>
+												</a>
+												<!-- 상품갯수 -->
+												<div class="ratings-cart text-right">
+													<div class="ratings d-flex align-items-center">
+														<span class="mr-1"><%=productCnt[i] %></span>
+														<span>개</span>
+													</div>
+													<div>
+													<!-- 상품 원래 가격 * 상품 개수 -->
+									                  <% 
+														if (discountedPrice == product.getProductPrice()) { 
+									                  %>
+									                	  할인된 가격: 0 원
+									                  <% 
+									                    } else { 
+									                  %>
+													<!-- 할인된 가격 * 상품 개수 -->
+															할인된 가격: <%= decimalFormat.format(discountedPrice * Integer.parseInt(productCnt[i])) %> 원
+									                  <% 
+									                    } 
+									                  %>
+													</div>
+													<p>배송비:
+													<% 
+														if (totalPrice >= 25000) { 
+													%>
+															무료
+													<% 
+														} else { 
+													%>
+															3000원
+													<% 
+															deliPrice += 3000;
+														} 
+													%>
+													</p>
+												</div>
+											</div>
+										</div>
+									</div>
+								<% 
+								} 
+								%>
+        					</form>
+						</div>
+    				</div>
+ 					<div class="col-12 col-lg-4">
+<!-- 결제 -->
+						<div class="cart-summary">
+							<h5>Point</h5>
+							<ul class="summary-table">
+								<li>
+									<span style="font-weight: bold; font-size: larger;">Available Points :</span>
+									<span style="font-weight: bold; font-size: larger;"><%=decimalFormat.format(totalPoint) %>P</span>
+								</li>
+								<li><input type="number" min=0 max=<%=totalPoint %> step="100" name="usePoint" id="point"></li>
+								<li><button class="btn amado-btn w-100" type="button" id="pointBtn" onclick="togglePoint()">전액사용</button></li>
+								<li>
+									<button class="btn amado-btn w-100" type="submit" id="orderButton">
+										<span id="paymentAmount">₩ <%=decimalFormat.format(totalPrice) %></span>
+									</button>
+								</li>
+							</ul>
+							<% 
+							for (int i = 0; i < productNo.length; i += 1) { 
+							%>
+							<input type="hidden" name="productNo" value="<%= productNo[i] %>">
+							<input type="hidden" name="productCnt" value="<%= productCnt[i] %>">
+							<% 
+							} 
+							%>
+							<input type="hidden" name="finalPrice" id="finalPriceInput">
 							<input type="hidden" name="customerName" value="<%= customerInfo.get("c.cstm_name") %>">
 							<input type="hidden" name="customerPhone" value="<%= customerInfo.get("c.cstm_phone") %>">
 							<input type="hidden" name="customerAddress" value="<%= customerInfo.get("c.cstm_address") %>">
-							
-	
-		<!---------------- 최종 결제 금액 -->
-						<div class="cart-summary">						
+
+<!-- 최종 결제 금액 -->
+							<div class="cart-summary">
 								최종 결제 금액
 								<ul class="summary-table">
 									<li>
 										<span>상품 금액 ₩ </span>
-										<span><%= decimalFormat.format(totalPrice )%></span>
+										<span><%= decimalFormat.format(totalPrice) %></span>
 									</li>
 									<li>
 										<span>배송비 : ₩ </span>
 										<span><%=decimalFormat.format(deliPrice) %></span>
 									</li>
-									<li>							
-										<span>최종 금액 : ₩ </span> 
+									<li>
+										<span>최종 금액 : ₩ </span>
 										<span id="finalPrice"></span>
 									</li>
-								</ul>											
-								<span><%= customer.getId() %>님 포인트 </span>
-								<span id="pointByOrder"></span>점 적립 예정입니다.
-							</div>
+								</ul>
+							<span><%= customer.getId() %>님 포인트 </span>
+							<span id="pointByOrder"></span>점 적립 예정입니다.
 						</div>
-					</div>
-				</div>
+      				</div>
+    			</div>
 			</div>
 		</div>
 	</div>
+</div>
  
   
 
