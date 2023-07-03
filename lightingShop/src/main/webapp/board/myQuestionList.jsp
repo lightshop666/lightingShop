@@ -110,6 +110,11 @@
 		    checkbox.checked = selectAll.checked;
 		  })
 		}
+	
+	// 뒤로가기 버튼
+	function goBack() {
+		window.history.back();
+	}
 </script>
 </head>
 <body>
@@ -268,6 +273,7 @@
 				<%
 					}
 				%>
+				<button type="submit" onclick="goBack()" class="btn btn-warning">뒤로</button>
 	            <!------------------ 페이지 출력부 ------------------>
                 <div class="row">
                     <div class="col-12">

@@ -51,6 +51,11 @@
 	}
 	// 페이지 로드시 showMessage 함수를 호출
 	window.addEventListener('DOMContentLoaded', showMessage);
+	
+	// 뒤로가기 버튼
+	function goBack() {
+		window.history.back();
+	}
 </script>
 </head>
 <body>
@@ -108,9 +113,9 @@
 											<%
 												}
 											%>
+											<button type="submit" onclick="goBack()" class="btn btn-warning btn-lg mt-6">취소</button>
 											<button type="submit" class="btn btn-warning btn-lg mt-6">삭제</button>
 										</form>
-										<a href="<%=request.getContextPath()%>/board/questionOne.jsp?qNo=<%=qNo%>">취소</a>
 									</div>
 		                        </div>
 		                	</div>

@@ -49,6 +49,11 @@
 	}
 	// 페이지 로드시 showMessage 함수를 호출
 	window.addEventListener('DOMContentLoaded', showMessage);
+	
+	// 뒤로가기 버튼
+	function goBack() {
+		window.history.back();
+	}
 </script>
 </head>
 <body>
@@ -91,10 +96,10 @@
 			                    		<form action="<%=request.getContextPath()%>/board/inputPasswordAction.jsp" method="post">
 			                    			<input type="hidden" name="qNo" value="<%=qNo%>">
 									        <input type ='password' class = 'form-control my-input-field' name = 'inputPw' required placeholder="글 작성시 입력한 비밀번호를 입력해주세요"><br>
+											<button type="button" onclick="goBack()" class="btn btn-warning btn-lg mt-6">취소</button>
 											<button type="submit" class="btn btn-warning btn-lg mt-6">입력</button>
 											<span id="pwMsg"></span>
 										</form>
-										<a href="<%=request.getContextPath()%>/board/questionBoardList.jsp">목록으로</a>
 									</div>
 		                        </div>
 		                	</div>

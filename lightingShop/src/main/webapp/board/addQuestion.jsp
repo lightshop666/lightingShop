@@ -63,6 +63,11 @@
 	}
 	// 페이지 로드시 showMessage 함수를 호출
 	window.addEventListener('DOMContentLoaded', showMessage);
+	
+	// 뒤로가기 버튼
+	function goBack() {
+		window.history.back();
+	}
 </script>
 </head>
 <body>
@@ -178,10 +183,8 @@
 								</tr>
 						</table>
 						<div style="float:left;">
-							<button type="button" class="btn btn-warning">
-								<a href="<%=request.getContextPath()%>/board/questionBoardList.jsp">
-								 	취소
-								</a>
+							<button type="button" onclick="goBack()" class="btn btn-warning">
+								취소
 							</button>
 						</div>
 						<div style="float:right;">
