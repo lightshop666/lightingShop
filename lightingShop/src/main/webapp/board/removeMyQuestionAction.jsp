@@ -7,7 +7,7 @@
 	String msg = null;
 	if(request.getParameterValues("qNo") == null) {
 		msg = URLEncoder.encode("문의글이 선택되지 않았습니다", "utf-8");
-		response.sendRedirect(request.getContextPath() + "/board/myQuestionList.jsp");
+		response.sendRedirect(request.getContextPath() + "/board/myQuestionList.jsp?msg=" + msg);
 		return;
 	}
 	// 세션정보 // 세션정보가 없거나 일치하지 않으면 home으로
@@ -29,7 +29,7 @@
 			System.out.println(intCkQno[i]); // 디버깅
 		}
 	}
-	
+	System.out.println(2);
 	// DELETE 메서드 호출
 	BoardDao dao = new BoardDao();
 	int row = dao.deleteQuestion(intCkQno);

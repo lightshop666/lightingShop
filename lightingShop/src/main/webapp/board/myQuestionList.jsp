@@ -9,7 +9,7 @@
 	// 1. 유효성 검사
 	// 1-1) 세션정보
 	if(session.getAttribute("loginIdListId") == null) {
-		response.sendRedirect(request.getContextPath() + "home.jsp");
+		response.sendRedirect(request.getContextPath() + "/home.jsp");
 		return;
 	}
 	String loginId = (String)session.getAttribute("loginIdListId");
@@ -208,72 +208,74 @@
                     </div>
                 </div>
 				<!-- 문의글 리스트 출력 -->
-				<table class="table">
-					<thead class="table-dark">
-						<tr>
-							<th>
-								<input type='checkbox' name='qNo' onclick='selectAll(this)'/>
-								전체선택
-							</th>
-							<th>문의유형</th>
-							<th>작성자</th>
-							<th>제목</th>
-							<th>문의날짜</th>
-							<th>문의상태</th>
-						</tr>
-					</thead>
-					<tbody>
-						<form action="<%=request.getContextPath()%>/board/removeMyQuestionAction.jsp" method="post">
-						<input type="hidden" name="id" value="<%=loginId%>">
-						<%
-							for(Question q : list) {
-						%>
-								<tr>
-									<td>
-										<input type='checkbox' name='qNo' value='<%=q.getqNo()%>'/>
-									</td>
-									<td>[<%=q.getqCategory()%>]</td>
-									<td><h6><%=q.getqName()%></h6></td>
-									<td>
-										<a href="<%=request.getContextPath()%>/board/questionOne.jsp?qNo=<%=q.getqNo()%>">
-											<%=q.getqTitle()%>
+				<form action="<%=request.getContextPath()%>/board/removeMyQuestionAction.jsp" method="post">
+				<input type="hidden" name="loginId" value="<%=loginId%>">
+					<table class="table">
+						<thead class="table-dark">
+							<tr>
+								<th>
+									<input type='checkbox' name='qNo' onclick='selectAll(this)'/>
+									전체선택
+								</th>
+								<th>문의유형</th>
+								<th>작성자</th>
+								<th>제목</th>
+								<th>문의날짜</th>
+								<th>문의상태</th>
+							</tr>
+						</thead>
+						<tbody>
+							<%
+								for(Question q : list) {
+							%>
+									<tr>
+										<td>
+											<input type='checkbox' name='qNo' value='<%=q.getqNo()%>'/>
+										</td>
+										<td>[<%=q.getqCategory()%>]</td>
+										<td><h6><%=q.getqName()%></h6></td>
+										<td>
+											<a href="<%=request.getContextPath()%>/board/questionOne.jsp?qNo=<%=q.getqNo()%>">
+												<%=q.getqTitle()%>
+												<%
+													if(q.getPrivateChk().equals("Y")) {
+												%>
+														&#x1F512;
+												<%
+													}
+												%>
+											</a>
+										</td>
+										<td><%=q.getCreatedate().substring(0,10)%></td>
+										<td>
 											<%
-												if(q.getPrivateChk().equals("Y")) {
-											%>
-													&#x1F512;
+												if(q.getaChk().equals("Y")) {
+											%>	
+													<h6><span class="badge bg-primary">답변완료</span></h6>
+											<%
+												} else {
+											%>		
+													<h6><span class="badge bg-danger">답변대기</span></h6>
 											<%
 												}
 											%>
-										</a>
-									</td>
-									<td><%=q.getCreatedate().substring(0,10)%></td>
-									<td>
-										<%
-											if(q.getaChk().equals("Y")) {
-										%>	
-												<h6><span class="badge bg-primary">답변완료</span></h6>
-										<%
-											} else {
-										%>		
-												<h6><span class="badge bg-danger">답변대기</span></h6>
-										<%
-											}
-										%>
-									</td>
-								</tr>
-						<%
-							}
-						%>
-					</tbody>
-				</table>
-				<%
-					if(totalRow == 0) {
-				%>
-						문의글이 없습니다
-				<%
-					}
-				%>
-				<button type="submit" onclick="goBack()" class="btn btn-warning">뒤로</button>
+										</td>
+									</tr>
+							<%
+								}
+							%>
+						</tbody>
+					</table>
+					<%
+						if(totalRow == 0) {
+					%>
+							문의글이 없습니다
+					<%
+						}
+					%>
+					<button type="submit" class="btn btn-danger">삭제</button>
+					<button type="submit" onclick="goBack()" class="btn btn-warning">뒤로</button>
+				</form>
 	            <!------------------ 페이지 출력부 ------------------>
                 <div class="row">
                     <div class="col-12">
