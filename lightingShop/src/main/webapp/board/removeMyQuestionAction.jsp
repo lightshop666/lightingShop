@@ -29,7 +29,6 @@
 			System.out.println(intCkQno[i]); // 디버깅
 		}
 	}
-	System.out.println(2);
 	// DELETE 메서드 호출
 	BoardDao dao = new BoardDao();
 	int row = dao.deleteQuestion(intCkQno);
