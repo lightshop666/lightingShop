@@ -202,16 +202,16 @@
 		
 	</style>
 	
-	<!-- BootStrap5 -->
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-   
    <!-- Favicon  -->
    <link rel="icon" href="<%=request.getContextPath()%>/resources/img/core-img/favicon.ico">
    
    <!-- Core Style CSS -->
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/core-style.css">
    <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
+   
+	<!-- BootStrap5 -->
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
    
 </head>
 <body>
@@ -374,7 +374,6 @@
 								<% 
 								} 
 								%>
-        					</form>
 						</div>
     				</div>
  					<div class="col-12 col-lg-4">
@@ -406,7 +405,7 @@
 							<input type="hidden" name="customerName" value="<%= customerInfo.get("c.cstm_name") %>">
 							<input type="hidden" name="customerPhone" value="<%= customerInfo.get("c.cstm_phone") %>">
 							<input type="hidden" name="customerAddress" value="<%= customerInfo.get("c.cstm_address") %>">
-
+					
 <!-- 최종 결제 금액 -->
 							<div class="cart-summary">
 								최종 결제 금액
@@ -428,6 +427,7 @@
 							<span id="pointByOrder"></span>점 적립 예정입니다.
 						</div>
       				</div>
+      				</form>
     			</div>
 			</div>
 		</div>
