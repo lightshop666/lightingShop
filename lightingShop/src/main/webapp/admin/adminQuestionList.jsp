@@ -292,7 +292,7 @@
 				}else{
 		%>
 				<li class="page-item">
-					<a class="page-link" href="<%=request.getContextPath()%>/admin/adminQuestionList.jsp?currentPage=<%=i%>&rowPerPage=<%=rowPerPage%>&qCategory=<%=qCategory%>&searchCategory=<%=searchCategory%>&searchWord=<%=searchWord%>&aChk=<%=aChk%>"><%=i %></a>
+					<a class="page-link" href="<%=request.getContextPath()%>/admin/adminQuestionList.jsp?currentPage=<%=i%>&rowPerPage=<%=rowPerPage%>&qCategory=<%=qCategory%>&searchCategory=<%=searchCategory%>&searchWord=<%=searchWord%>&aChk=<%=aChk%>"><%=i%></a>
 				</li>
 		<%
 				}
@@ -301,7 +301,7 @@
 			if(maxPage != lastPage ){
 		%>
 			<li class="page-item">	
-				<a href="<%=request.getContextPath()%>/admin/adminQuestionList.jsp?currentPage=<%=minPage+1%>&rowPerPage=<%=rowPerPage%>&qCategory=<%=qCategory%>&searchCategory=<%=searchCategory%>&searchWord=<%=searchWord%>&aChk=<%=aChk%>">다음</a>
+				<a href="<%=request.getContextPath()%>/admin/adminQuestionList.jsp?currentPage=<%=maxPage+1%>&rowPerPage=<%=rowPerPage%>&qCategory=<%=qCategory%>&searchCategory=<%=searchCategory%>&searchWord=<%=searchWord%>&aChk=<%=aChk%>">다음</a>
 			</li>
 		<%
 			}
