@@ -44,7 +44,7 @@
 	// 로그인 상태이면 아이디, 회원등급 저장
 	String loginId = "";
 	String loginRank = "";
-	if(session.getAttribute("loginIdListId") != null) {
+	if(session.getAttribute("loginIdListId") != null && session.getAttribute("loginIdListRank") != null) {
 		loginId = (String)session.getAttribute("loginIdListId");
 		loginRank = (String)session.getAttribute("loginIdListRank");
 	}
