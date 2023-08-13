@@ -69,14 +69,14 @@ https://docs.google.com/spreadsheets/d/e/2PACX-1vSRlKdgUFOiP9Vg3PjXlUi2vqOFr-xSj
 	- 문의
 	- 마이페이지-내 문의
 3-3)이정환
--admin cart
-	-관리자 메인
-	-상품관리
+-admin(관리자페이지)
+	-상품관리(리스트, 수정&삭제&추가 외 기타(검색,활성화 등) 기능)
 	-회원관리
-	-수정페이지
+	-주문관리
 	-직원관리
+ 	-할인관리
 	-포인트 관리
-	-cart 리스트	
+- 쇼핑몰 장바구니 기능(비회원 장바구니,회원장바구니)	
 3-4)장우정
 -order, review 위주
 	- 리뷰 게시판
