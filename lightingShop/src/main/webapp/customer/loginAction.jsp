@@ -37,7 +37,7 @@
 	HashMap<String, Object> loginIdList = cDao.loginMethod(idList);
 	cDao.lastLoginUpdate(idList); // 마지막 로그인시간 업데이트
 	
-	System.out.println(id + " " + lastPw); // 디버깅
+	System.out.println(loginIdList.get("id") + " " + loginIdList.get("lastPw")); // 디버깅
 	System.out.println(loginIdList.get("active")); // 디버깅
 	System.out.println(loginIdList.get("empLevel")); // 디버깅
 	
@@ -104,7 +104,6 @@
 						System.out.println(thisProductNo+"번 품목이 장바구니에 추가되었습니다.");
 					}
 				}
-				
 				// 비회원 세션 삭제
 				session.removeAttribute("cart"); 
 			}

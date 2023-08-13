@@ -141,43 +141,48 @@
 									<%
 										}
 									%>
-								</table>	
-									<div class="oneMusic-pagination-area">
-										<ul class="pagination">
-										<%
-											if (minPage > 1) {
-										%>
-												<li class="page-item">
-												<a class="page-link" href="<%=request.getContextPath()%>/customer/customerPointList.jsp?currentPage=<%=minPage-1%>">이전</a>
-												</li>
-										<%	
-											}
-											for(int i=minPage; i <= maxPage; i=i+1){
-												if ( i == currentPage){		
-										%>
-												<li class="page-item">
-													<strong class="page-link"><%=i %></strong>
-												</li>
-										<%
-												}else{
-										%>
-												<li class="page-item">
-													<a class="page-link" href="<%=request.getContextPath()%>/customer/customerPointList.jsp?currentPage=<%=i%>"><%=i %></a>
-												</li>
-										<%
-												}
-											}
-										
-											if(maxPage != lastPage ){
-										%>
-											<li class="page-item">
-												<a class="page-link" href="<%=request.getContextPath()%>/customer/customerPointList.jsp?currentPage=<%=minPage+1%>">다음</a>
-											</li>
-										<%
-											}
-										%>
-								      	
-										</ul>
+								</table>
+									<div class="pagination mt-50" style="display: flex; justify-content: center;">
+									    <!-- 페이징 -->
+									    <div class="col-12">
+									        <nav aria-label="navigation">
+												<ul class="pagination justify-content-center">
+												<%
+													if (minPage > 1) {
+												%>
+														<li class="page-item">
+														<a class="page-link" href="<%=request.getContextPath()%>/customer/customerPointList.jsp?currentPage=<%=minPage-1%>">이전</a>
+														</li>
+												<%	
+													}
+													for(int i=minPage; i <= maxPage; i=i+1){
+														if ( i == currentPage){		
+												%>
+														<li class="page-item">
+															<strong class="page-link"><%=i %></strong>
+														</li>
+												<%
+														}else{
+												%>
+														<li class="page-item">
+															<a class="page-link" href="<%=request.getContextPath()%>/customer/customerPointList.jsp?currentPage=<%=i%>"><%=i %></a>
+														</li>
+												<%
+														}
+													}
+												
+													if(maxPage != lastPage ){
+												%>
+													<li class="page-item">
+														<a class="page-link" href="<%=request.getContextPath()%>/customer/customerPointList.jsp?currentPage=<%=minPage+1%>">다음</a>
+													</li>
+												<%
+													}
+												%>
+										      	
+												</ul>
+											</nav>
+										</div>
 									</div>
 									<div class="row">
 								      	<div class="col-auto mr-auto">	

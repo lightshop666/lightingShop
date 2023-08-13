@@ -94,7 +94,7 @@
 				                    <div class="font-bold pb-3">
 										기본배송지
 									</div>
-				                    <div>
+				                    <div class="select-style">
 				                 		<select name="defaultAddress">
 											<option value="<%=myAddress.getDefaultAddress() %>"><%=myAddress.getDefaultAddress() %></option>
 											<option value="Y">기본배송지로 선택</option>
@@ -110,10 +110,10 @@
 									
 								    <div>
 										<!-- 카카오 다음 우편번호 서비스 JS API -->
-											<div class="ml-4 text-left">
-											<input class="mr-3 mb-1" type="text" name ="sample3Postcode" id="sample3_postcode" placeholder="우편번호" readonly="readonly" value="<%=myAddress.getAddress().substring(0, 4) %>">
+											<div class="ml-4 text-left text-center">
+											<input class="mr-3 mb-1" style="width:272px;" type="text" name ="sample3Postcode" id="sample3_postcode" placeholder="우편번호" readonly="readonly">
 											<input class="ml-2 mb-1" type="button" onclick="sample3_execDaumPostcode()" value="우편번호 찾기"><br>
-											<input class="mb-1" style="width:260px;" type="text" name ="sample3Address" id="sample3_address" placeholder="주소" value="<%=myAddress.getAddress().substring(6) %>"><br>
+											<input class="mb-1" style="width:405px;" type="text" name ="sample3Address" id="sample3_address" placeholder="주소"><br>
 											<input class="mb-1" style="width:260px;" type="text" name ="sample3DetailAddress" id="sample3_detailAddress" placeholder="상세주소">
 											<input class="mb-1" style="width:140px;" type="text" id="sample3_extraAddress" placeholder="참고항목">
 											</div>
@@ -201,8 +201,8 @@
 											<input type="hidden" name="address" id="addressInput">
 										</div>
 										<div>
-											<button id="addressAddBtn" type="submit" class="btn btn-sm btn-outline-danger mt-3">변경</button>
 											<a class="btn btn-sm btn-outline-dark mt-3" href="<%=request.getContextPath()%>/customer/addressList.jsp">취소</a>
+											<button id="addressAddBtn" type="submit" class="btn btn-sm btn-outline-danger mt-3">변경</button>
 										</div>
 									</form>	
 								

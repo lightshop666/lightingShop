@@ -105,8 +105,8 @@
 										</div>
 										<br>
 										<div>
-											<button type="submit" id="removeBtn" class="btn btn-sm btn-outline-danger" onclick="<%=request.getContextPath()%>/customer/removeCustomerAction.jsp">탈퇴</button>
 											<a class="btn btn-sm btn-outline-dark" href="<%=request.getContextPath()%>/customer/customerOne.jsp">취소</a>
+											<button type="submit" id="removeBtn" class="btn btn-sm btn-outline-danger" onclick="<%=request.getContextPath()%>/customer/removeCustomerAction.jsp">탈퇴</button>
 										</div>
 									</form>
 										

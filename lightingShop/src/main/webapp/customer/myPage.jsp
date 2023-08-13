@@ -101,6 +101,15 @@
 		margin-left: 300px;
 	}
 	
+	.btn-container {
+	    display: flex;
+	    justify-content: space-between;
+  	}
+	
+	 .btn-spacing {
+	    margin-right: 10px; /* 원하는 간격(px)으로 설정 */
+	  }
+	  
 </style>
 </head>
 <body>
@@ -214,11 +223,11 @@
 										          	
 										          	<div style="width: 18%; position: relative; display:inline-block; vertical-align: top; font-size: 15px;">
 										            <span><%=status%></span> <br>
-											            <div style="position: absolute; right: 90px;">
+											            <div style="display: inline-block; font-size: 20px !important;">
 											            <% if(found) { %>
-											              <span style='font-size: 20px !important;'><%=count %> 건</span>
+											              <span ><%=count %> 건</span>
 											            <% } else { %>
-											              <span style='font-size: 20px !important;'>0 건</span>
+											              <span >0 건</span>
 											            <% } %> 
 											            </div>
 													</div>
@@ -241,7 +250,7 @@
 													%>
 													<div style="font-size: 15px; position: relative;">
 													<span>취소완료/교환중</span> <br>
-							                    	<div style="position: absolute; right: 175px;"><span><%=totalCancelledOrExchanged %> 건</span></div>
+							                    	<div style="display: inline-block; font-size: 20px !important;"><span><%=totalCancelledOrExchanged %> 건</span></div>
 							                    	</div>
 						                    </div>
 						                </div>
@@ -304,13 +313,87 @@
 										<input type="hidden" name="active" value="<%=loginIdList.get("active")%>">
 										<input type="hidden" name="empLevel" value="<%=loginIdList.get("empLevel")%>">
 										<!-- Input Fields for ID and Password-->
-								        <input type ='text' class = 'form-control my-input-field' id ='id' name = 'id' required placeholder="아이디">
+								        <input type ='text' class = 'form-control my-input-field' id ='id' name = 'id' value="user1" required placeholder="아이디">
 								        <span id="idMsg" class="msg"></span>
-								        <input type ='password' class = 'form-control my-input-field' id ='lastPw' name = 'lastPw' required placeholder="비밀번호는 4자"><br>
+								        <input type ='password' class = 'form-control my-input-field' id ='lastPw' name = 'lastPw' value="1234" required placeholder="비밀번호는 4자"><br>
 								        <span id="lastPwMsg" class="msg"></span>
 										<button type="submit" class="btn btn-warning btn-lg mt-6" id="signBtn">로그인</button>
 									</form>
 									<a href="<%=request.getContextPath()%>/customer/addCustomer.jsp">회원가입</a>
+										<ul class="btn-container">
+											<li onclick="kakaoLogin();">
+										      <a href="javascript:void(0)">
+										          <span class="btn btn-warning btn-lg mt-6 btn-spacing">카카오 로그인</span>
+										      </a>
+											</li>
+											<!-- <li onclick="kakaoLogout();">
+										      <a href="javascript:void(0)">
+										          <span class="btn btn-warning btn-lg mt-6">카카오 로그아웃</span>
+										      </a>
+											</li> -->
+										</ul>
+									<!-- 카카오 스크립트 -->
+									<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+									<script>
+									Kakao.init('6963af56f898547112634b293994fc5e'); //발급받은 키 중 javascript키를 사용해준다.
+									console.log(Kakao.isInitialized()); // sdk초기화여부판단
+									//카카오로그인
+									function kakaoLogin() {
+									    Kakao.Auth.login({
+									    scope: 'account_email, gender, age_range, birthday',
+									    success: function(authObj) {
+							                console.log(authObj)
+									        Kakao.API.request({
+									          url: '/v2/user/me',
+									          success: function (response) {
+									        	  const kakao_account = response.kakao_account;
+							                        console.log(kakao_account);
+							                        const userEmail = kakao_account.email;
+							                        createHiddenFormAndSubmit(userEmail);
+									          },
+									          fail: function (error) {
+									            console.log(error)
+									          },
+									        })
+									      },
+									      fail: function (error) {
+									        console.log(error)
+									      },
+									    })
+									  }
+									
+									function createHiddenFormAndSubmit(userEmail) {
+								        const form = $('<form>', {
+								            action: '<%=request.getContextPath()%>/customer/kakaoLoginAction.jsp',
+								            method: 'post'
+								        });
+
+								        $('<input>').attr({
+								            type: 'hidden',
+								            name: 'id',
+								            value: userEmail
+								        }).appendTo(form);
+
+								        form.appendTo('body').submit();
+								    }
+									
+									//카카오로그아웃  
+									function kakaoLogout() {
+									    if (Kakao.Auth.getAccessToken()) {
+									      Kakao.API.request({
+									        url: '/v1/user/unlink',
+									        success: function (response) {
+									        	console.log(response)
+									        },
+									        fail: function (error) {
+									          console.log(error)
+									        },
+									      })
+									      Kakao.Auth.setAccessToken(undefined)
+									    }
+									  }  
+									</script>
+									
 								</div>
 	                        </div>
 	                	</div>
@@ -329,6 +412,8 @@
 		<jsp:include page="/inc/footer.jsp"></jsp:include>
 	</div>
 
+	<!--KAKAO LOGIN API -->
+	<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
     <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
     <script src="<%=request.getContextPath()%>/resources/js/jquery/jquery-2.2.4.min.js"></script>
     <!-- Popper js -->

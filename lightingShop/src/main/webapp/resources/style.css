@@ -40,6 +40,7 @@
 	    border-radius: 0; }
 	    .login-content .form-control:focus {
 	      box-shadow: none; }  
+	  
 	
 	/* :: 2.0 pagination Area CSS */      
 	.oneMusic-pagination-area .pagination .page-item .page-link {
@@ -50,11 +51,11 @@
 	  color: #5f5f5f;
 	  font-size: 16px;
 	  font-weight: 400;
-	  width: 34px;
+	 /*  width: 34px; */
 	  height: 34px;
 	  line-height: 32px;
 	  text-align: center;
-	  margin-right: 10px; }
+	  /* margin-right: 10px; */ }
 	.oneMusic-pagination-area .pagination .page-item .page-link:hover, .oneMusic-pagination-area .pagination .page-item .page-link:focus {
       color: #000000;
       border: 1px solid #000000; }
@@ -103,4 +104,42 @@
 
 .cart-title h2 {
   margin-bottom: 20px;
+}
+
+.table-centered {
+    margin: 0 auto;
+    text-align: center;
+}
+.table-centered tbody tr td {
+    text-align: center;
+}
+
+.select-style {
+    position: relative;
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+
+.select-style select {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    font-size: 14px;
+    border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+}
+
+.select-style select::-ms-expand {
+    display: none;
+}
+
+.select-style select:focus {
+    outline: none;
+    border-color: #007bff;
 }

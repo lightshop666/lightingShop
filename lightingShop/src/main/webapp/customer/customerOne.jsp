@@ -89,80 +89,84 @@
         <div class="products-catagories-area clearfix">
             <div class="amado-pro-catagory clearfix">
 
-				 <!-- [시작] 고객상세정보 출력 -->
-				 <section class=" login-area section-padding-100-0">
-			        <div class="container">
-			            <div class="row justify-content-center">
-			                <div class="col-12 col-lg-8">
-			                	<div class="login-content" >
-			                  
-								<h3>개인정보 관리</h3>
-								
-								<div class="font-bold mb-5">
-									<%=customerOne.get("c.cstm_name")%>(<%=customerOne.get("c.id")%>)님 반갑습니다.
-								</div>
-								
-								<div class="row">
-						    		<div class="col">
-							    		<div>
-											보유 포인트 : <%=customerOne.get("c.cstm_point")%>
-										</div>
-										<div>
-											등급 : <%=customerOne.get("c.cstm_rank")%>
-										</div>
-										<div class="mt-3">
-											가입날짜 : <%=customerOne.get("c.createdate").toString().substring(0, 10)%>
-										</div>
-										<div>
-											전화번호 : <%=customerOne.get("c.cstm_phone")%>
-										</div>
-										<div>
-											생년월일 : <%=customerOne.get("c.cstm_birth")%>
-										</div>
-										<div>
-											이메일 : <%=customerOne.get("c.cstm_email")%>
-										</div>
-										<div>
-											마지막 로그인 시간 : <br> <%=customerOne.get("c.cstm_last_login")%>
-										</div>
-							    	</div>
-							    	<div class="col text-right">
-							    		<div>
-											<a class="btn btn-sm btn-outline-dark" href='<%=request.getContextPath()%>/customer/modifyCustomer.jsp'">회원정보수정</a>
-										</div>
-										<div class="mt-3">
-											<a class="btn btn-sm btn-outline-dark" href='<%=request.getContextPath() %>/customer/removeCustomer.jsp'">회원탈퇴</a>
-										</div>
-							    	</div>
-							    </div>       
-								
-								<hr>
-								
-								<!-- 기본배송지는 1개만 설정가능 기본배송지만 출력 -->
-								<div class="font-bold pb-3" >
-									기본배송지
-								</div>
-								
-								<%
-									for(Address a : list) {
-										if(a.getDefaultAddress().equals("Y")) {
-								%>
-									<div>
-										배송지명 : <%=customerOne.get("a.address_name")%>
+				<section class="login-area section-padding-100-0">
+				    <div class="container">
+				        <div class="row justify-content-center">
+				            <div class="col-12 col-lg-8">
+				                <div class="login-content text-center">
+				                    <h3>개인정보 관리</h3>
+				                    <div class="font-bold mb-5">
+				                        <%=customerOne.get("c.cstm_name")%>(<%=customerOne.get("c.id")%>)님 반갑습니다.
+				                    </div>
+				                    <div class="row">
+									    <div class="col">
+									        <table class="table-centered">
+									            <tbody>
+									                <tr>
+									                    <td>보유 포인트:</td>
+									                    <td><%=customerOne.get("c.cstm_point")%></td>
+									                </tr>
+									                <tr>
+									                    <td>등급:</td>
+									                    <td><%=customerOne.get("c.cstm_rank")%></td>
+									                </tr>
+									                <tr>
+									                    <td>가입날짜:</td>
+									                    <td><%=customerOne.get("c.createdate").toString().substring(0, 10)%></td>
+									                </tr>
+									                <tr>
+									                    <td>전화번호:</td>
+									                    <td><%=customerOne.get("c.cstm_phone")%></td>
+									                </tr>
+									                <tr>
+									                    <td>생년월일:</td>
+									                    <td><%=customerOne.get("c.cstm_birth")%></td>
+									                </tr>
+									                <tr>
+									                    <td>이메일:</td>
+									                    <td><%=customerOne.get("c.cstm_email")%></td>
+									                </tr>
+									                <tr>
+									                    <td>마지막 로그인 시간:</td>
+									                    <td><%=customerOne.get("c.cstm_last_login")%></td>
+									                </tr>
+									            </tbody>
+									        </table>
+									    </div>
 									</div>
-									<div>
-										주소 : <%=customerOne.get("c.cstm_address")%>
-									</div>
-								<%
-										} 
-									}
-								%>
-								
-								</div>
-		                	</div>
-						</div>
-					</div>
-				</section>	<!-- [끝] 고객상세정보 출력 -->	
+				                    <hr>
+				                    <!-- 기본배송지는 1개만 설정가능 기본배송지만 출력 -->
+				                    <div class="font-bold pb-3">
+				                        기본배송지
+				                    </div>
+				                    <div class="row">
+				                        <div class="col">
+				                            <%
+				                                for(Address a : list) {
+				                                    if(a.getDefaultAddress().equals("Y")) {
+				                            %>
+				                            <div>
+				                                배송지명: <%=customerOne.get("a.address_name")%>
+				                            </div>
+				                            <div>
+				                                주소: <%=customerOne.get("c.cstm_address")%>
+				                            </div>
+				                            <div class="mt-3">
+				                                <a class="btn btn-sm btn-outline-dark" href='<%=request.getContextPath() %>/customer/removeCustomer.jsp'">회원탈퇴</a>
+				                                <a class="btn btn-sm btn-outline-dark" href='<%=request.getContextPath()%>/customer/modifyCustomer.jsp'">회원정보수정</a>
+				                            </div>
+				                            <%
+				                                } 
+				                            }
+				                            %>
+				                        </div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+				    </div>
+				</section>
+				
             </div>
         </div>
         <!-- Product Catagories Area End -->

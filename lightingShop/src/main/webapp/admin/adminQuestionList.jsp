@@ -81,7 +81,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>adminQuestion</title>
 <!-- Latest compiled and minified CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- Latest compiled JavaScript -->
@@ -187,6 +187,7 @@
 		<table class="table">
 			<tr>
 				<td> <!-- 문의 유형 카테고리 선택 -->
+					문의유형 :
 					<select name="qCategory" onchange="this.form.submit()"> <!-- 옵션 선택시 바로 submit -->
 						<option value="" <%if(qCategory.equals("")) {%> selected <%}%>>전체보기</option>
 						<option value="상품" <%if(qCategory.equals("상품")) {%> selected <%}%>>상품</option>
@@ -197,6 +198,7 @@
 					</select>
 				</td>
 				<td> <!-- 답변 유무 선택 -->
+					답변유무 :
 					<select name="aChk" onchange="this.form.submit()"> <!-- 옵션 선택시 바로 submit -->
 						<option value="" <%if(aChk.equals("")) {%> selected <%}%>>전체보기</option>
 						<option value="Y" <%if(aChk.equals("Y")) {%> selected <%}%>>답변완료</option>

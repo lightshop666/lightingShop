@@ -135,6 +135,8 @@ public class CustomerDao {
 			loginIdList.put("empLevel", rs.getString("empLevel")); // 레벨 권한 
 		}
 		
+		// System.out.println(loginIdList.get("id")+"<- loginMethod loginIdList id");
+		
 		return loginIdList;
 	}
 	
@@ -155,6 +157,26 @@ public class CustomerDao {
 		modifyLastLogin = stmt.executeUpdate();
 		
 		return modifyLastLogin;
+	}
+	
+	// 2-2) 카카오톡 로그인시 DB id_list에 값 있는지 확인
+	public HashMap<String, Object> checkIdkakao(IdList idList) throws Exception {
+		
+		// 반환 객체 생성
+		HashMap<String, Object> loginIdList = new HashMap<>();
+		
+		DBUtil dbUtil = new DBUtil(); 
+		Connection conn =  dbUtil.getConnection();
+		String sql = "SELECT id FROM id_list WHERE id = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, idList.getId());
+		ResultSet rs = stmt.executeQuery();
+		// DB에 내용을 map 저장
+		if(rs.next()) {
+			loginIdList.put("id", rs.getString("id"));
+		}
+		// System.out.println(loginIdList.get("id"));
+		return loginIdList;
 	}
 	
 	// 3-1) 회원정보 수정 - id_list(id 수정불가)

@@ -42,6 +42,58 @@
     <link rel="stylesheet" href="<%=request.getContextPath()%>/resources/style.css">
     
 </head>
+<style>
+	
+	.modiCus-content {
+		width: 440px;
+		padding: 20px;
+		background-color: #f5f9fa;
+		border-radius: 5px;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+	}
+	.modiCus-content h2 {
+		text-align: left;
+		margin-top: 0;
+	}
+	.modiCus-content form {
+		display: flex;
+		flex-direction: column;
+	}
+	.modiCus-content table {
+		
+	}
+	
+	.modiCus-content input[type="text"],
+	.modiCus-content input[type="password"],
+	.modiCus-content input[type="email"],
+	.modiCus-content input[type="date"]
+	{
+		margin-bottom: 10px;
+		padding: 8px;
+		border-radius: 3px;
+		border: 1px solid #ccc;
+		width:400px;
+	}
+	
+	.modiCus-content select {
+		margin-bottom: 10px;
+		padding: 8px;
+		border-radius: 3px;
+		border: 1px solid #ccc;
+	}
+	
+	.modiCus-content input[type="submit"] {
+		padding: 8px 12px;
+		border: none;
+		border-radius: 3px;
+		background-color: #3f51b5;
+		color: #fff;
+		cursor: pointer;
+	}
+	.modiCus-content input[type="submit"]:hover {
+		background-color: #303f9f;
+	}
+</style>
 <body>
 
 <!-- Search Wrapper Area Start -->
@@ -80,16 +132,16 @@
 			        <div class="container">
 			            <div class="row justify-content-center">
 			                <div class="col-12 col-lg-8">
-			                	<div class="login-content">
+			                	<div class="modiCus-content">
 			                  
-								<h3>회원정보 수정</h3>
+								<h3 class="text-center">회원정보 수정</h3>
 	 
 								 <!-- 회원정보 수정 -->
 								 <form action="<%=request.getContextPath()%>/customer/modifyCustomerAction.jsp" method="post">
 								 	<input type="hidden" id="updatedate" name="updatedate">
 								 	<!-- 기존 주소 그대로 넘기기 -->
 								 	<input type="hidden" name="cstmAddress" value="<%=customerOne.get("c.cstm_address") %>">
-									<table class="table">
+									<table class="table-centered">
 										<tr>
 											<td>
 												<input type="password" id="lastPw" name="lastPw" placeholder="기존 비밀번호">
@@ -128,7 +180,6 @@
 										</tr>
 										<tr>
 											<td>
-												성별을 선택하세요
 												<select name="cstmGender">
 												<option value="<%=customerOne.get("c.cstm_gender")%>"><%=customerOne.get("c.cstm_gender") %></option>
 												<option value="남성">남성</option>
@@ -137,9 +188,10 @@
 											</td>
 										</tr>
 									</table>
-									<div>
-										<button type="submit" id="modifyBtn" class="btn btn-sm btn-outline-danger" onclick="<%=request.getContextPath()%>/customer/modifyCustomerAction.jsp">수정</button>
+									<br>
+									<div class="text-center">
 										<a class="btn btn-sm btn-outline-dark" href="<%=request.getContextPath()%>/customer/customerOne.jsp">취소</a>
+										<button type="submit" id="modifyBtn" class="btn btn-sm btn-outline-danger" onclick="<%=request.getContextPath()%>/customer/modifyCustomerAction.jsp">수정</button>
 									</div>
 								</form>
 								

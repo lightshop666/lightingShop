@@ -126,7 +126,7 @@
 			                <div class="col-12 col-lg-10">
 			                	<div class="addCustomer">
 			                  		<div class="addCus-content">
-					                  <h2>회원 가입</h2>
+					                  <h2 class="text-center">회원 가입</h2>
 										<br>
 										<form id="addressAddForm" action="<%=request.getContextPath()%>/customer/addCustomerAction.jsp" method="post">
 											<input type="hidden" name="cstmRank" value="동">
